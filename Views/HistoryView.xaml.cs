@@ -92,12 +92,16 @@ public partial class HistoryView : UserControl
 
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement element || element.DataContext is not DownloadItem item ||
-            DataContext is not HistoryViewModel vm) return;
+        if (sender is not FrameworkElement element || DataContext is not HistoryViewModel vm) return;
 
-        // Popup content lives in a separate WPF presentation tree, so commands bound
-        // through AncestorType=UserControl cannot reliably resolve. Execute explicitly.
-        switch (element.Tag as string)
+        // Popup content is hosted in a separate WPF presentation source, so its item
+        // DataContext may not inherit consistently. Fall back to the currently open row.
+        var item = element.DataContext as DownloadItem
+            ?? vm.Items.FirstOrDefault(i => i.IsMenuOpen)
+            ?? vm.PlaylistItems.FirstOrDefault(i => i.IsMenuOpen);
+        if (item == null) return;
+
+        switch (element.Tag?.ToString())
         {
             case "Open": vm.OpenCommand.Execute(item); break;
             case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
