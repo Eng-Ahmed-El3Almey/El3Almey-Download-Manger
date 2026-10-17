@@ -39,9 +39,10 @@
 
       <!-- chips -->
       <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+        <RadioButton GroupName="f" IsChecked="True" Style="{StaticResource Chip}" Content="{Binding AllLabel}" Command="{Binding SetFilterCommand}" CommandParameter="All"/>
         <RadioButton GroupName="f" Style="{StaticResource Chip}" Content="{Binding DownloadingLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Downloading"/>
         <RadioButton GroupName="f" Style="{StaticResource Chip}" Content="{Binding PausedLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Paused"/>
-        <RadioButton GroupName="f" IsChecked="True" Style="{StaticResource Chip}" Content="{Binding FailedLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Failed"/>
+        <RadioButton GroupName="f" Style="{StaticResource Chip}" Content="{Binding FailedLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Failed"/>
         <RadioButton GroupName="f" Style="{StaticResource Chip}" Content="{Binding QueuedLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Queued"/>
       </StackPanel>
 
@@ -168,28 +169,28 @@
                               </ControlTemplate>
                             </ToggleButton.Template>
                           </ToggleButton>
-                          <Popup x:Name="DownloadActionPopup" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=MoreBtn}"
+                          <Popup x:Name="DownloadActionPopup" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=MoreBtn}"
                                  Placement="Bottom" StaysOpen="True" AllowsTransparency="True">
                             <Border Width="214" Padding="6" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10">
                               <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.5"/></Border.Effect>
                               <StackPanel>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="OpenFile">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8E5;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.OpenFile}" FontSize="14"/></StackPanel></Button>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="OpenFolder">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.OpenFolder}" FontSize="14"/></StackPanel></Button>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.CopyTitleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="CopyTitle">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.CopyTitle}" FontSize="14"/></StackPanel></Button>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.CopyUrlCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="CopyUrl">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.CopyUrl}" FontSize="14"/></StackPanel></Button>
                                 <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,5"/>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="Retry">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.Retry}" FontSize="14"/></StackPanel></Button>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.AddToQueueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="AddToQueue">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8FD;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.AddToQueue}" FontSize="14"/></StackPanel></Button>
                                 <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,5"/>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.RemoveFromHistoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="RemoveFromHistory">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.RemoveHistory}" FontSize="14"/></StackPanel></Button>
-                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.AskDeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="AskDelete">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" FontSize="15" Width="26" Foreground="{StaticResource Danger}"/>
                                     <TextBlock Text="{DynamicResource S.DeleteFile}" FontSize="14" Foreground="{StaticResource Danger}"/></StackPanel></Button>
                               </StackPanel>
