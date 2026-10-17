@@ -95,8 +95,9 @@ public partial class HistoryViewModel : ObservableObject
     [RelayCommand]
     void ClearAll()
     {
-        if (Items.Count == 0) return;
+        var allHistory = _mgr.Items.Where(i => (!i.IsPlaylist || i.IsPlaylistRepresentative) && (i.Status is DownloadStatus.Completed or DownloadStatus.Failed)).ToList();
+        if (allHistory.Count == 0) return;
         if (Confirm != null && !Confirm(Loc.T("S.ClearConfirm"))) return;
-        _mgr.Remove(Items.ToList(), false);
+        _mgr.Remove(allHistory, false);
     }
 }
