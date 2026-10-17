@@ -44,7 +44,7 @@
               </Setter.Value>
             </Setter>
           </Style>
-        </Button.Style>>
+        </Button.Style>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" Margin="0,0,10,0"/>
           <TextBlock x:Name="NewNameButtonText" Text="Download with a new name"/>
@@ -76,7 +76,7 @@
               </Setter.Value>
             </Setter>
           </Style>
-        </Button.Style>>
+        </Button.Style>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" Margin="0,0,10,0"/>
           <TextBlock x:Name="SkipButtonText" Text="Skip this video"/>
@@ -108,7 +108,7 @@
               </Setter.Value>
             </Setter>
           </Style>
-        </Button.Style>>
+        </Button.Style>
         <TextBlock x:Name="CancelButtonText" Text="Cancel"/>
       </Button>
     </StackPanel>
