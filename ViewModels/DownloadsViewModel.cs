@@ -43,7 +43,7 @@ public partial class DownloadsViewModel : ObservableObject
     public int AllCount => TopLevelItems.Count();
     int Count(DownloadStatus s) => TopLevelItems.Count(i => i.Status == s);
     string L(string key, int n) => $"{Loc.T(key)} ({n})";
-    public string AllLabel => $"All ({AllCount})";
+    public string AllLabel => "All";
     public string DownloadingLabel => L("S.St.Downloading", Count(DownloadStatus.Downloading));
     public string PausedLabel => L("S.St.Paused", Count(DownloadStatus.Paused));
     public string CompletedLabel => L("S.St.Completed", Count(DownloadStatus.Completed));
