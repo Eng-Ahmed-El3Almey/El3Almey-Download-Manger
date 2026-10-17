@@ -41,6 +41,9 @@ public partial class DownloadsView : UserControl
         DependencyObject? current = e.OriginalSource as DependencyObject;
         while (current != null)
         {
+            // Do not close the Popup before its Button.Click handler can execute.
+            if (current is Button menuButton && IsMenuAction(menuButton.Tag?.ToString())) return;
+
             if (current is ToggleButton toggle)
             {
                 CloseAllMenusExcept(toggle.DataContext as DownloadItem);
@@ -119,8 +122,11 @@ public partial class DownloadsView : UserControl
         return null;
     }
 
+    static bool IsMenuAction(string? tag) => tag is "OpenFile" or "OpenFolder" or "CopyTitle" or "CopyUrl" or "Retry" or "AddToQueue" or "RemoveFromHistory" or "AskDelete";
+
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         if (sender is not FrameworkElement element || DataContext is not DownloadsViewModel vm) return;
 
         // WPF Popup content is hosted in a separate presentation source. Resolve the
