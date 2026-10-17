@@ -38,6 +38,7 @@ public class DownloadManager
 {
     public ObservableCollection<DownloadItem> Items { get; } = new();
     public event Action? Changed;                                  // list or a status changed
+    public event Action<DownloadItem>? DownloadCompleted;
     public event Action<DownloadItem, string>? ItemChanged;        // any property of any item
 
     readonly Dictionary<Guid, CancellationTokenSource> _running = new();
@@ -289,6 +290,7 @@ public class DownloadManager
             it.Progress = 100;
             it.FinishedAt = DateTime.Now;
             it.Status = DownloadStatus.Completed;
+            DownloadCompleted?.Invoke(it);
         }
         catch (OperationCanceledException)
         {
