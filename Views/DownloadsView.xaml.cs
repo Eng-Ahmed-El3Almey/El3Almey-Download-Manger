@@ -153,8 +153,25 @@ public partial class DownloadsView : UserControl
 
     void PlaylistRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ClickCount != 2 || sender is not FrameworkElement element || element.DataContext is not DownloadItem item || !item.IsPlaylist) return;
-        if (DataContext is DownloadsViewModel vm) vm.OpenPlaylist(item);
-        e.Handled = true;
+        if (e.ClickCount != 2 || sender is not FrameworkElement row || row.DataContext is not DownloadItem item || !item.IsPlaylist)
+            return;
+
+        // Do not treat a double-click on an action button or selection control as a row double-click.
+        for (DependencyObject? current = e.OriginalSource as DependencyObject;
+             current != null && !ReferenceEquals(current, row);)
+        {
+            if (current is ButtonBase || current is TextBoxBase || current is Selector)
+                return;
+
+            DependencyObject? parent = null;
+            try { parent = VisualTreeHelper.GetParent(current); } catch { }
+            current = parent ?? LogicalTreeHelper.GetParent(current);
+        }
+
+        if (DataContext is DownloadsViewModel vm)
+        {
+            vm.OpenPlaylist(item);
+            e.Handled = true;
+        }
     }
 }
