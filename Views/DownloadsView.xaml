@@ -82,7 +82,7 @@
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <Border x:Name="DownloadRow" Height="72" BorderBrush="#263957" BorderThickness="0,0,0,1" PreviewMouseRightButtonDown="DownloadRow_PreviewMouseRightButtonDown">
+                  <Border x:Name="DownloadRow" Height="72" BorderBrush="#263957" BorderThickness="0,0,0,1" PreviewMouseRightButtonDown="DownloadRow_PreviewMouseRightButtonDown" MouseLeftButtonDown="PlaylistRow_MouseLeftButtonDown">
                     <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="#263957"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#1A3155"/><Setter Property="BorderBrush" Value="#4A9BFF"/></Trigger></Style.Triggers></Style></Border.Style>
                     <Grid>
                       <Grid.ColumnDefinitions>
@@ -98,7 +98,7 @@
                           <Border CornerRadius="6"><Border.Background><ImageBrush ImageSource="{Binding Thumbnail}" Stretch="UniformToFill"/></Border.Background></Border>
                         </Border>
                         <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                          <Border MouseLeftButtonDown="PlaylistRow_MouseLeftButtonDown" Background="Transparent"><StackPanel><TextBlock Text="{Binding DisplayTitle}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="330"/>
+                          <Border Background="Transparent"><StackPanel><TextBlock Text="{Binding DisplayTitle}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="330"/>
                           <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                             <Border Background="#E62117" CornerRadius="3" Width="18" Height="13" VerticalAlignment="Center">
                               <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="7" Foreground="White"/></Border>
