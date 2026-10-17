@@ -55,8 +55,7 @@ public partial class MainWindow : Window
         };
         _history = new HistoryViewModel(_manager)
         {
-            Confirm = msg => MessageBox.Show(this, msg, "El3Almey Download Manager", MessageBoxButton.YesNo,
-                                             MessageBoxImage.Question) == MessageBoxResult.Yes
+            Confirm = msg => new ClearHistoryDialog(msg, Loc.Language == "ar") { Owner = this }.ShowDialog() == true
         };
         _settings.PickFolder = PickFolder;
         _settings.PickFile = () =>
