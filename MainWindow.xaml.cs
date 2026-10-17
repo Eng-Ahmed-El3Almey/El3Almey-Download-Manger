@@ -68,8 +68,45 @@ public partial class MainWindow : Window
         _settingsView = new SettingsView { DataContext = _settings };
 
         ShowAdd();                         // the app opens on "Add Video"
-        Closing += (_, _) => _manager.Shutdown();
+        Closing += MainWindow_Closing;
         _manager.Pump();
+    }
+
+    private bool _allowCloseAfterConfirmation;
+    private bool _closeConfirmationOpen;
+
+    private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (_allowCloseAfterConfirmation) { _manager.Shutdown(); return; }
+        bool hasActiveDownloads = _manager.Items.Any(item => item.Status is DownloadStatus.Downloading or DownloadStatus.Queued);
+        if (!hasActiveDownloads) { _manager.Shutdown(); return; }
+        e.Cancel = true;
+        if (_closeConfirmationOpen) return;
+        bool arabic = Loc.Language == "ar";
+        CloseConfirmTitle.Text = arabic ? "التنزيلات ما زالت تعمل" : "Downloads are still active";
+        CloseConfirmMessage.Text = arabic
+            ? "يوجد تنزيلات جارية أو في قائمة الانتظار. هل تريد إيقاف التنزيلات وحفظ حالتها وإغلاق البرنامج؟"
+            : "There are active or queued downloads. Do you want to stop them, save their state, and close the application?";
+        CloseConfirmCancelButton.Content = arabic ? "لا، رجوع" : "No, Go Back";
+        CloseConfirmYesButton.Content = arabic ? "نعم، إغلاق" : "Yes, Close";
+        CloseConfirmOverlay.Visibility = Visibility.Visible;
+        _closeConfirmationOpen = true;
+    }
+
+    private void CloseConfirmCancel_Click(object sender, RoutedEventArgs e)
+    {
+        CloseConfirmOverlay.Visibility = Visibility.Collapsed;
+        _closeConfirmationOpen = false;
+        ShowDownloads();
+    }
+
+    private void CloseConfirmYes_Click(object sender, RoutedEventArgs e)
+    {
+        CloseConfirmOverlay.Visibility = Visibility.Collapsed;
+        _closeConfirmationOpen = false;
+        _allowCloseAfterConfirmation = true;
+        _manager.Shutdown();
+        Close();
     }
 
     string? PickFolder()
