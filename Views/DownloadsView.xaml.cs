@@ -72,7 +72,7 @@ public partial class DownloadsView : UserControl
         var popup = FindChildPopup(row);
         if (popup != null)
         {
-            popup.PlacementTarget = null;
+            popup.PlacementTarget = row;
             popup.Placement = PlacementMode.MousePoint;
         }
         item.IsMenuOpen = true;
@@ -121,11 +121,24 @@ public partial class DownloadsView : UserControl
 
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement element && element.DataContext is DownloadItem item)
+        if (sender is not FrameworkElement element || element.DataContext is not DownloadItem item ||
+            DataContext is not DownloadsViewModel vm) return;
+
+        // Popup content lives in a separate WPF presentation tree, so commands bound
+        // through AncestorType=UserControl cannot reliably resolve. Execute explicitly.
+        switch (element.Tag as string)
         {
-            // Let the Button execute its bound command before closing the popup.
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
+            case "OpenFile": vm.OpenFileCommand.Execute(item); break;
+            case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
+            case "CopyTitle": vm.CopyTitleCommand.Execute(item); break;
+            case "CopyUrl": vm.CopyUrlCommand.Execute(item); break;
+            case "Retry": vm.RetryCommand.Execute(item); break;
+            case "AddToQueue": vm.AddToQueueCommand.Execute(item); break;
+            case "RemoveFromHistory": vm.RemoveFromHistoryCommand.Execute(item); break;
+            case "AskDelete": vm.AskDeleteCommand.Execute(item); break;
         }
+
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
     }
 
     void PlaylistRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
