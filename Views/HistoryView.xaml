@@ -1,6 +1,7 @@
 <UserControl x:Class="El3Almey.Wpf.Views.HistoryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             PreviewMouseDown="UserControl_PreviewMouseDown">
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="B2V"/>
   </UserControl.Resources>
@@ -102,12 +103,12 @@
                       <ToggleButton x:Name="HistoryMoreBtn" IsChecked="{Binding IsMenuOpen, Mode=TwoWay}" Click="HistoryMoreBtn_Click" Width="38" Height="38" Cursor="Hand" ToolTip="More actions" Margin="0,0,0,0">
                         <ToggleButton.Template>
                           <ControlTemplate TargetType="ToggleButton">
-                            <Border x:Name="HistoryMoreBorder" Background="#14243F" BorderBrush="#263D61" BorderThickness="1" CornerRadius="8"><TextBlock Style="{StaticResource Icon}" Text="&#xE712;" FontSize="16"/></Border>
+                            <Border x:Name="HistoryMoreBorder" Background="#14243F" BorderBrush="#263D61" BorderThickness="1" CornerRadius="8"><TextBlock Style="{StaticResource Icon}" Text="⋮" FontFamily="Segoe UI Symbol" Foreground="White" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
                             <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="HistoryMoreBorder" Property="Background" Value="#234675"/><Setter TargetName="HistoryMoreBorder" Property="BorderBrush" Value="#4A9BFF"/></Trigger><Trigger Property="IsChecked" Value="True"><Setter TargetName="HistoryMoreBorder" Property="Background" Value="#1D3D68"/><Setter TargetName="HistoryMoreBorder" Property="BorderBrush" Value="#4A9BFF"/></Trigger></ControlTemplate.Triggers>
                           </ControlTemplate>
                         </ToggleButton.Template>
                       </ToggleButton>
-                      <Popup x:Name="HistoryActionPopup" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=HistoryMoreBtn}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
+                      <Popup x:Name="HistoryActionPopup" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=HistoryMoreBtn}" Placement="Bottom" StaysOpen="True" AllowsTransparency="True">
                         <Border Width="214" Padding="6" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10">
                           <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.5"/></Border.Effect>
                           <StackPanel>
