@@ -1,0 +1,325 @@
+<UserControl x:Class="El3Almey.Wpf.Views.DownloadsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="B2V"/>
+    <GridLength x:Key="ColCheck">40</GridLength>
+    <GridLength x:Key="ColStatus">126</GridLength>
+    <GridLength x:Key="ColProgress">160</GridLength>
+    <GridLength x:Key="ColSize">130</GridLength>
+    <GridLength x:Key="ColActions">260</GridLength>
+
+    <!-- one menu row -->
+    <Style x:Key="MenuRow" TargetType="Button" BasedOn="{StaticResource MenuItemBtn}">
+      <Setter Property="CommandParameter" Value="{Binding}"/>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- header -->
+      <Grid Margin="0,0,0,16">
+        <TextBlock Text="{DynamicResource S.Downloads}" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Style="{StaticResource GhostBtn}" Command="{Binding PauseAllCommand}" Height="50" Width="154" Margin="0,0,16,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource Icon}" Text="&#xE769;" FontSize="16"/>
+              <TextBlock Text="{DynamicResource S.PauseAll}" FontSize="16" Margin="12,0,0,0"/></StackPanel></Button>
+          <Button Style="{StaticResource PrimaryBtn}" Command="{Binding ResumeAllCommand}" Height="50" Width="154">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="16"/>
+              <TextBlock Text="{DynamicResource S.ResumeAll}" FontSize="16" Margin="12,0,0,0"/></StackPanel></Button>
+        </StackPanel>
+      </Grid>
+
+      <!-- chips -->
+      <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+        <RadioButton GroupName="f" Style="{StaticResource Chip}" Content="{Binding DownloadingLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Downloading"/>
+        <RadioButton GroupName="f" Style="{StaticResource Chip}" Content="{Binding PausedLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Paused"/>
+        <RadioButton GroupName="f" IsChecked="True" Style="{StaticResource Chip}" Content="{Binding FailedLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Failed"/>
+        <RadioButton GroupName="f" Style="{StaticResource Chip}" Content="{Binding QueuedLabel}" Command="{Binding SetFilterCommand}" CommandParameter="Queued"/>
+      </StackPanel>
+
+      <!-- table -->
+      <Border Grid.Row="2" Background="{StaticResource SidebarBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12">
+        <Grid>
+          <Grid.RowDefinitions><RowDefinition Height="44"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+          <!-- table header -->
+          <Border BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{StaticResource ColCheck}"/><ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{StaticResource ColStatus}"/><ColumnDefinition Width="{StaticResource ColProgress}"/>
+                <ColumnDefinition Width="{StaticResource ColSize}"/><ColumnDefinition Width="{StaticResource ColActions}"/>
+              </Grid.ColumnDefinitions>
+              <CheckBox IsChecked="{Binding AllSelected}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="1" Text="{DynamicResource S.ColVideo}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="4,0,0,0"/>
+              <TextBlock Grid.Column="2" Text="{DynamicResource S.ColStatus}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="3" Text="{DynamicResource S.ColProgress}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="4" Text="{DynamicResource S.ColSize}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="5" Text="{DynamicResource S.ColActions}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
+            </Grid>
+          </Border>
+
+          <ListBox Grid.Row="1" ItemsSource="{Binding Items}" Background="Transparent" BorderThickness="0"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
+                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+            <ListBox.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
+            <ListBox.ItemContainerStyle>
+              <Style TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Focusable" Value="False"/>
+                <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter/></ControlTemplate></Setter.Value></Setter>
+              </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Border x:Name="DownloadRow" Height="72" BorderBrush="#263957" BorderThickness="0,0,0,1" PreviewMouseRightButtonDown="DownloadRow_PreviewMouseRightButtonDown">
+                    <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="#263957"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#1A3155"/><Setter Property="BorderBrush" Value="#4A9BFF"/></Trigger></Style.Triggers></Style></Border.Style>
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{StaticResource ColCheck}"/><ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="{StaticResource ColStatus}"/><ColumnDefinition Width="{StaticResource ColProgress}"/>
+                        <ColumnDefinition Width="{StaticResource ColSize}"/><ColumnDefinition Width="{StaticResource ColActions}"/>
+                      </Grid.ColumnDefinitions>
+
+                      <CheckBox IsChecked="{Binding IsSelected}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="76" Height="44" CornerRadius="6" Background="#1D3358">
+                          <Border CornerRadius="6"><Border.Background><ImageBrush ImageSource="{Binding Thumbnail}" Stretch="UniformToFill"/></Border.Background></Border>
+                        </Border>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                          <Border MouseLeftButtonDown="PlaylistRow_MouseLeftButtonDown" Background="Transparent"><StackPanel><TextBlock Text="{Binding DisplayTitle}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="330"/>
+                          <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <Border Background="#E62117" CornerRadius="3" Width="18" Height="13" VerticalAlignment="Center">
+                              <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="7" Foreground="White"/></Border>
+                            <TextBlock Text="YouTube" FontSize="12" Style="{StaticResource Muted}" Margin="7,0,0,0"/>
+                            <TextBlock Text="{Binding PlaylistTotalSizeText}" FontSize="11" Foreground="#8EBEFF" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                          </StackPanel>
+                          <TextBlock Text="{Binding DisplayDetails}" FontSize="12" Style="{StaticResource Muted}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" MaxWidth="350" ToolTip="{Binding Error}"/>
+                        </StackPanel></Border></StackPanel>
+                      </StackPanel>
+
+                      <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="6" Padding="12,5"
+                              HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip="{Binding Error}">
+                        <TextBlock Text="{Binding DisplayStatusText}" Foreground="{Binding DisplayStatusFg}" FontSize="13" FontWeight="SemiBold"/>
+                      </Border>
+
+                      <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,24,0">
+                        <TextBlock Text="{Binding DisplayProgressText}" FontSize="14" Margin="0,0,0,8"/>
+                        <ProgressBar Value="{Binding DisplayProgress, Mode=OneWay}" Foreground="{Binding DisplayStatusFg}"/>
+                      </StackPanel>
+
+                      <TextBlock Grid.Column="4" Text="{Binding SizeText}" FlowDirection="LeftToRight" HorizontalAlignment="Left" FontSize="14" Foreground="#C9D6EE" VerticalAlignment="Center"/>
+
+                      <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource IconBtn}" Width="38" Height="38" Margin="0,0,8,0"
+                                Visibility="{Binding CanRetry, Converter={StaticResource B2V}}"
+                                ToolTip="Retry download" ToolTipService.Placement="Bottom"
+                                Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                          <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="16"/>
+                        </Button>
+                        <Button Style="{StaticResource GhostBtn}" Width="76" Height="38" Padding="6,0" Margin="0,0,8,0"
+                                Visibility="{Binding CanRetryPlaylist, Converter={StaticResource B2V}}"
+                                ToolTip="Retry failed playlist videos" ToolTipService.Placement="Bottom"
+                                Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="14" Margin="0,0,5,0"/>
+                            <TextBlock Text="{DynamicResource S.Retry}" FontSize="12"/>
+                          </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
+                                ToolTip="{Binding PrimaryActionTooltip}"
+                                Command="{Binding DataContext.PrimaryActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                          <TextBlock Style="{StaticResource Icon}" Text="{Binding PrimaryIcon}" FontSize="16"/>
+                        </Button>
+                        <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
+                                ToolTip="Open download location" ToolTipService.Placement="Bottom"
+                                Visibility="{Binding CanOpenFolder, Converter={StaticResource B2V}}"
+                                Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                          <TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" FontSize="16"/>
+                        </Button>
+
+                        <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
+                                ToolTip="View playlist contents" ToolTipService.Placement="Bottom" Visibility="{Binding CanOpenPlaylist, Converter={StaticResource B2V}}"
+                                Command="{Binding DataContext.OpenPlaylistDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
+                          <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="16"/>
+                        </Button>
+                        <!-- ⋯ menu -->
+                        <Grid>
+                          <ToggleButton x:Name="MoreBtn" IsChecked="{Binding IsMenuOpen, Mode=TwoWay}" Click="MoreBtn_Click" Width="38" Height="38" Cursor="Hand" ToolTip="More actions" ToolTipService.Placement="Bottom">
+                            <ToggleButton.Template>
+                              <ControlTemplate TargetType="ToggleButton">
+                                <Border x:Name="MoreBorder" Background="#14243F" BorderBrush="#263D61" BorderThickness="1" CornerRadius="8">
+                                  <TextBlock Style="{StaticResource Icon}" Text="&#xE712;" FontSize="16"/></Border>
+                                <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="MoreBorder" Property="Background" Value="#234675"/><Setter TargetName="MoreBorder" Property="BorderBrush" Value="#4A9BFF"/></Trigger><Trigger Property="IsChecked" Value="True"><Setter TargetName="MoreBorder" Property="Background" Value="#1D3D68"/><Setter TargetName="MoreBorder" Property="BorderBrush" Value="#4A9BFF"/></Trigger></ControlTemplate.Triggers>
+                              </ControlTemplate>
+                            </ToggleButton.Template>
+                          </ToggleButton>
+                          <Popup x:Name="DownloadActionPopup" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=MoreBtn}"
+                                 Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
+                            <Border Width="214" Padding="6" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10">
+                              <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.5"/></Border.Effect>
+                              <StackPanel>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8E5;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.OpenFile}" FontSize="14"/></StackPanel></Button>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.OpenFolder}" FontSize="14"/></StackPanel></Button>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.CopyTitleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.CopyTitle}" FontSize="14"/></StackPanel></Button>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.CopyUrlCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.CopyUrl}" FontSize="14"/></StackPanel></Button>
+                                <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,5"/>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.Retry}" FontSize="14"/></StackPanel></Button>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.AddToQueueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8FD;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.AddToQueue}" FontSize="14"/></StackPanel></Button>
+                                <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,5"/>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.RemoveFromHistoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.RemoveHistory}" FontSize="14"/></StackPanel></Button>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Command="{Binding DataContext.AskDeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" FontSize="15" Width="26" Foreground="{StaticResource Danger}"/>
+                                    <TextBlock Text="{DynamicResource S.DeleteFile}" FontSize="14" Foreground="{StaticResource Danger}"/></StackPanel></Button>
+                              </StackPanel>
+                            </Border>
+                          </Popup>
+                        </Grid>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+      </Border>
+
+      <!-- footer -->
+      <Grid Grid.Row="3" Margin="0,14,0,0">
+        <TextBlock Text="{Binding FooterText}" Style="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <TextBlock Text="{DynamicResource S.SortBy}" Style="{StaticResource Muted}" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0"/>
+          <ComboBox Width="170" Height="40" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}"/>
+        </StackPanel>
+      </Grid>
+    </Grid>
+
+    <!-- ===== bottom overlays (selection bar / delete dialog / toast) ===== -->
+    <Grid VerticalAlignment="Bottom" Margin="0,0,0,60" IsHitTestVisible="True">
+      <Border HorizontalAlignment="Left" Padding="18" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12"
+              Visibility="{Binding HasSelection, Converter={StaticResource B2V}}">
+        <Border.Effect><DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.5"/></Border.Effect>
+        <StackPanel>
+          <Grid>
+            <TextBlock Text="{Binding SelectedText}" FontSize="15" FontWeight="SemiBold"/>
+            <Button Command="{Binding ClearSelectionCommand}" HorizontalAlignment="Right" Style="{StaticResource BtnBase}" Background="Transparent" Padding="0" Width="28" Height="28">
+              <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="13"/></Button>
+          </Grid>
+          <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+            <Button Style="{StaticResource GhostBtn}" Command="{Binding PauseSelectedCommand}" Height="42" Margin="0,0,10,0">
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE769;" FontSize="14"/><TextBlock Text="{DynamicResource S.Pause}" Margin="8,0,0,0" FontSize="14"/></StackPanel></Button>
+            <Button Style="{StaticResource GhostBtn}" Command="{Binding ResumeSelectedCommand}" Height="42" Margin="0,0,10,0">
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="14"/><TextBlock Text="{DynamicResource S.Resume}" Margin="8,0,0,0" FontSize="14"/></StackPanel></Button>
+            <Button Style="{StaticResource GhostBtn}" Command="{Binding RemoveSelectedCommand}" Height="42" Margin="0,0,10,0">
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" FontSize="14"/><TextBlock Text="{DynamicResource S.RemoveHistory}" Margin="8,0,0,0" FontSize="14"/></StackPanel></Button>
+            <Button Style="{StaticResource GhostBtn}" Command="{Binding DeleteSelectedCommand}" Height="42">
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" FontSize="14"/><TextBlock Text="{DynamicResource S.DeleteFileShort}" Margin="8,0,0,0" FontSize="14"/></StackPanel></Button>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- toast -->
+      <Border HorizontalAlignment="Right" Padding="18,16" Width="320" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12"
+              Visibility="{Binding IsToastVisible, Converter={StaticResource B2V}}">
+        <Border.Effect><DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.5"/></Border.Effect>
+        <Grid>
+          <StackPanel Orientation="Horizontal">
+            <Border Width="38" Height="38" CornerRadius="19" Background="{StaticResource Success}">
+              <TextBlock Style="{StaticResource Icon}" Text="&#xE73E;" FontSize="18" Foreground="White"/></Border>
+            <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+              <TextBlock Text="{Binding ToastTitle}" FontSize="15" FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding ToastSubtitle}" Style="{StaticResource Muted}" FontSize="13" Margin="0,2,0,0"/>
+            </StackPanel>
+          </StackPanel>
+          <Button Command="{Binding CloseToastCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource BtnBase}" Background="Transparent" Padding="0" Width="24" Height="24">
+            <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="12"/></Button>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <!-- playlist detail panel -->
+    <Grid Visibility="{Binding IsPlaylistDetailOpen, Converter={StaticResource B2V}}" Background="{StaticResource WindowBg}">
+      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+      <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+        <Button Style="{StaticResource GhostBtn}" Height="42" Width="112" Command="{Binding BackFromPlaylistCommand}">
+          <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72B;" Margin="0,0,8,0"/><TextBlock Text="Back"/></StackPanel>
+        </Button>
+        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+          <TextBlock Text="{Binding PlaylistDetailTitle}" FontSize="21" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding PlaylistDetailSummary}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
+        </StackPanel>
+      </StackPanel>
+      <Grid Grid.Row="1" Margin="0,0,0,10">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
+        <TextBlock Text="Playlist videos" FontWeight="SemiBold" FontSize="14"/>
+        <TextBlock Grid.Column="1" Text="Status" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="2" Text="Progress" FontWeight="SemiBold"/>
+      </Grid>
+      <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding PlaylistItems}">
+          <ItemsControl.ItemTemplate><DataTemplate>
+            <Border BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1" Padding="8">
+              <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="120"/><ColumnDefinition Width="88"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
+                <StackPanel><TextBlock Text="{Binding PlaylistIndex}" Foreground="{StaticResource TextMuted}"/>
+                  <TextBlock Text="{Binding PlaylistVideoDisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Text="{Binding Details}" Foreground="{StaticResource TextMuted}" FontSize="12"/></StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{Binding StatusFg}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center"><TextBlock Text="{Binding ProgressText}" Margin="0,0,0,5"/><ProgressBar Value="{Binding Progress}"/></StackPanel>
+                <Button Grid.Column="3" Style="{StaticResource IconBtn}" Width="38" Height="34" Padding="0" Margin="0,0,6,0"
+                        Visibility="{Binding CanRetry, Converter={StaticResource B2V}}"
+                        ToolTip="Retry this failed video"
+                        Command="{Binding DataContext.RetryVideoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
+                  <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="15"/>
+                </Button>
+                <Button Grid.Column="4" Style="{StaticResource IconBtn}" Command="{Binding DataContext.PlaylistItemActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
+                  <TextBlock Style="{StaticResource Icon}" Text="{Binding PrimaryIcon}"/></Button>
+              </Grid>
+            </Border>
+          </DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- delete dialog -->
+    <Grid Visibility="{Binding IsDeleteDialogOpen, Converter={StaticResource B2V}}" Background="#99050A16">
+      <Border Width="400" Padding="22" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12"
+              HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <Border Width="42" Height="42" CornerRadius="10" Background="#431A25">
+              <TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" FontSize="18" Foreground="{StaticResource Danger}"/></Border>
+            <TextBlock Text="{DynamicResource S.DeleteTitle}" FontSize="18" FontWeight="SemiBold" Margin="14,0,0,0" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBlock Text="{DynamicResource S.DeleteAsk}" Style="{StaticResource Muted}" FontSize="13" Margin="0,16,0,4"/>
+          <TextBlock Text="{Binding DeleteMessage}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/>
+          <TextBlock Text="{DynamicResource S.DeleteWarn}" Style="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,14,0,0"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Style="{StaticResource GhostBtn}" Content="{DynamicResource S.Cancel}" Width="108" Height="42" Margin="0,0,12,0" Command="{Binding CancelDeleteCommand}"/>
+            <Button Style="{StaticResource BtnBase}" Content="{DynamicResource S.Delete}" Width="108" Height="42" Background="{StaticResource Danger}" Command="{Binding ConfirmDeleteCommand}"/>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>
