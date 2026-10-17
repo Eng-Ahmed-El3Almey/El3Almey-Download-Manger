@@ -22,21 +22,29 @@
         <Button.Style>
           <Style TargetType="Button">
             <Setter Property="Background" Value="#2468C9"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="BorderBrush" Value="#3479D8"/>
             <Setter Property="BorderThickness" Value="1"/>
-            
-            
-            <Style.Triggers>
-              <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#2D74D8"/>
-                
-                
-              </Trigger>
-              <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#1765D1"/></Trigger>
-            </Style.Triggers>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                  <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" SnapsToDevicePixels="True">
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="ButtonSurface" Property="Background" Value="#2D74D8"/>
+                      <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="#5590E5"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonSurface" Property="Background" Value="#1A4F9C"/></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.58"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
           </Style>
-        </Button.Style>
+        </Button.Style>>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" Margin="0,0,10,0"/>
           <TextBlock x:Name="NewNameButtonText" Text="Download with a new name"/>
@@ -49,15 +57,26 @@
             <Setter Property="Foreground" Value="#EAF1FF"/>
             <Setter Property="BorderBrush" Value="#31476D"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Style.Triggers>
-              <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#213758"/>
-                <Setter Property="BorderBrush" Value="#5A91D8"/>
-              </Trigger>
-              <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#12203A"/></Trigger>
-            </Style.Triggers>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                  <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" SnapsToDevicePixels="True">
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="ButtonSurface" Property="Background" Value="#213758"/>
+                      <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="#4B76AD"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonSurface" Property="Background" Value="#12203A"/></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.58"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
           </Style>
-        </Button.Style>
+        </Button.Style>>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" Margin="0,0,10,0"/>
           <TextBlock x:Name="SkipButtonText" Text="Skip this video"/>
@@ -68,13 +87,28 @@
           <Style TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#9AABCA"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Style.Triggers>
-              <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="#FFFFFF"/><Setter Property="Background" Value="#1B2D4D"/></Trigger>
-              <Trigger Property="IsPressed" Value="True"><Setter Property="Foreground" Value="#76B0FF"/></Trigger>
-            </Style.Triggers>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                  <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" SnapsToDevicePixels="True">
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="ButtonSurface" Property="Background" Value="#1B2D4D"/>
+                      
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonSurface" Property="Background" Value="#12203A"/></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.58"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
           </Style>
-        </Button.Style>
+        </Button.Style>>
         <TextBlock x:Name="CancelButtonText" Text="Cancel"/>
       </Button>
     </StackPanel>
