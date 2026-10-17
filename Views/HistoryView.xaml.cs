@@ -41,6 +41,9 @@ public partial class HistoryView : UserControl
         DependencyObject? current = e.OriginalSource as DependencyObject;
         while (current != null)
         {
+            // Do not close the Popup before its Button.Click handler can execute.
+            if (current is Button menuButton && IsMenuAction(menuButton.Tag?.ToString())) return;
+
             if (current is ToggleButton toggle)
             {
                 CloseAllMenusExcept(toggle.DataContext as DownloadItem);
@@ -66,13 +69,38 @@ public partial class HistoryView : UserControl
         }
     }
 
+    void HistoryRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2 || sender is not FrameworkElement row ||
+            row.DataContext is not DownloadItem item || !item.IsPlaylistRepresentative)
+            return;
+
+        // Keep row navigation separate from clicks on buttons and selection controls.
+        for (DependencyObject? current = e.OriginalSource as DependencyObject;
+             current != null && !ReferenceEquals(current, row);)
+        {
+            if (current is ButtonBase || current is TextBoxBase || current is Selector)
+                return;
+
+            DependencyObject? parent = null;
+            try { parent = VisualTreeHelper.GetParent(current); } catch { }
+            current = parent ?? LogicalTreeHelper.GetParent(current);
+        }
+
+        if (DataContext is HistoryViewModel vm)
+        {
+            vm.OpenPlaylistDetailsCommand.Execute(item);
+            e.Handled = true;
+        }
+    }
+
     void HistoryRow_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement row || row.DataContext is not DownloadItem item) return;
         var popup = FindPopup(row);
         if (popup != null)
         {
-            popup.PlacementTarget = null;
+            popup.PlacementTarget = row;
             popup.Placement = PlacementMode.MousePoint;
         }
         item.IsMenuOpen = true;
@@ -90,13 +118,29 @@ public partial class HistoryView : UserControl
         }
     }
 
+    static bool IsMenuAction(string? tag) => tag is "Open" or "OpenFolder" or "Redownload" or "Remove";
+
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement element && element.DataContext is DownloadItem item)
+        e.Handled = true;
+        if (sender is not FrameworkElement element || DataContext is not HistoryViewModel vm) return;
+
+        // Popup content is hosted in a separate WPF presentation source, so its item
+        // DataContext may not inherit consistently. Fall back to the currently open row.
+        var item = element.DataContext as DownloadItem
+            ?? vm.Items.FirstOrDefault(i => i.IsMenuOpen)
+            ?? vm.PlaylistItems.FirstOrDefault(i => i.IsMenuOpen);
+        if (item == null) return;
+
+        switch (element.Tag?.ToString())
         {
-            // Let the Button execute its bound command before closing the popup.
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
+            case "Open": vm.OpenCommand.Execute(item); break;
+            case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
+            case "Redownload": vm.RedownloadCommand.Execute(item); break;
+            case "Remove": vm.RemoveCommand.Execute(item); break;
         }
+
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
     }
 
     static Popup? FindPopup(DependencyObject start)

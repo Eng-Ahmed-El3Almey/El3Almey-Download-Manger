@@ -41,6 +41,9 @@ public partial class DownloadsView : UserControl
         DependencyObject? current = e.OriginalSource as DependencyObject;
         while (current != null)
         {
+            // Do not close the Popup before its Button.Click handler can execute.
+            if (current is Button menuButton && IsMenuAction(menuButton.Tag?.ToString())) return;
+
             if (current is ToggleButton toggle)
             {
                 CloseAllMenusExcept(toggle.DataContext as DownloadItem);
@@ -72,7 +75,7 @@ public partial class DownloadsView : UserControl
         var popup = FindChildPopup(row);
         if (popup != null)
         {
-            popup.PlacementTarget = null;
+            popup.PlacementTarget = row;
             popup.Placement = PlacementMode.MousePoint;
         }
         item.IsMenuOpen = true;
@@ -119,19 +122,56 @@ public partial class DownloadsView : UserControl
         return null;
     }
 
+    static bool IsMenuAction(string? tag) => tag is "OpenFile" or "OpenFolder" or "CopyTitle" or "CopyUrl" or "Retry" or "AddToQueue" or "RemoveFromHistory" or "AskDelete";
+
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement element && element.DataContext is DownloadItem item)
+        e.Handled = true;
+        if (sender is not FrameworkElement element || DataContext is not DownloadsViewModel vm) return;
+
+        // WPF Popup content is hosted in a separate presentation source. Resolve the
+        // target item from the popup binding first, then fall back to the one open menu.
+        var item = element.DataContext as DownloadItem
+            ?? vm.Items.FirstOrDefault(i => i.IsMenuOpen)
+            ?? vm.PlaylistItems.FirstOrDefault(i => i.IsMenuOpen);
+        if (item == null) return;
+
+        switch (element.Tag?.ToString())
         {
-            // Let the Button execute its bound command before closing the popup.
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
+            case "OpenFile": vm.OpenFileCommand.Execute(item); break;
+            case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
+            case "CopyTitle": vm.CopyTitleCommand.Execute(item); break;
+            case "CopyUrl": vm.CopyUrlCommand.Execute(item); break;
+            case "Retry": vm.RetryCommand.Execute(item); break;
+            case "AddToQueue": vm.AddToQueueCommand.Execute(item); break;
+            case "RemoveFromHistory": vm.RemoveFromHistoryCommand.Execute(item); break;
+            case "AskDelete": vm.AskDeleteCommand.Execute(item); break;
         }
+
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
     }
 
     void PlaylistRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ClickCount != 2 || sender is not FrameworkElement element || element.DataContext is not DownloadItem item || !item.IsPlaylist) return;
-        if (DataContext is DownloadsViewModel vm) vm.OpenPlaylist(item);
-        e.Handled = true;
+        if (e.ClickCount != 2 || sender is not FrameworkElement row || row.DataContext is not DownloadItem item || !item.IsPlaylist)
+            return;
+
+        // Do not treat a double-click on an action button or selection control as a row double-click.
+        for (DependencyObject? current = e.OriginalSource as DependencyObject;
+             current != null && !ReferenceEquals(current, row);)
+        {
+            if (current is ButtonBase || current is TextBoxBase || current is Selector)
+                return;
+
+            DependencyObject? parent = null;
+            try { parent = VisualTreeHelper.GetParent(current); } catch { }
+            current = parent ?? LogicalTreeHelper.GetParent(current);
+        }
+
+        if (DataContext is DownloadsViewModel vm)
+        {
+            vm.OpenPlaylist(item);
+            e.Handled = true;
+        }
     }
 }

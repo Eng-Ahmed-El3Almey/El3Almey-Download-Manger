@@ -59,7 +59,7 @@
           <ItemsControl ItemsSource="{Binding Items}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border x:Name="HistoryRow" Height="72" BorderThickness="0,0,0,1" BorderBrush="#263957" PreviewMouseRightButtonDown="HistoryRow_PreviewMouseRightButtonDown">
+                <Border x:Name="HistoryRow" Height="72" BorderThickness="0,0,0,1" BorderBrush="#263957" PreviewMouseRightButtonDown="HistoryRow_PreviewMouseRightButtonDown" MouseLeftButtonDown="HistoryRow_MouseLeftButtonDown">
                   <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="#263957"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#1A3155"/><Setter Property="BorderBrush" Value="#4A9BFF"/></Trigger></Style.Triggers></Style></Border.Style>
                   <Grid Margin="20,0,0,0">
                     <Grid.ColumnDefinitions>
@@ -108,14 +108,14 @@
                           </ControlTemplate>
                         </ToggleButton.Template>
                       </ToggleButton>
-                      <Popup x:Name="HistoryActionPopup" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=HistoryMoreBtn}" Placement="Bottom" StaysOpen="True" AllowsTransparency="True">
+                      <Popup x:Name="HistoryActionPopup" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=HistoryMoreBtn}" Placement="Bottom" StaysOpen="True" AllowsTransparency="True">
                         <Border Width="214" Padding="6" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10">
                           <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.5"/></Border.Effect>
                           <StackPanel>
-                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Width="26"/><TextBlock Text="Play / Open file"/></StackPanel></Button>
-                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26"/><TextBlock Text="Open download folder"/></StackPanel></Button>
-                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Command="{Binding DataContext.RedownloadCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" Width="26"/><TextBlock Text="Download again"/></StackPanel></Button>
-                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" Width="26" Foreground="{StaticResource Danger}"/><TextBlock Text="Remove from history" Foreground="{StaticResource Danger}"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Open"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Width="26"/><TextBlock Text="Play / Open file"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="OpenFolder"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26"/><TextBlock Text="Open download folder"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Redownload"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" Width="26"/><TextBlock Text="Download again"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Remove"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" Width="26" Foreground="{StaticResource Danger}"/><TextBlock Text="Remove from history" Foreground="{StaticResource Danger}"/></StackPanel></Button>
                           </StackPanel>
                         </Border>
                       </Popup>
@@ -133,7 +133,7 @@
 
 
     <!-- Playlist detail panel: matches the playlist detail view in Downloads. -->
-    <Grid Visibility="{Binding IsPlaylistDetailOpen, Converter={StaticResource B2V}}" Background="{StaticResource WindowBg}">
+    <Grid Grid.RowSpan="3" Panel.ZIndex="10" Visibility="{Binding IsPlaylistDetailOpen, Converter={StaticResource B2V}}" Background="{StaticResource WindowBg}">
       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
       <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
         <Button Style="{StaticResource GhostBtn}" Height="42" Width="112" Command="{Binding BackFromPlaylistCommand}">
@@ -145,29 +145,32 @@
         </StackPanel>
       </StackPanel>
       <Grid Grid.Row="1" Margin="0,0,0,10">
-        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="140"/><ColumnDefinition Width="120"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
-        <TextBlock Text="Playlist videos" FontWeight="SemiBold" FontSize="14"/>
-        <TextBlock Grid.Column="1" Text="Status" FontWeight="SemiBold"/>
-        <TextBlock Grid.Column="2" Text="Date" FontWeight="SemiBold"/>
-        <TextBlock Grid.Column="3" Text="Size" FontWeight="SemiBold"/>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="76"/><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="140"/><ColumnDefinition Width="120"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
+        <TextBlock Grid.ColumnSpan="2" Text="Playlist videos" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="2" Text="Status" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="3" Text="Date" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="4" Text="Size" FontWeight="SemiBold"/>
       </Grid>
       <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding PlaylistItems}">
           <ItemsControl.ItemTemplate><DataTemplate>
             <Border Height="72" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1" Padding="8,0">
               <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="140"/><ColumnDefinition Width="120"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="76"/><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="140"/><ColumnDefinition Width="120"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
+                <Border Width="64" Height="42" CornerRadius="5" Background="#1D3358" VerticalAlignment="Center" HorizontalAlignment="Left" ClipToBounds="True">
+                  <Image Source="{Binding Thumbnail, Mode=OneWay}" Stretch="UniformToFill" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
                   <TextBlock Text="{Binding PlaylistIndex}" Foreground="{StaticResource TextMuted}" FontSize="11"/>
                   <TextBlock Text="{Binding PlaylistVideoDisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
                   <TextBlock Text="{Binding Details}" Foreground="{StaticResource TextMuted}" FontSize="12"/>
                 </StackPanel>
-                <Border Grid.Column="1" Background="{Binding StatusBg}" CornerRadius="6" Padding="9,4" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="6" Padding="9,4" HorizontalAlignment="Left" VerticalAlignment="Center">
                   <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusFg}" FontSize="12" FontWeight="SemiBold"/>
                 </Border>
-                <TextBlock Grid.Column="2" Text="{Binding DateText}" Foreground="#C9D6EE" FontSize="12" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="3" Text="{Binding TotalSizeText}" Foreground="#C9D6EE" FontSize="12" VerticalAlignment="Center"/>
-                <Button Grid.Column="4" Style="{StaticResource IconBtn}" Width="38" Height="34" Padding="0" VerticalAlignment="Center"
+                <TextBlock Grid.Column="3" Text="{Binding DateText}" Foreground="#C9D6EE" FontSize="12" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="4" Text="{Binding TotalSizeText}" Foreground="#C9D6EE" FontSize="12" VerticalAlignment="Center"/>
+                <Button Grid.Column="5" Style="{StaticResource IconBtn}" Width="38" Height="34" Padding="0" VerticalAlignment="Center"
                         ToolTip="Open downloaded video or retry failed video"
                         Command="{Binding DataContext.PlaylistItemActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                   <TextBlock Style="{StaticResource Icon}" Text="{Binding PrimaryIcon}"/>
