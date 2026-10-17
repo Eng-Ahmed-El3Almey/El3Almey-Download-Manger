@@ -51,8 +51,7 @@ public partial class MainWindow : Window
         };
         _history = new HistoryViewModel(_manager)
         {
-            Confirm = msg => MessageBox.Show(this, msg, "El3Almey Download Manager", MessageBoxButton.YesNo,
-                                             MessageBoxImage.Question) == MessageBoxResult.Yes
+            Confirm = msg => new ClearHistoryDialog(msg, Loc.Language == "ar") { Owner = this }.ShowDialog() == true
         };
         _settings.PickFolder = PickFolder;
         _settings.PickFile = () =>
@@ -67,9 +66,19 @@ public partial class MainWindow : Window
         _historyView = new HistoryView { DataContext = _history };
         _settingsView = new SettingsView { DataContext = _settings };
 
+        _manager.DownloadCompleted += Manager_DownloadCompleted;
         ShowAdd();                         // the app opens on "Add Video"
         Closing += (_, _) => _manager.Shutdown();
         _manager.Pump();
+    }
+
+    void Manager_DownloadCompleted(DownloadItem item)
+    {
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var toast = new DownloadCompleteToast(item, Loc.Language == "ar");
+            toast.Show();
+        }));
     }
 
     string? PickFolder()
