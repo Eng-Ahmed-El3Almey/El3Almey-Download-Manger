@@ -36,12 +36,33 @@ public partial class DownloadsView : UserControl
 
     void HostWindow_Deactivated(object? sender, EventArgs e) => CloseAllMenus();
 
-    void CloseAllMenus()
+    void UserControl_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        DependencyObject? current = e.OriginalSource as DependencyObject;
+        while (current != null)
+        {
+            if (current is ToggleButton toggle)
+            {
+                CloseAllMenusExcept(toggle.DataContext as DownloadItem);
+                return;
+            }
+
+            DependencyObject? parent = null;
+            try { parent = VisualTreeHelper.GetParent(current); } catch { }
+            current = parent ?? LogicalTreeHelper.GetParent(current);
+        }
+
+        CloseAllMenus();
+    }
+
+    void CloseAllMenus() => CloseAllMenusExcept(null);
+
+    void CloseAllMenusExcept(DownloadItem? keepItem)
     {
         if (DataContext is DownloadsViewModel vm)
         {
-            foreach (var item in vm.Items) item.IsMenuOpen = false;
-            foreach (var item in vm.PlaylistItems) item.IsMenuOpen = false;
+            foreach (var item in vm.Items) if (!ReferenceEquals(item, keepItem)) item.IsMenuOpen = false;
+            foreach (var item in vm.PlaylistItems) if (!ReferenceEquals(item, keepItem)) item.IsMenuOpen = false;
         }
     }
 
