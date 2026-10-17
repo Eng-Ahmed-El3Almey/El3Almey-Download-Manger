@@ -14,6 +14,8 @@ public partial class HistoryViewModel : ObservableObject
     [ObservableProperty] private string _playlistDetailTitle = "";
     [ObservableProperty] private string _playlistDetailSummary = "";
     [ObservableProperty] private string _searchText = "";
+    public IReadOnlyList<string> FilterOptions { get; } = new[] { "All", "Video", "Audio", "Playlist", "Channel" };
+    [ObservableProperty] private string _selectedFilter = "All";
 
     public Func<string, bool>? Confirm { get; set; }
     public bool IsEmpty => Items.Count == 0;
@@ -28,10 +30,19 @@ public partial class HistoryViewModel : ObservableObject
     }
 
     partial void OnSearchTextChanged(string value) => Refresh();
+    partial void OnSelectedFilterChanged(string value) => Refresh();
 
     public void Refresh()
     {
         var q = _mgr.Items.Where(i => (!i.IsPlaylist || i.IsPlaylistRepresentative) && (i.Status is DownloadStatus.Completed or DownloadStatus.Failed));
+        q = SelectedFilter switch
+        {
+            "Video" => q.Where(i => !i.IsAudio && !i.IsPlaylist && !IsChannelUrl(i.Url)),
+            "Audio" => q.Where(i => i.IsAudio && !i.IsPlaylist),
+            "Playlist" => q.Where(i => i.IsPlaylistRepresentative),
+            "Channel" => q.Where(i => IsChannelUrl(i.Url)),
+            _ => q
+        };
         if (!string.IsNullOrWhiteSpace(SearchText))
             q = q.Where(i => (i.IsPlaylistRepresentative ? i.PlaylistTitle : i.Title).Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         var list = q.OrderByDescending(i => i.FinishedAt ?? i.AddedAt).ToList();
@@ -39,6 +50,15 @@ public partial class HistoryViewModel : ObservableObject
         foreach (var i in list) Items.Add(i);
         OnPropertyChanged(nameof(IsEmpty));
         OnPropertyChanged(nameof(CountText));
+    }
+
+    static bool IsChannelUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        return url.Contains("youtube.com/@", StringComparison.OrdinalIgnoreCase)
+            || url.Contains("youtube.com/channel/", StringComparison.OrdinalIgnoreCase)
+            || url.Contains("youtube.com/c/", StringComparison.OrdinalIgnoreCase)
+            || url.Contains("youtube.com/user/", StringComparison.OrdinalIgnoreCase);
     }
 
     [RelayCommand] void Open(DownloadItem i) => FileActions.OpenFile(i.FilePath);
@@ -75,8 +95,9 @@ public partial class HistoryViewModel : ObservableObject
     [RelayCommand]
     void ClearAll()
     {
-        if (Items.Count == 0) return;
+        var allHistory = _mgr.Items.Where(i => (!i.IsPlaylist || i.IsPlaylistRepresentative) && (i.Status is DownloadStatus.Completed or DownloadStatus.Failed)).ToList();
+        if (allHistory.Count == 0) return;
         if (Confirm != null && !Confirm(Loc.T("S.ClearConfirm"))) return;
-        _mgr.Remove(Items.ToList(), false);
+        _mgr.Remove(allHistory, false);
     }
 }

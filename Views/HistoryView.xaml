@@ -27,6 +27,10 @@
             </TextBlock>
           </Grid>
         </Border>
+        <ComboBox ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Width="132" Height="42" Margin="0,0,12,0" Padding="10,0"
+                  Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}"
+                  BorderBrush="{StaticResource CardBorder}" FontSize="14" VerticalContentAlignment="Center"/>
         <Button Style="{StaticResource GhostBtn}" Command="{Binding ClearAllCommand}" Height="42" Padding="18,0">
           <StackPanel Orientation="Horizontal">
             <TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" FontSize="15"/>
