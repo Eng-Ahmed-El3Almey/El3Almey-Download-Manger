@@ -69,6 +69,31 @@ public partial class HistoryView : UserControl
         }
     }
 
+    void HistoryRow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2 || sender is not FrameworkElement row ||
+            row.DataContext is not DownloadItem item || !item.IsPlaylistRepresentative)
+            return;
+
+        // Keep row navigation separate from clicks on buttons and selection controls.
+        for (DependencyObject? current = e.OriginalSource as DependencyObject;
+             current != null && !ReferenceEquals(current, row);)
+        {
+            if (current is ButtonBase || current is TextBoxBase || current is Selector)
+                return;
+
+            DependencyObject? parent = null;
+            try { parent = VisualTreeHelper.GetParent(current); } catch { }
+            current = parent ?? LogicalTreeHelper.GetParent(current);
+        }
+
+        if (DataContext is HistoryViewModel vm)
+        {
+            vm.OpenPlaylistDetailsCommand.Execute(item);
+            e.Handled = true;
+        }
+    }
+
     void HistoryRow_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement row || row.DataContext is not DownloadItem item) return;
