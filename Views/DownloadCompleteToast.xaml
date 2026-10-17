@@ -17,7 +17,7 @@
               <Setter Property="Foreground" Value="#9AABCA"/>
               <Setter Property="BorderThickness" Value="0"/>
               <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#263E67"/><Setter Property="Foreground" Value="White"/></Trigger>
+                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#213758"/><Setter Property="Foreground" Value="White"/></Trigger>
                 <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#152644"/></Trigger>
               </Style.Triggers>
             </Style>
@@ -33,42 +33,59 @@
         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
         <Button x:Name="OpenFileButton" Content="Open file" Height="38" Margin="0,0,6,0" Click="OpenFile_Click" FontWeight="SemiBold" Cursor="Hand">
           <Button.Style>
-            <Style TargetType="Button">
-              <Setter Property="Background" Value="#1F7BFF"/>
-              <Setter Property="Foreground" Value="White"/>
-              <Setter Property="BorderThickness" Value="0"/>
-              <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-              <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value></Setter>
-              <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                  <Setter Property="Background" Value="#4592FF"/>
-                  <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#1F7BFF" BlurRadius="14" ShadowDepth="0" Opacity="0.65"/></Setter.Value></Setter>
-                  <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1.025" ScaleY="1.06"/></Setter.Value></Setter>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#145BC4"/></Trigger>
-              </Style.Triggers>
-            </Style>
-          </Button.Style>
+          <Style TargetType="Button">
+            <Setter Property="Background" Value="#2468C9"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#3479D8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                  <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" SnapsToDevicePixels="True">
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="ButtonSurface" Property="Background" Value="#2D74D8"/>
+                      <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="#5590E5"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonSurface" Property="Background" Value="#1A4F9C"/></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.58"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </Button.Style>
         </Button>
         <Button x:Name="OpenFolderButton" Grid.Column="1" Content="Open folder" Height="38" Margin="6,0,0,0" Click="OpenFolder_Click" Cursor="Hand">
           <Button.Style>
-            <Style TargetType="Button">
-              <Setter Property="Background" Value="#192A49"/>
-              <Setter Property="Foreground" Value="#EAF1FF"/>
-              <Setter Property="BorderBrush" Value="#31476D"/>
-              <Setter Property="BorderThickness" Value="1"/>
-              <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-              <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value></Setter>
-              <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                  <Setter Property="Background" Value="#263E67"/>
-                  <Setter Property="BorderBrush" Value="#6AA9FF"/>
-                  <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1.025" ScaleY="1.06"/></Setter.Value></Setter>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#12203A"/></Trigger>
-              </Style.Triggers>
-            </Style>
-          </Button.Style>
+          <Style TargetType="Button">
+            <Setter Property="Background" Value="#192A49"/>
+            <Setter Property="Foreground" Value="#EAF1FF"/>
+            <Setter Property="BorderBrush" Value="#31476D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                  <Border x:Name="ButtonSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" SnapsToDevicePixels="True">
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="ButtonSurface" Property="Background" Value="#213758"/>
+                      <Setter TargetName="ButtonSurface" Property="BorderBrush" Value="#4B76AD"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonSurface" Property="Background" Value="#12203A"/></Trigger>
+                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonSurface" Property="Opacity" Value="0.58"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </Button.Style>
         </Button>
       </Grid>
     </StackPanel>
