@@ -10,7 +10,10 @@
 
     <Grid Margin="0,0,0,16">
       <TextBlock Text="{DynamicResource S.History}" FontSize="30" FontWeight="SemiBold" VerticalAlignment="Center"/>
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">\n        <ComboBox Width="125" Height="42" Margin="0,0,12,0" Padding="10,0" VerticalContentAlignment="Center"\n                  Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}" BorderBrush="{StaticResource CardBorder}"\n                  ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"/>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <ComboBox Width="125" Height="42" Margin="0,0,12,0" Padding="10,0" VerticalContentAlignment="Center"
+                  Background="{StaticResource InputBg}" Foreground="{StaticResource TextMain}" BorderBrush="{StaticResource CardBorder}"
+                  ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"/>
         <Border Width="300" Height="42" Background="{StaticResource InputBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Margin="0,0,14,0">
           <Grid Margin="12,0">
             <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
