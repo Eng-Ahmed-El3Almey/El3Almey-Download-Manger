@@ -21,9 +21,10 @@
       <Button x:Name="NewNameButton" Height="46" Click="NewNameButton_Click" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,0,10">
         <Button.Style>
           <Style TargetType="Button">
-            <Setter Property="Background" Value="#2878E8"/>
+            <Setter Property="Background" Value="#2468C9"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="#3479D8"/>
+            <Setter Property="BorderThickness" Value="1"/>
             
             
             <Style.Triggers>
