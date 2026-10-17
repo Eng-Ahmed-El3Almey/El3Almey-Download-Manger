@@ -41,8 +41,12 @@ public partial class MainWindow : Window
             {
                 bool arabic = Loc.Language == "ar";
                 var message = arabic
-                    ? $"الرابط لفيديو داخل قائمة التشغيل \"{playlistTitle}\".\n\nنعم: تحميل قائمة التشغيل بالكامل.\nلا: تحميل الفيديو المرتبط فقط.\nإلغاء: الرجوع دون اختيار."
-                    : $"This link points to a video inside the playlist \"{playlistTitle}\".\n\nYes: load the full playlist.\nNo: load only the linked video.\nCancel: keep the playlist preview without choosing.";
+                    ? (string.IsNullOrWhiteSpace(playlistTitle)
+                        ? "الرابط يحتوي على فيديو داخل قائمة تشغيل.\n\nنعم: تحميل قائمة التشغيل بالكامل.\nلا: تحميل الفيديو فقط.\nإلغاء: إلغاء العملية."
+                        : $"الرابط لفيديو داخل قائمة التشغيل \"{playlistTitle}\".\n\nنعم: تحميل قائمة التشغيل بالكامل.\nلا: تحميل الفيديو المرتبط فقط.\nإلغاء: إلغاء العملية.")
+                    : (string.IsNullOrWhiteSpace(playlistTitle)
+                        ? "This link contains a video that belongs to a playlist.\n\nYes: download the full playlist.\nNo: download only this video.\nCancel: cancel this action."
+                        : $"This link points to a video inside the playlist \"{playlistTitle}\".\n\nYes: load the full playlist.\nNo: load only the linked video.\nCancel: cancel this action.");
                 var result = MessageBox.Show(this, message,
                     arabic ? "فيديو أم قائمة تشغيل؟" : "Video or playlist?",
                     MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
