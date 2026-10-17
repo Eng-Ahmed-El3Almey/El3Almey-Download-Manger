@@ -57,7 +57,7 @@
               </Setter.Value>
             </Setter>
           </Style>
-        </Button.Style>>
+        </Button.Style>
         </Button>
         <Button x:Name="OpenFolderButton" Grid.Column="1" Content="Open folder" Height="38" Margin="6,0,0,0" Click="OpenFolder_Click" Cursor="Hand">
           <Button.Style>
@@ -85,7 +85,7 @@
               </Setter.Value>
             </Setter>
           </Style>
-        </Button.Style>>
+        </Button.Style>
         </Button>
       </Grid>
     </StackPanel>
