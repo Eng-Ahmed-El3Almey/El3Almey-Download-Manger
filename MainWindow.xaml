@@ -1,7 +1,7 @@
 <Window x:Class="El3Almey.Wpf.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="El3Almey Download Manager" Width="1400" Height="860" MinWidth="1100" MinHeight="680"
+        Title="El3Almey Download Manager" Icon="{StaticResource AppIcon}" Width="1400" Height="860" MinWidth="1100" MinHeight="680"
         Background="{StaticResource WindowBg}" WindowStartupLocation="CenterScreen"
         WindowStyle="None" ResizeMode="CanResize">
   <WindowChrome.WindowChrome>
