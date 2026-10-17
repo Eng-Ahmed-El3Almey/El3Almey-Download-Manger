@@ -121,12 +121,16 @@ public partial class DownloadsView : UserControl
 
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement element || element.DataContext is not DownloadItem item ||
-            DataContext is not DownloadsViewModel vm) return;
+        if (sender is not FrameworkElement element || DataContext is not DownloadsViewModel vm) return;
 
-        // Popup content lives in a separate WPF presentation tree, so commands bound
-        // through AncestorType=UserControl cannot reliably resolve. Execute explicitly.
-        switch (element.Tag as string)
+        // WPF Popup content is hosted in a separate presentation source. Resolve the
+        // target item from the popup binding first, then fall back to the one open menu.
+        var item = element.DataContext as DownloadItem
+            ?? vm.Items.FirstOrDefault(i => i.IsMenuOpen)
+            ?? vm.PlaylistItems.FirstOrDefault(i => i.IsMenuOpen);
+        if (item == null) return;
+
+        switch (element.Tag?.ToString())
         {
             case "OpenFile": vm.OpenFileCommand.Execute(item); break;
             case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
