@@ -72,7 +72,7 @@ public partial class HistoryView : UserControl
         var popup = FindPopup(row);
         if (popup != null)
         {
-            popup.PlacementTarget = null;
+            popup.PlacementTarget = row;
             popup.Placement = PlacementMode.MousePoint;
         }
         item.IsMenuOpen = true;
@@ -92,11 +92,20 @@ public partial class HistoryView : UserControl
 
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement element && element.DataContext is DownloadItem item)
+        if (sender is not FrameworkElement element || element.DataContext is not DownloadItem item ||
+            DataContext is not HistoryViewModel vm) return;
+
+        // Popup content lives in a separate WPF presentation tree, so commands bound
+        // through AncestorType=UserControl cannot reliably resolve. Execute explicitly.
+        switch (element.Tag as string)
         {
-            // Let the Button execute its bound command before closing the popup.
-            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
+            case "Open": vm.OpenCommand.Execute(item); break;
+            case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
+            case "Redownload": vm.RedownloadCommand.Execute(item); break;
+            case "Remove": vm.RemoveCommand.Execute(item); break;
         }
+
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.IsMenuOpen = false));
     }
 
     static Popup? FindPopup(DependencyObject start)
