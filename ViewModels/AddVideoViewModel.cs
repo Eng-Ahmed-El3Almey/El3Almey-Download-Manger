@@ -201,19 +201,23 @@ public partial class AddVideoViewModel : ObservableObject
             return;
         }
         ErrorText = "";
+        bool resolveSingle = single;
+        if (!single && YouTubeService.HasVideoAndPlaylist(url) && PlaylistLinkPrompt != null)
+        {
+            var choice = PlaylistLinkPrompt("");
+            if (ct.IsCancellationRequested) return;
+            if (choice is null)
+            {
+                State = LinkState.Idle;
+                return;
+            }
+            resolveSingle = choice == false;
+        }
+
         State = LinkState.Loading;
         try
         {
-            var r = await YouTubeService.ResolveAsync(url, single, ct);
-            if (ct.IsCancellationRequested) return;
-            if (!single && r.IsPlaylist && r.SingleVideoId != null && PlaylistLinkPrompt != null)
-            {
-                var choice = PlaylistLinkPrompt(r.PlaylistTitle);
-                if (ct.IsCancellationRequested) return;
-                if (choice == false)
-                    r = await YouTubeService.ResolveAsync(url, true, ct);
-                // Cancel means keep the playlist preview available without starting a download.
-            }
+            var r = await YouTubeService.ResolveAsync(url, resolveSingle, ct);
             if (ct.IsCancellationRequested) return;
             Apply(r);
         }

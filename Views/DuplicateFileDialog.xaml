@@ -18,19 +18,62 @@
       <Border Background="#111F3D" BorderBrush="#263A60" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,0,18">
         <TextBlock x:Name="VideoTitleText" TextWrapping="Wrap" FontWeight="SemiBold"/>
       </Border>
-      <Button x:Name="NewNameButton" Height="46" Click="NewNameButton_Click" Background="#2878E8" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,0,10">
+      <Button x:Name="NewNameButton" Height="46" Click="NewNameButton_Click" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,0,10">
+        <Button.Style>
+          <Style TargetType="Button">
+            <Setter Property="Background" Value="#2878E8"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value></Setter>
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#4592FF"/>
+                <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#2878E8" BlurRadius="16" ShadowDepth="0" Opacity="0.55"/></Setter.Value></Setter>
+                <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1.015" ScaleY="1.04"/></Setter.Value></Setter>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#1765D1"/></Trigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <TextBlock Text="&#xE8D4;" FontFamily="Segoe MDL2 Assets" Margin="0,0,10,0"/>
           <TextBlock x:Name="NewNameButtonText" Text="Download with a new name"/>
         </StackPanel>
       </Button>
-      <Button x:Name="SkipButton" Height="44" Click="SkipButton_Click" Background="#192A49" Foreground="#EAF1FF" BorderBrush="#31476D" BorderThickness="1" Cursor="Hand" Margin="0,0,0,10">
+      <Button x:Name="SkipButton" Height="44" Click="SkipButton_Click" Cursor="Hand" Margin="0,0,0,10">
+        <Button.Style>
+          <Style TargetType="Button">
+            <Setter Property="Background" Value="#192A49"/>
+            <Setter Property="Foreground" Value="#EAF1FF"/>
+            <Setter Property="BorderBrush" Value="#31476D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#263E67"/>
+                <Setter Property="BorderBrush" Value="#5A91D8"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#12203A"/></Trigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" Margin="0,0,10,0"/>
           <TextBlock x:Name="SkipButtonText" Text="Skip this video"/>
         </StackPanel>
       </Button>
-      <Button x:Name="CancelButton" Height="40" Click="CancelButton_Click" Background="Transparent" Foreground="#9AABCA" BorderThickness="0" Cursor="Hand">
+      <Button x:Name="CancelButton" Height="40" Click="CancelButton_Click" Cursor="Hand">
+        <Button.Style>
+          <Style TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9AABCA"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="#FFFFFF"/><Setter Property="Background" Value="#1B2D4D"/></Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter Property="Foreground" Value="#76B0FF"/></Trigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
         <TextBlock x:Name="CancelButtonText" Text="Cancel"/>
       </Button>
     </StackPanel>
