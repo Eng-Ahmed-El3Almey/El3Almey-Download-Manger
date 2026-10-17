@@ -43,6 +43,7 @@ public partial class DownloadsViewModel : ObservableObject
     public int AllCount => TopLevelItems.Count();
     int Count(DownloadStatus s) => TopLevelItems.Count(i => i.Status == s);
     string L(string key, int n) => $"{Loc.T(key)} ({n})";
+    public string AllLabel => $"All ({AllCount})";
     public string DownloadingLabel => L("S.St.Downloading", Count(DownloadStatus.Downloading));
     public string PausedLabel => L("S.St.Paused", Count(DownloadStatus.Paused));
     public string CompletedLabel => L("S.St.Completed", Count(DownloadStatus.Completed));
@@ -79,7 +80,7 @@ public partial class DownloadsViewModel : ObservableObject
 
     void RaiseLabels()
     {
-        foreach (var n in new[] { nameof(AllCount), nameof(DownloadingLabel), nameof(PausedLabel),
+        foreach (var n in new[] { nameof(AllCount), nameof(AllLabel), nameof(DownloadingLabel), nameof(PausedLabel),
                                   nameof(FailedLabel), nameof(QueuedLabel), nameof(FooterText) })
             OnPropertyChanged(n);
     }
