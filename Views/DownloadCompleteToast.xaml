@@ -57,13 +57,10 @@
               <Setter Property="Foreground" Value="#EAF1FF"/>
               <Setter Property="BorderBrush" Value="#31476D"/>
               <Setter Property="BorderThickness" Value="1"/>
-              <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-              <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value></Setter>
               <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                  <Setter Property="Background" Value="#263E67"/>
+                  <Setter Property="Background" Value="#213758"/>
                   <Setter Property="BorderBrush" Value="#4B76AD"/>
-                  <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1.025" ScaleY="1.06"/></Setter.Value></Setter>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#12203A"/></Trigger>
               </Style.Triggers>
