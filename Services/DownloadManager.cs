@@ -38,8 +38,10 @@ public class DownloadManager
 {
     public ObservableCollection<DownloadItem> Items { get; } = new();
     public event Action? Changed;                                  // list or a status changed
+    public event Action<DownloadItem>? DownloadCompleted;
     public event Action<DownloadItem, string>? ItemChanged;        // any property of any item
 
+    readonly HashSet<string> _notifiedPlaylistGroups = new(StringComparer.Ordinal);
     readonly Dictionary<Guid, CancellationTokenSource> _running = new();
     static string StorePath => Path.Combine(SettingsStore.DataDir, "downloads.json");
     static AppSettings S => SettingsStore.Current;
@@ -289,6 +291,21 @@ public class DownloadManager
             it.Progress = 100;
             it.FinishedAt = DateTime.Now;
             it.Status = DownloadStatus.Completed;
+            if (!it.IsPlaylist)
+            {
+                DownloadCompleted?.Invoke(it);
+            }
+            else
+            {
+                var group = Items.Where(x => x.IsPlaylist && x.PlaylistGroupId == it.PlaylistGroupId).ToList();
+                if (group.Count > 0 && group.All(x => x.Status == DownloadStatus.Completed)
+                    && !string.IsNullOrWhiteSpace(it.PlaylistGroupId)
+                    && _notifiedPlaylistGroups.Add(it.PlaylistGroupId))
+                {
+                    var representative = group.FirstOrDefault(x => x.IsPlaylistRepresentative) ?? it;
+                    DownloadCompleted?.Invoke(representative);
+                }
+            }
         }
         catch (OperationCanceledException)
         {
