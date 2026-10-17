@@ -131,5 +131,26 @@
 
       <ContentControl x:Name="Host" Grid.Column="1" Margin="24,18,20,18"/>
     </Grid>
+
+    <!-- Styled close confirmation, matching the app's delete warning dialog -->
+    <Grid x:Name="CloseConfirmOverlay" Grid.RowSpan="2" Panel.ZIndex="1000" Visibility="Collapsed" Background="#99050A16">
+      <Border Width="430" Padding="22" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12"
+              HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Border.Effect><DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.5"/></Border.Effect>
+        <StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <Border Width="42" Height="42" CornerRadius="10" Background="#431A25">
+              <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" FontSize="18" Foreground="{StaticResource Danger}"/>
+            </Border>
+            <TextBlock x:Name="CloseConfirmTitle" FontSize="18" FontWeight="SemiBold" Margin="14,0,0,0" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBlock x:Name="CloseConfirmMessage" Style="{StaticResource Muted}" FontSize="13" TextWrapping="Wrap" Margin="0,16,0,4"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Style="{StaticResource GhostBtn}" x:Name="CloseConfirmCancelButton" Width="108" Height="42" Margin="0,0,12,0" Click="CloseConfirmCancel_Click"/>
+            <Button Style="{StaticResource BtnBase}" x:Name="CloseConfirmYesButton" Width="108" Height="42" Background="{StaticResource Danger}" Click="CloseConfirmYes_Click"/>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
   </Grid>
 </Window>
