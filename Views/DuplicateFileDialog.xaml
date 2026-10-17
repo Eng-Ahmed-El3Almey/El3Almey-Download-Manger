@@ -24,13 +24,13 @@
             <Setter Property="Background" Value="#2878E8"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-            <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value></Setter>
+            
+            
             <Style.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#4592FF"/>
-                <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#2878E8" BlurRadius="16" ShadowDepth="0" Opacity="0.55"/></Setter.Value></Setter>
-                <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1.015" ScaleY="1.04"/></Setter.Value></Setter>
+                <Setter Property="Background" Value="#2D74D8"/>
+                
+                
               </Trigger>
               <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#1765D1"/></Trigger>
             </Style.Triggers>
@@ -50,7 +50,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Style.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#263E67"/>
+                <Setter Property="Background" Value="#213758"/>
                 <Setter Property="BorderBrush" Value="#5A91D8"/>
               </Trigger>
               <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#12203A"/></Trigger>
