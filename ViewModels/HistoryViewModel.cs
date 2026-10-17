@@ -14,6 +14,8 @@ public partial class HistoryViewModel : ObservableObject
     [ObservableProperty] private string _playlistDetailTitle = "";
     [ObservableProperty] private string _playlistDetailSummary = "";
     [ObservableProperty] private string _searchText = "";
+    [ObservableProperty] private string _selectedFilter = "All";
+    public IReadOnlyList<string> FilterOptions { get; } = new[] { "All", "Video", "Audio", "Playlist", "Channel" };
 
     public Func<string, bool>? Confirm { get; set; }
     public bool IsEmpty => Items.Count == 0;
@@ -28,10 +30,31 @@ public partial class HistoryViewModel : ObservableObject
     }
 
     partial void OnSearchTextChanged(string value) => Refresh();
+    partial void OnSelectedFilterChanged(string value) => Refresh();
 
     public void Refresh()
     {
         var q = _mgr.Items.Where(i => (!i.IsPlaylist || i.IsPlaylistRepresentative) && (i.Status is DownloadStatus.Completed or DownloadStatus.Failed));
+        q = SelectedFilter switch
+        {
+            "Playlist" => q.Where(i => i.IsPlaylistRepresentative),
+            "Audio" => q.Where(i => !i.IsPlaylistRepresentative &&
+                (i.Title.Contains(".mp3", StringComparison.OrdinalIgnoreCase) ||
+                 i.FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
+                 i.FilePath.EndsWith(".m4a", StringComparison.OrdinalIgnoreCase) ||
+                 i.FilePath.EndsWith(".opus", StringComparison.OrdinalIgnoreCase) ||
+                 i.FilePath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase))),
+            "Video" => q.Where(i => !i.IsPlaylistRepresentative &&
+                !i.FilePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) &&
+                !i.FilePath.EndsWith(".m4a", StringComparison.OrdinalIgnoreCase) &&
+                !i.FilePath.EndsWith(".opus", StringComparison.OrdinalIgnoreCase) &&
+                !i.FilePath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)),
+            "Channel" => q.Where(i => i.Url.Contains("youtube.com/@", StringComparison.OrdinalIgnoreCase) ||
+                i.Url.Contains("youtube.com/channel/", StringComparison.OrdinalIgnoreCase) ||
+                i.Url.Contains("youtube.com/c/", StringComparison.OrdinalIgnoreCase) ||
+                i.Url.Contains("youtube.com/user/", StringComparison.OrdinalIgnoreCase)),
+            _ => q
+        };
         if (!string.IsNullOrWhiteSpace(SearchText))
             q = q.Where(i => (i.IsPlaylistRepresentative ? i.PlaylistTitle : i.Title).Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         var list = q.OrderByDescending(i => i.FinishedAt ?? i.AddedAt).ToList();
