@@ -42,6 +42,9 @@ public static class YouTubeService
     public static bool LooksLikeYouTube(string url) =>
         VideoId.TryParse(url) != null || PlaylistId.TryParse(url) != null;
 
+    public static bool HasVideoAndPlaylist(string url) =>
+        VideoId.TryParse(url) != null && PlaylistId.TryParse(url) != null;
+
     public static async Task<ResolveResult> ResolveAsync(string url, bool forceSingle, CancellationToken ct)
     {
         var vid = VideoId.TryParse(url);
