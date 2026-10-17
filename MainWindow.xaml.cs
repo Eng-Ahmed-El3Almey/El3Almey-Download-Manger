@@ -69,6 +69,7 @@ public partial class MainWindow : Window
 
         ShowAdd();                         // the app opens on "Add Video"
         Closing += MainWindow_Closing;
+        _manager.DownloadCompleted += Manager_DownloadCompleted;
         _manager.Pump();
     }
 
@@ -126,6 +127,15 @@ public partial class MainWindow : Window
     void ShowDownloads() { _downloads.Refresh(); Navigate(_downloadsView, NavDownloads, true); }
     void ShowHistory() { _history.Refresh(); Navigate(_historyView, NavHistory, false); }
     void ShowSettings() => Navigate(_settingsView, NavSettings, false);
+
+    void Manager_DownloadCompleted(DownloadItem item)
+    {
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var toast = new DownloadCompleteToast(item, Loc.Language == "ar");
+            toast.Show();
+        }));
+    }
 
     void NavAdd_Click(object s, RoutedEventArgs e) => ShowAdd();
     void NavDownloads_Click(object s, RoutedEventArgs e) => ShowDownloads();
