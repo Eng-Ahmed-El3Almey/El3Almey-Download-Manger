@@ -68,8 +68,48 @@ public partial class MainWindow : Window
         _settingsView = new SettingsView { DataContext = _settings };
 
         ShowAdd();                         // the app opens on "Add Video"
-        Closing += (_, _) => _manager.Shutdown();
+        Closing += MainWindow_Closing;
         _manager.Pump();
+    }
+
+    private bool _allowCloseAfterConfirmation;
+
+    private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (_allowCloseAfterConfirmation)
+        {
+            _manager.Shutdown();
+            return;
+        }
+
+        bool hasActiveDownloads = _manager.Items.Any(item =>
+            item.Status is DownloadStatus.Downloading or DownloadStatus.Queued);
+
+        if (!hasActiveDownloads)
+        {
+            _manager.Shutdown();
+            return;
+        }
+
+        bool arabic = Loc.Language == "ar";
+        var result = MessageBox.Show(
+            this,
+            arabic
+                ? "يوجد تنزيلات جارية أو في قائمة الانتظار. هل تريد إيقاف التنزيلات وحفظ حالتها وإغلاق البرنامج؟\\n\\nاضغط Yes للإيقاف والإغلاق، أو No للعودة إلى شاشة التنزيلات."
+                : "There are active or queued downloads. Do you want to stop them, save their state, and close the application?\\n\\nSelect Yes to stop downloads and close, or No to return to the Downloads screen.",
+            arabic ? "التنزيلات ما زالت تعمل" : "Downloads are still active",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            _allowCloseAfterConfirmation = true;
+            _manager.Shutdown();
+            return;
+        }
+
+        e.Cancel = true;
+        ShowDownloads();
     }
 
     string? PickFolder()
