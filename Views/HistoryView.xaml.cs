@@ -41,6 +41,9 @@ public partial class HistoryView : UserControl
         DependencyObject? current = e.OriginalSource as DependencyObject;
         while (current != null)
         {
+            // Do not close the Popup before its Button.Click handler can execute.
+            if (current is Button menuButton && IsMenuAction(menuButton.Tag?.ToString())) return;
+
             if (current is ToggleButton toggle)
             {
                 CloseAllMenusExcept(toggle.DataContext as DownloadItem);
@@ -90,8 +93,11 @@ public partial class HistoryView : UserControl
         }
     }
 
+    static bool IsMenuAction(string? tag) => tag is "Open" or "OpenFolder" or "Redownload" or "Remove";
+
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         if (sender is not FrameworkElement element || DataContext is not HistoryViewModel vm) return;
 
         // Popup content is hosted in a separate WPF presentation source, so its item
