@@ -136,6 +136,8 @@ public static class YtDlpService
         var args = new List<string>
         {
             "--no-warnings", "--newline", "--no-playlist", "--windows-filenames", "--progress",
+            // Resume partial files when a connection drops; retain fragment data for retry.
+            "--continue", "--no-overwrites", "--keep-fragments",
             "--progress-template", "download:__EL3ALMEY_PROGRESS__%(progress._percent_str)s",
             "--ffmpeg-location", ffmpegPath,
             // Be more tolerant of temporary network/CDN failures instead of failing an item immediately.
