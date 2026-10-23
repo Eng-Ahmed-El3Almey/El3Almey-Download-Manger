@@ -18,6 +18,7 @@ public partial class DownloadItem : ObservableObject
     public string AudioTrackLanguage { get; set; } = "default";
     public string SubtitleTrackLanguage { get; set; } = "none";
     public bool AddThumbnail { get; set; }
+    public bool IncludeChapters { get; set; }
     public string OutputFolder { get; set; } = "";
     public string FileBaseName { get; set; } = "";
     public string PlaylistGroupId { get; set; } = "";
