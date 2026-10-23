@@ -19,6 +19,7 @@ public sealed class MediaTrackInfo
 {
     public List<MediaTrackOption> AudioTracks { get; init; } = new();
     public List<MediaTrackOption> SubtitleTracks { get; init; } = new();
+    public bool HasChapters { get; init; }
 }
 
 public static class YtDlpService
@@ -83,7 +84,9 @@ public static class YtDlpService
         audioList.Insert(0, new MediaTrackOption { Id = "default", Language = "default", IsDefault = true, Label = "Default — YouTube default audio" });
         var subList = new List<MediaTrackOption> { new() { Id = "none", Language = "none", Label = "No Subtitles" } };
         subList.AddRange(subs.Values.OrderBy(x => x.Language));
-        return new MediaTrackInfo { AudioTracks = audioList, SubtitleTracks = subList };
+        bool hasChapters = root.TryGetProperty("chapters", out var chapters)
+            && chapters.ValueKind == JsonValueKind.Array && chapters.GetArrayLength() > 0;
+        return new MediaTrackInfo { AudioTracks = audioList, SubtitleTracks = subList, HasChapters = hasChapters };
     }
 
     static void AddSubtitleMap(JsonElement root, string key, Dictionary<string, MediaTrackOption> dest, bool automatic)
@@ -161,6 +164,7 @@ public static class YtDlpService
         {
             args.Add("-f"); args.Add(string.IsNullOrEmpty(audioLang) ? $"bestvideo[height<={item.Height}]+bestaudio/best[height<={item.Height}]/best" : $"bestvideo[height<={item.Height}]+bestaudio[language^={audioLang.Split('-', '_')[0]}]");
             args.Add("--merge-output-format"); args.Add(item.Format.Equals("MKV", StringComparison.OrdinalIgnoreCase) ? "mkv" : "mp4");
+            if (item.IncludeChapters) args.Add("--embed-chapters");
         }
         args.Add(item.Url);
         var psi = new ProcessStartInfo(exe) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true, RedirectStandardOutput = true };
