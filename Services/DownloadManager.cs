@@ -20,6 +20,7 @@ public class DownloadRecord
     public string AudioTrackLanguage { get; set; } = "default";
     public string SubtitleTrackLanguage { get; set; } = "none";
     public bool AddThumbnail { get; set; }
+    public bool IncludeChapters { get; set; }
     public string OutputFolder { get; set; } = "";
     public string FileBaseName { get; set; } = "";
     public string PlaylistGroupId { get; set; } = "";
@@ -76,7 +77,7 @@ public class DownloadManager
                     Id = r.Id, Title = r.Title, Url = r.Url, VideoId = r.VideoId, Thumbnail = r.Thumbnail,
                     Details = r.Details, IsAudio = r.IsAudio, Height = r.Height, Kbps = r.Kbps,
                     AudioTrackLanguage = r.AudioTrackLanguage, SubtitleTrackLanguage = r.SubtitleTrackLanguage,
-                    AddThumbnail = r.AddThumbnail, OutputFolder = r.OutputFolder, FileBaseName = r.FileBaseName,
+                    AddThumbnail = r.AddThumbnail, IncludeChapters = r.IncludeChapters, OutputFolder = r.OutputFolder, FileBaseName = r.FileBaseName,
                     PlaylistGroupId = r.PlaylistGroupId, PlaylistTitle = r.PlaylistTitle, PlaylistIndex = r.PlaylistIndex, PlaylistCount = r.PlaylistCount,
                     FilePath = r.FilePath, Error = r.Error, TotalBytes = r.TotalBytes,
                     AddedAt = r.AddedAt, FinishedAt = r.FinishedAt,
@@ -101,7 +102,7 @@ public class DownloadManager
         Id = i.Id, Title = i.Title, Url = i.Url, VideoId = i.VideoId, Thumbnail = i.Thumbnail,
         Details = i.Details, IsAudio = i.IsAudio, Height = i.Height, Kbps = i.Kbps,
         AudioTrackLanguage = i.AudioTrackLanguage, SubtitleTrackLanguage = i.SubtitleTrackLanguage,
-        AddThumbnail = i.AddThumbnail, OutputFolder = i.OutputFolder, FileBaseName = i.FileBaseName,
+        AddThumbnail = i.AddThumbnail, IncludeChapters = i.IncludeChapters, OutputFolder = i.OutputFolder, FileBaseName = i.FileBaseName,
         PlaylistGroupId = i.PlaylistGroupId, PlaylistTitle = i.PlaylistTitle, PlaylistIndex = i.PlaylistIndex, PlaylistCount = i.PlaylistCount,
         FilePath = i.FilePath, Error = i.Error, Status = i.Status, TotalBytes = i.TotalBytes,
         AddedAt = i.AddedAt, FinishedAt = i.FinishedAt
