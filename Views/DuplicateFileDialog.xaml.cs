@@ -19,6 +19,8 @@ public partial class DuplicateFileDialog : Window
         CancelButtonText.Text = arabic ? "إلغاء" : "Cancel";
     }
 
+    private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
+
     private void NewNameButton_Click(object sender, RoutedEventArgs e)
     {
         DownloadWithNewName = true;

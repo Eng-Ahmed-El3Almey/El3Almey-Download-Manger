@@ -60,11 +60,11 @@
                 <ColumnDefinition Width="{StaticResource ColSize}"/><ColumnDefinition Width="{StaticResource ColActions}"/>
               </Grid.ColumnDefinitions>
               <CheckBox IsChecked="{Binding AllSelected}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="1" Text="{DynamicResource S.ColVideo}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="4,0,0,0"/>
-              <TextBlock Grid.Column="2" Text="{DynamicResource S.ColStatus}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="3" Text="{DynamicResource S.ColProgress}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="4" Text="{DynamicResource S.ColSize}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
-              <TextBlock Grid.Column="5" Text="{DynamicResource S.ColActions}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="1" Text="{DynamicResource S.ColVideo}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="90,0,0,0"/>
+              <TextBlock Grid.Column="2" Text="{DynamicResource S.ColStatus}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="16,0,0,0"/>
+              <TextBlock Grid.Column="3" Text="{DynamicResource S.ColProgress}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="16,0,0,0"/>
+              <TextBlock Grid.Column="4" Text="{DynamicResource S.ColSize}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="16,0,0,0"/>
+              <TextBlock Grid.Column="5" Text="{DynamicResource S.ColActions}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="17,0,0,0"/>
             </Grid>
           </Border>
 
