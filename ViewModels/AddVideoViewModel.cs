@@ -88,18 +88,6 @@ public partial class AddVideoViewModel : ObservableObject
     [ObservableProperty] private MediaTrackOption? _selectedOriginalSubtitleTrack;
     [ObservableProperty] private MediaTrackOption? _selectedAutoTranslatedSubtitleTrack;
 
-    partial void OnSelectedOriginalSubtitleTrackChanged(MediaTrackOption? value)
-    {
-        if (value != null && value.Id != "none" && SelectedAutoTranslatedSubtitleTrack?.Id != "none")
-            SelectedAutoTranslatedSubtitleTrack = AutoTranslatedSubtitleTracks.FirstOrDefault(t => t.Id == "none");
-    }
-
-    partial void OnSelectedAutoTranslatedSubtitleTrackChanged(MediaTrackOption? value)
-    {
-        if (value != null && value.Id != "none" && SelectedOriginalSubtitleTrack?.Id != "none")
-            SelectedOriginalSubtitleTrack = OriginalSubtitleTracks.FirstOrDefault(t => t.Id == "none");
-    }
-
     [ObservableProperty] private string _saveFolder = "";
     [ObservableProperty] private bool _createSubfolder;
     [ObservableProperty] private bool _numberItems;
@@ -650,8 +638,8 @@ public partial class AddVideoViewModel : ObservableObject
             Url = $"https://www.youtube.com/watch?v={id}",
             IsAudio = IsAudio, Height = h, Kbps = k, Format = IsAudio ? SelectedAudioFormat : SelectedVideoFormat, AddThumbnail = IsAudio,
             AudioTrackLanguage = SelectedAudioTrack?.Id ?? "default",
-            SubtitleTrackLanguage = SelectedAutoTranslatedSubtitleTrack?.Id is string autoId && autoId != "none"
-                ? autoId : SelectedOriginalSubtitleTrack?.Id ?? "none",
+            SubtitleTrackLanguage = string.Join(";", new[] { SelectedOriginalSubtitleTrack?.Id, SelectedAutoTranslatedSubtitleTrack?.Id }
+                .Where(id => !string.IsNullOrWhiteSpace(id) && id != "none").Distinct(StringComparer.OrdinalIgnoreCase)),
             IncludeChapters = !IsAudio && IncludeChapters,
             OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total,
             PlaylistGroupId = playlistGroupId, PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
