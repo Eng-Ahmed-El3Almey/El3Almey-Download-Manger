@@ -262,7 +262,7 @@ public class DownloadManager
         var cts = new CancellationTokenSource();
         _running[it.Id] = cts;
         it.Error = "";
-        it.Progress = 0;
+        // Preserve the last visible percentage when resuming a paused download.
         it.Status = DownloadStatus.Downloading;
         // Yield before any engine/tool preparation so Start Download never blocks the WPF UI thread.
         await Task.Yield();
@@ -286,7 +286,6 @@ public class DownloadManager
                 {
                     it.Error = $"Temporary connection problem. Retrying ({attempt + 1}/{maxTransientRetries})…";
                     await Task.Delay(TimeSpan.FromSeconds(2 + attempt * 3), cts.Token);
-                    it.Progress = 0;
                 }
             }
             it.Progress = 100;
@@ -383,7 +382,7 @@ public class DownloadManager
     public void Retry(DownloadItem it)
     {
         if (_running.ContainsKey(it.Id)) return;
-        it.Progress = 0;
+        // Keep the last visible progress when retrying so the UI does not jump backwards.
         it.Error = "";
         it.WantsStart = true;
         it.Status = DownloadStatus.Queued;
