@@ -28,7 +28,7 @@ public partial class DownloadItem : ObservableObject
     public bool IsPlaylist => !string.IsNullOrWhiteSpace(PlaylistGroupId);
     public bool IsPlaylistRepresentative => IsPlaylist && PlaylistIndex == 1;
     public bool CanOpenPlaylist => IsPlaylistRepresentative;
-    public bool CanShowPrimaryAction => !IsPlaylistRepresentative || Status == DownloadStatus.Downloading;
+    public bool CanShowPrimaryAction => !IsPlaylistRepresentative || _playlistHasActiveDownloads;
     public string PlaylistTotalSizeText => IsPlaylistRepresentative && PlaylistTotalBytes > 0 ? $"Total {Fmt.Bytes(PlaylistTotalBytes)}" : "";
     public long PlaylistTotalBytes { get; private set; }
     public string DisplayTitle => IsPlaylistRepresentative ? PlaylistTitle : (IsPlaylist && PlaylistIndex > 0 && !string.IsNullOrWhiteSpace(FileBaseName) ? FileBaseName : Title);
@@ -36,6 +36,7 @@ public partial class DownloadItem : ObservableObject
     public string DisplayDetails => IsPlaylistRepresentative ? $"Playlist • {PlaylistCount} videos • {Details}" : (IsPlaylist && !string.Equals(FileBaseName, Title, StringComparison.Ordinal) ? $"{Details} • {FileBaseName}" : Details);
     double _displayProgress;
     string _displayStatusText = "";
+    bool _playlistHasActiveDownloads;
     Brush _displayStatusFg = B("#4A9BFF");
     public double DisplayProgress => IsPlaylistRepresentative ? _displayProgress : Progress;
     public string DisplayProgressText => IsPlaylistRepresentative ? $"{DisplayProgress:0}% • {PlaylistCompletedCount}/{PlaylistCount}" : ProgressText;
@@ -48,6 +49,7 @@ public partial class DownloadItem : ObservableObject
     {
         if (!IsPlaylistRepresentative || children.Count == 0) return;
         _displayProgress = children.Average(x => x.Progress);
+        _playlistHasActiveDownloads = children.Any(x => x.Status == DownloadStatus.Downloading);
         PlaylistCompletedCount = children.Count(x => x.Status == DownloadStatus.Completed);
         PlaylistFailedCount = children.Count(x => x.Status == DownloadStatus.Failed);
         PlaylistTotalBytes = children.Sum(x => Math.Max(0, x.TotalBytes));
@@ -63,7 +65,7 @@ public partial class DownloadItem : ObservableObject
         OnPropertyChanged(nameof(DisplayProgress)); OnPropertyChanged(nameof(DisplayProgressText));
         OnPropertyChanged(nameof(DisplayStatusText)); OnPropertyChanged(nameof(DisplayStatusFg));
         OnPropertyChanged(nameof(PlaylistTotalSizeText)); OnPropertyChanged(nameof(HistorySizeText)); OnPropertyChanged(nameof(CanOpenPlaylist));
-        OnPropertyChanged(nameof(CanRetry)); OnPropertyChanged(nameof(CanRetryPlaylist));
+        OnPropertyChanged(nameof(CanRetry)); OnPropertyChanged(nameof(CanRetryPlaylist)); OnPropertyChanged(nameof(CanShowPrimaryAction)); OnPropertyChanged(nameof(PrimaryIcon)); OnPropertyChanged(nameof(PrimaryActionTooltip));
     }
     public bool WantsStart { get; set; }
     public DateTime AddedAt { get; set; } = DateTime.Now;
@@ -94,7 +96,7 @@ public partial class DownloadItem : ObservableObject
     public bool CanRetry => Status == DownloadStatus.Failed;
     public bool CanRetryPlaylist => IsPlaylistRepresentative && PlaylistFailedCount > 0;
     public string PrimaryActionTooltip => IsPlaylistRepresentative
-        ? (Status == DownloadStatus.Downloading ? "Pause playlist" : "Start / resume playlist")
+        ? (_playlistHasActiveDownloads ? "Pause playlist" : "Start / resume playlist")
         : Status switch
         {
             DownloadStatus.Downloading => "Pause download",
@@ -104,7 +106,7 @@ public partial class DownloadItem : ObservableObject
             _ => "Start download"
         };
 
-    public string PrimaryIcon => Status switch
+    public string PrimaryIcon => IsPlaylistRepresentative && _playlistHasActiveDownloads ? "\\uE769" : Status switch
     {
         DownloadStatus.Downloading => "\uE769",   // pause
         DownloadStatus.Failed => "\uE72C",        // retry
