@@ -113,6 +113,7 @@ public partial class AddVideoViewModel : ObservableObject
     public bool HasError => State == LinkState.Error;
     public bool IsVideoMode => State == LinkState.Video;
     public bool IsPlaylistMode => State == LinkState.Playlist;
+    public bool IsSingleVideoMode => IsVideoMode && !IsPlaylistMode;
     public bool HasContent => IsVideoMode || IsPlaylistMode;
     public bool IsVideo { get => !IsAudio; set { if (value) IsAudio = false; } }
     public bool CanDownload => HasContent
@@ -396,7 +397,7 @@ public partial class AddVideoViewModel : ObservableObject
     // ------------------------------------------------------------ change notifications
     partial void OnStateChanged(LinkState value)
     {
-        foreach (var n in new[] { nameof(IsLoading), nameof(HasError), nameof(IsVideoMode), nameof(IsPlaylistMode), nameof(HasContent), nameof(CanDownloadAgain) })
+        foreach (var n in new[] { nameof(IsLoading), nameof(HasError), nameof(IsVideoMode), nameof(IsPlaylistMode), nameof(IsSingleVideoMode), nameof(HasContent), nameof(CanDownloadAgain) })
             OnPropertyChanged(n);
         Totals();
     }
