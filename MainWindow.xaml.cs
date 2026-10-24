@@ -135,6 +135,20 @@ public partial class MainWindow : Window
     void NavDownloads_Click(object s, RoutedEventArgs e) => ShowDownloads();
     void NavHistory_Click(object s, RoutedEventArgs e) => ShowHistory();
     void NavSettings_Click(object s, RoutedEventArgs e) => ShowSettings();
+    
+    private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Tab || Keyboard.Modifiers != ModifierKeys.Alt) return;
+
+        e.Handled = true;
+        bool reverse = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+        var pages = new Action[] { ShowAdd, ShowDownloads, ShowHistory, ShowSettings };
+        int current = NavAdd.IsChecked == true ? 0
+            : NavDownloads.IsChecked == true ? 1
+            : NavHistory.IsChecked == true ? 2 : 3;
+        int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
+        pages[next]();
+    }
 
     void TitleBar_MouseDown(object s, MouseButtonEventArgs e)
     {
