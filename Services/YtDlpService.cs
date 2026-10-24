@@ -230,6 +230,8 @@ public static class YtDlpService
         var args = new List<string>
         {
             "--no-warnings", "--newline", "--no-playlist", "--windows-filenames", "--progress",
+            // Emit progress more frequently so the UI does not appear frozen and then jump.
+            "--progress-delta", "0.5",
             // Resume partial files when a connection drops; retain fragment data for retry.
             "--continue", "--no-overwrites", "--keep-fragments",
             "--progress-template", "download:__EL3ALMEY_PROGRESS__%(progress._percent_str)s",
