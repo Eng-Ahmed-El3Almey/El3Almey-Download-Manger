@@ -140,6 +140,7 @@
                           </StackPanel>
                         </Button>
                         <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
+                                Visibility="{Binding CanShowPrimaryAction, Converter={StaticResource B2V}}"
                                 ToolTip="{Binding PrimaryActionTooltip}"
                                 Command="{Binding DataContext.PrimaryActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}">
