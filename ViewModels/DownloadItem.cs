@@ -28,7 +28,7 @@ public partial class DownloadItem : ObservableObject
     public bool IsPlaylist => !string.IsNullOrWhiteSpace(PlaylistGroupId);
     public bool IsPlaylistRepresentative => IsPlaylist && PlaylistIndex == 1;
     public bool CanOpenPlaylist => IsPlaylistRepresentative;
-    public bool CanShowPrimaryAction => !IsPlaylistRepresentative;
+    public bool CanShowPrimaryAction => !IsPlaylistRepresentative || Status == DownloadStatus.Downloading;
     public string PlaylistTotalSizeText => IsPlaylistRepresentative && PlaylistTotalBytes > 0 ? $"Total {Fmt.Bytes(PlaylistTotalBytes)}" : "";
     public long PlaylistTotalBytes { get; private set; }
     public string DisplayTitle => IsPlaylistRepresentative ? PlaylistTitle : (IsPlaylist && PlaylistIndex > 0 && !string.IsNullOrWhiteSpace(FileBaseName) ? FileBaseName : Title);
@@ -143,7 +143,7 @@ public partial class DownloadItem : ObservableObject
     partial void OnStatusChanged(DownloadStatus value)
     {
         foreach (var n in new[] { nameof(StatusText), nameof(StatusFg), nameof(StatusBg), nameof(PrimaryIcon),
-                                  nameof(CanOpenFolder), nameof(IsCompleted), nameof(CanRetry), nameof(CanRetryPlaylist), nameof(DisplayStatusText), nameof(DisplayStatusFg), nameof(PrimaryActionTooltip) })
+                                  nameof(CanOpenFolder), nameof(IsCompleted), nameof(CanRetry), nameof(CanRetryPlaylist), nameof(CanShowPrimaryAction), nameof(DisplayStatusText), nameof(DisplayStatusFg), nameof(PrimaryActionTooltip) })
             OnPropertyChanged(n);
     }
     partial void OnProgressChanged(double value) { OnPropertyChanged(nameof(ProgressText)); OnPropertyChanged(nameof(SizeText)); OnPropertyChanged(nameof(DisplayProgress)); OnPropertyChanged(nameof(DisplayProgressText)); }
