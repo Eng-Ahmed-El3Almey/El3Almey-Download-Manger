@@ -137,6 +137,7 @@ public static class YtDlpService
         var exe = await EnsureAsync(ct);
         Directory.CreateDirectory(item.OutputFolder);
         var workspace = TempFileService.CreateWorkspace(item.Id);
+        bool completed = false;
         try
         {
         var args = new List<string>
@@ -202,10 +203,12 @@ public static class YtDlpService
         // Subtitle download is deliberately separate: a missing/blocked caption must not fail the video.
         await DownloadSubtitleBestEffortAsync(item, exe, ct);
         item.Progress = 100;
+        completed = true;
         }
         finally
         {
-            TempFileService.TryDeleteWorkspace(workspace);
+            // Preserve partial files after cancellation or failure so yt-dlp can resume them on retry.
+            if (completed) TempFileService.TryDeleteWorkspace(workspace);
         }
     }
 
