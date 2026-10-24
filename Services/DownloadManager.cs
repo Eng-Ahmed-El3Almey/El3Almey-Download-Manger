@@ -210,7 +210,7 @@ public class DownloadManager
     }
 
     // ------------------------------------------------------------ commands
-    public void Add(IEnumerable<DownloadItem> items, bool startNow)
+    public void Add(IEnumerable<DownloadItem> items, bool startNow, bool respectAutoStart = true)
     {
         foreach (var it in items)
         {
@@ -219,7 +219,7 @@ public class DownloadManager
             Hook(it);
             Items.Add(it);
             // Both immediate downloads and queued downloads respect the concurrency limit.
-            it.WantsStart = startNow || S.AutoStartQueue;
+            it.WantsStart = startNow || (respectAutoStart && S.AutoStartQueue);
         }
         ScheduleSave();
         Changed?.Invoke();
