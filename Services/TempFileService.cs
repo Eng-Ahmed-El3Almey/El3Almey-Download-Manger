@@ -60,19 +60,21 @@ internal static class TempFileService
         }
     }
 
-    public static void MoveToDestination(string sourcePath, string destinationPath)
+    public static string MoveToDestination(string sourcePath, string destinationPath)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
         var uniquePath = GetUniqueDestination(destinationPath);
         try
         {
             File.Move(sourcePath, uniquePath);
+            return uniquePath;
         }
         catch (IOException) when (File.Exists(sourcePath))
         {
             // The temp directory and download destination can be on different volumes.
             File.Copy(sourcePath, uniquePath, false);
             File.Delete(sourcePath);
+            return uniquePath;
         }
     }
 
