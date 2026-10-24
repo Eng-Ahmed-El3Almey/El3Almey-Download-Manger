@@ -31,6 +31,7 @@ public class DownloadRecord
     public string Error { get; set; } = "";
     public DownloadStatus Status { get; set; }
     public long TotalBytes { get; set; }
+    public double Progress { get; set; }
     public DateTime AddedAt { get; set; }
     public DateTime? FinishedAt { get; set; }
 }
@@ -83,7 +84,7 @@ public class DownloadManager
                     AddedAt = r.AddedAt, FinishedAt = r.FinishedAt,
                     Status = r.Status is DownloadStatus.Downloading or DownloadStatus.Queued
                              ? DownloadStatus.Paused : r.Status,
-                    Progress = r.Status == DownloadStatus.Completed ? 100 : 0
+                    Progress = r.Status == DownloadStatus.Completed ? 100 : Math.Clamp(r.Progress, 0, 99.9)
                 };
                 Hook(it);
                 Items.Add(it);
@@ -104,7 +105,7 @@ public class DownloadManager
         AudioTrackLanguage = i.AudioTrackLanguage, SubtitleTrackLanguage = i.SubtitleTrackLanguage,
         AddThumbnail = i.AddThumbnail, IncludeChapters = i.IncludeChapters, OutputFolder = i.OutputFolder, FileBaseName = i.FileBaseName,
         PlaylistGroupId = i.PlaylistGroupId, PlaylistTitle = i.PlaylistTitle, PlaylistIndex = i.PlaylistIndex, PlaylistCount = i.PlaylistCount,
-        FilePath = i.FilePath, Error = i.Error, Status = i.Status, TotalBytes = i.TotalBytes,
+        FilePath = i.FilePath, Error = i.Error, Status = i.Status, TotalBytes = i.TotalBytes, Progress = i.Progress,
         AddedAt = i.AddedAt, FinishedAt = i.FinishedAt
     }).ToList();
 
@@ -113,15 +114,13 @@ public class DownloadManager
     {
         if (_saveTimer.Dispatcher.CheckAccess())
         {
-            _saveTimer.Stop();
-            _saveTimer.Start();
+            if (!_saveTimer.IsEnabled) _saveTimer.Start();
         }
         else
         {
             _ = _saveTimer.Dispatcher.BeginInvoke(new Action(() =>
             {
-                _saveTimer.Stop();
-                _saveTimer.Start();
+                if (!_saveTimer.IsEnabled) _saveTimer.Start();
             }), DispatcherPriority.Background);
         }
     }
@@ -207,6 +206,7 @@ public class DownloadManager
             children.FirstOrDefault(x => x.IsPlaylistRepresentative)?.UpdatePlaylistSummary(children);
         }
         if (e.PropertyName == nameof(DownloadItem.Status)) { ScheduleSave(); Changed?.Invoke(); }
+        else if (e.PropertyName == nameof(DownloadItem.Progress)) ScheduleSave();
     }
 
     // ------------------------------------------------------------ commands
