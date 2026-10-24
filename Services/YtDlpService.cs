@@ -136,6 +136,9 @@ public static class YtDlpService
     {
         var exe = await EnsureAsync(ct);
         Directory.CreateDirectory(item.OutputFolder);
+        var workspace = TempFileService.CreateWorkspace(item.Id);
+        try
+        {
         var args = new List<string>
         {
             "--no-warnings", "--newline", "--no-playlist", "--windows-filenames", "--progress",
@@ -152,7 +155,7 @@ public static class YtDlpService
             "--retry-sleep", "http:exp=1:20",
             "--retry-sleep", "fragment:exp=1:10",
             "--concurrent-fragments", "4",
-            "--output", Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s")
+            "--output", Path.Combine(workspace, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s")
         };
         string audioLang = string.IsNullOrWhiteSpace(item.AudioTrackLanguage) || item.AudioTrackLanguage == "default" ? "" : item.AudioTrackLanguage;
         if (item.IsAudio)
@@ -188,17 +191,22 @@ public static class YtDlpService
             if (details.Length == 0) details = stdout.Trim();
             throw new InvalidOperationException("yt-dlp download failed: " + details);
         }
-        var expected = Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName));
-        var file = Directory.GetFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
+        var expected = Path.Combine(workspace, Fmt.Sanitize(item.FileBaseName));
+        var file = Directory.GetFiles(workspace, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
             .Where(f => !f.EndsWith(".vtt", StringComparison.OrdinalIgnoreCase) && !f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) && !f.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(File.GetLastWriteTimeUtc).FirstOrDefault();
         if (file == null) throw new FileNotFoundException("yt-dlp finished but the output media file could not be located. " + expected);
-        item.FilePath = file;
+        item.FilePath = TempFileService.MoveToDestination(file, Path.Combine(item.OutputFolder, Path.GetFileName(file)));
         item.Progress = 96;
 
         // Subtitle download is deliberately separate: a missing/blocked caption must not fail the video.
         await DownloadSubtitleBestEffortAsync(item, exe, ct);
         item.Progress = 100;
+        }
+        finally
+        {
+            TempFileService.TryDeleteWorkspace(workspace);
+        }
     }
 
     static async Task DownloadSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct)
