@@ -301,8 +301,18 @@ public static class YtDlpService
 
     static async Task DownloadSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct)
     {
-        string selected = item.SubtitleTrackLanguage ?? "none";
-        if (string.IsNullOrWhiteSpace(selected) || selected.Equals("none", StringComparison.OrdinalIgnoreCase)) return;
+        var selections = (item.SubtitleTrackLanguage ?? "none")
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(value => !value.Equals("none", StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        foreach (var selection in selections)
+            await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection);
+    }
+
+    static async Task DownloadSingleSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct, string selected)
+    {
 
         bool automatic = selected.StartsWith("auto:", StringComparison.OrdinalIgnoreCase);
         bool original = selected.StartsWith("original:", StringComparison.OrdinalIgnoreCase);
