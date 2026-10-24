@@ -42,11 +42,6 @@ public partial class MainWindow : Window
                 var dialog = new PlaylistLinkDialog(playlistTitle, Loc.Language == "ar") { Owner = this };
                 return dialog.ShowDialog() == true ? dialog.DownloadPlaylist
                     : dialog.DialogResult == false ? false : null;
-            },
-            ChapterPrompt = title =>
-            {
-                var dialog = new ChaptersPromptDialog(title, Loc.Language == "ar") { Owner = this };
-                return dialog.ShowDialog() == true;
             }
         };
         _history = new HistoryViewModel(_manager)
