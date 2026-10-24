@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 using El3Almey.Services;
 using El3Almey.ViewModels;
 using El3Almey.Wpf.Views;
@@ -112,9 +113,17 @@ public partial class MainWindow : Window
 
     void Navigate(System.Windows.Controls.UserControl v, System.Windows.Controls.RadioButton nav, bool search)
     {
-        Host.Content = v;
         nav.IsChecked = true;
         SearchBox.Visibility = search ? Visibility.Visible : Visibility.Collapsed;
+
+        // Fade each page in to make navigation feel smooth without rebuilding the view.
+        Host.BeginAnimation(UIElement.OpacityProperty, null);
+        Host.Opacity = 0;
+        Host.Content = v;
+        Host.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        });
     }
 
     void ShowAdd() => Navigate(_addView, NavAdd, false);
