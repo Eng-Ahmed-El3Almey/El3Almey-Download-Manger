@@ -313,37 +313,26 @@ public static class YtDlpService
         if (string.IsNullOrWhiteSpace(language)) return;
 
         Directory.CreateDirectory(item.OutputFolder);
-        string outputTemplate = Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s");
-        var args = new List<string>
-        {
-            "--no-warnings",
-            "--no-playlist",
-            "--ignore-errors",
-            "--skip-download",
-            "--write-subs",
-            "--sub-langs", language,
-            "--sub-format", "vtt/best",
-            "--output", outputTemplate,
-            item.Url
-        };
-
-        // Original and automatically generated subtitles are separate YouTube sources.
-        // Retry with the other source only if the requested source produced no subtitle file.
-        var before = new HashSet<string>(
-            Directory.EnumerateFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly),
-            StringComparer.OrdinalIgnoreCase);
+        string baseName = Fmt.Sanitize(item.FileBaseName);
+        string workspace = TempFileService.CreateWorkspace(item.OutputFolder, item.Id);
+        string outputTemplate = Path.Combine(workspace, baseName + ".%(ext)s");
+        (int ExitCode, string Stdout, string Stderr) result = (-1, "", "Subtitle command did not run.");
+        var found = new List<string>();
 
         async Task<(int ExitCode, string Stdout, string Stderr)> RunSubtitleCommandAsync(bool useAutomatic)
         {
-            var runArgs = args.Where(a => a != "--write-subs").ToList();
-            if (useAutomatic)
+            var runArgs = new List<string>
             {
-                runArgs.Add("--write-auto-subs");
-            }
-            else
-            {
-                runArgs.Add("--write-subs");
-            }
+                "--no-warnings",
+                "--no-playlist",
+                "--ignore-errors",
+                "--skip-download",
+                useAutomatic ? "--write-auto-subs" : "--write-subs",
+                "--sub-langs", language,
+                "--sub-format", "vtt/best",
+                "--output", outputTemplate,
+                item.Url
+            };
 
             var psi = new ProcessStartInfo(exe)
             {
@@ -369,19 +358,33 @@ public static class YtDlpService
             }
         }
 
-        var result = await RunSubtitleCommandAsync(automatic);
-        var matchingFiles = Directory.EnumerateFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
-            .Where(path => IsSubtitleFile(path) && !before.Contains(path))
-            .ToList();
-
-        if (matchingFiles.Count == 0)
+        try
         {
-            // A selected source can be unavailable even when the other subtitle type exists.
-            // Try the alternate source once, without changing the user's saved selection.
-            result = await RunSubtitleCommandAsync(!automatic);
-            matchingFiles = Directory.EnumerateFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
-                .Where(path => IsSubtitleFile(path) && !before.Contains(path))
-                .ToList();
+            // Use a clean workspace so existing media/subtitle files cannot make yt-dlp
+            // incorrectly skip the caption or make the app mistake an old file for a new one.
+            result = await RunSubtitleCommandAsync(automatic);
+            found = Directory.Exists(workspace)
+                ? Directory.EnumerateFiles(workspace, baseName + ".*", SearchOption.TopDirectoryOnly).Where(IsSubtitleFile).ToList()
+                : new List<string>();
+
+            if (found.Count == 0)
+            {
+                // Some videos expose only original captions or only generated captions.
+                result = await RunSubtitleCommandAsync(!automatic);
+                found = Directory.Exists(workspace)
+                    ? Directory.EnumerateFiles(workspace, baseName + ".*", SearchOption.TopDirectoryOnly).Where(IsSubtitleFile).ToList()
+                    : new List<string>();
+            }
+
+            foreach (var source in found)
+            {
+                var destination = Path.Combine(item.OutputFolder, Path.GetFileName(source));
+                File.Move(source, destination, true);
+            }
+        }
+        finally
+        {
+            TempFileService.TryDeleteWorkspace(workspace);
         }
 
         try
@@ -389,7 +392,7 @@ public static class YtDlpService
             var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "El3AlmeyDownloadManager", "logs");
             Directory.CreateDirectory(logDir);
             File.AppendAllText(Path.Combine(logDir, "subtitle-warnings.log"),
-                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{language}; requested={(automatic ? "generated" : original ? "original" : "legacy")}] ExitCode={result.ExitCode}; FilesCreated={matchingFiles.Count}{Environment.NewLine}{result.Stderr}{Environment.NewLine}{result.Stdout}{Environment.NewLine}---{Environment.NewLine}");
+                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{language}; requested={(automatic ? "generated" : original ? "original" : "legacy")}] ExitCode={result.ExitCode}; FilesCreated={found.Count}{Environment.NewLine}{result.Stderr}{Environment.NewLine}{result.Stdout}{Environment.NewLine}---{Environment.NewLine}");
         }
         catch { }
     }
