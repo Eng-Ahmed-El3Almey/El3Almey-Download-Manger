@@ -54,7 +54,7 @@ public static class YouTubeService
         // reject otherwise valid videos/playlists when YouTube changes its responses.
         if (pid != null && !forceSingle)
         {
-            try { return await ResolvePlaylistWithYtDlp(url, pid, vid, ct); }
+            try { return await ResolvePlaylistWithYtDlp(url, pid.Value, vid, ct); }
             catch (OperationCanceledException) { throw; }
             catch when (vid != null)
             {
@@ -68,7 +68,7 @@ public static class YouTubeService
 
         try
         {
-            return await ResolveVideoWithYtDlp(url, vid, ct);
+            return await ResolveVideoWithYtDlp(url, vid.Value, ct);
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ytDlpError)
