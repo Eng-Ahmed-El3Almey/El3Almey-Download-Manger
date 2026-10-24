@@ -106,7 +106,7 @@ public partial class DownloadItem : ObservableObject
             _ => "Start download"
         };
 
-    public string PrimaryIcon => IsPlaylistRepresentative && _playlistHasActiveDownloads ? "\\uE769" : Status switch
+    public string PrimaryIcon => IsPlaylistRepresentative && _playlistHasActiveDownloads ? "\uE769" : Status switch
     {
         DownloadStatus.Downloading => "\uE769",   // pause
         DownloadStatus.Failed => "\uE72C",        // retry
