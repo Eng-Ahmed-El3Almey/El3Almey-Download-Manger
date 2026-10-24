@@ -1,49 +1,22 @@
 namespace El3Almey.Services;
 
 /// <summary>
-/// Provides isolated temporary workspaces for media downloads.
-/// Temporary files are kept out of the user's selected destination until processing is complete.
+/// Provides hidden temporary workspaces inside the selected media destination.
+/// Video and audio downloads therefore use their respective destination folders.
 /// </summary>
 internal static class TempFileService
 {
-    static readonly string PreferredRoot = Path.Combine(AppContext.BaseDirectory, ".temp");
-    static readonly string FallbackRoot = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "El3AlmeyDownloadManager", "Temp");
-
-    public static string CreateWorkspace(Guid itemId)
+    public static string CreateWorkspace(string destinationFolder, Guid itemId)
     {
-        var root = GetWritableRoot();
+        Directory.CreateDirectory(destinationFolder);
+        var root = Path.Combine(destinationFolder, ".temp");
+        Directory.CreateDirectory(root);
+        TryHide(root);
+
         var workspace = Path.Combine(root, itemId.ToString("N"));
         Directory.CreateDirectory(workspace);
-        TryHide(root);
         TryHide(workspace);
         return workspace;
-    }
-
-    static string GetWritableRoot()
-    {
-        try
-        {
-            Directory.CreateDirectory(PreferredRoot);
-            using var probe = new FileStream(Path.Combine(PreferredRoot, ".write-test"), FileMode.Create, FileAccess.Write, FileShare.None);
-            probe.Dispose();
-            File.Delete(Path.Combine(PreferredRoot, ".write-test"));
-            TryHide(PreferredRoot);
-            return PreferredRoot;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            Directory.CreateDirectory(FallbackRoot);
-            TryHide(FallbackRoot);
-            return FallbackRoot;
-        }
-        catch (IOException)
-        {
-            Directory.CreateDirectory(FallbackRoot);
-            TryHide(FallbackRoot);
-            return FallbackRoot;
-        }
     }
 
     public static string GetUniqueDestination(string destinationPath)
@@ -71,7 +44,7 @@ internal static class TempFileService
         }
         catch (IOException) when (File.Exists(sourcePath))
         {
-            // The temp directory and download destination can be on different volumes.
+            // Keep this fallback for destinations that resolve to different volumes.
             File.Copy(sourcePath, uniquePath, false);
             File.Delete(sourcePath);
             return uniquePath;
@@ -83,6 +56,10 @@ internal static class TempFileService
         try
         {
             if (Directory.Exists(workspace)) Directory.Delete(workspace, recursive: true);
+
+            var root = Path.GetDirectoryName(workspace);
+            if (root != null && Directory.Exists(root) && !Directory.EnumerateFileSystemEntries(root).Any())
+                Directory.Delete(root);
         }
         catch
         {
