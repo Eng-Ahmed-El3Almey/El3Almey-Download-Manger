@@ -48,6 +48,93 @@ public static class YtDlpService
         finally { Gate.Release(); }
     }
 
+    public sealed class VideoMetadata
+    {
+        public string Title { get; init; } = "";
+        public string Channel { get; init; } = "";
+        public TimeSpan? Duration { get; init; }
+        public long Views { get; init; }
+        public DateTimeOffset? Published { get; init; }
+        public string Thumbnail { get; init; } = "";
+    }
+
+    public sealed class PlaylistEntryMetadata
+    {
+        public string Id { get; init; } = "";
+        public string Title { get; init; } = "";
+        public string Channel { get; init; } = "";
+        public TimeSpan? Duration { get; init; }
+        public string Thumbnail { get; init; } = "";
+    }
+
+    public sealed class PlaylistMetadata
+    {
+        public string Title { get; init; } = "";
+        public string Channel { get; init; } = "";
+        public List<PlaylistEntryMetadata> Entries { get; init; } = new();
+    }
+
+    public static async Task<VideoMetadata> GetVideoMetadataAsync(string url, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        var output = await RunCaptureAsync(exe, new[] { "--dump-single-json", "--no-warnings", "--no-playlist", "--skip-download", url }, ct);
+        using var doc = JsonDocument.Parse(output);
+        var root = doc.RootElement;
+        long views = root.TryGetProperty("view_count", out var viewsEl) && viewsEl.ValueKind == JsonValueKind.Number ? viewsEl.GetInt64() : 0;
+        TimeSpan? duration = root.TryGetProperty("duration", out var durationEl) && durationEl.ValueKind == JsonValueKind.Number
+            ? TimeSpan.FromSeconds(Math.Max(0, durationEl.GetDouble())) : null;
+        DateTimeOffset? published = null;
+        string uploadDate = Str(root, "release_date");
+        if (uploadDate.Length == 0) uploadDate = Str(root, "upload_date");
+        if (uploadDate.Length == 8 && DateTime.TryParseExact(uploadDate, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date))
+            published = new DateTimeOffset(date, TimeSpan.Zero);
+        return new VideoMetadata
+        {
+            Title = Str(root, "title"),
+            Channel = FirstNonEmpty(Str(root, "channel"), Str(root, "uploader"), Str(root, "channel_id")),
+            Duration = duration,
+            Views = views,
+            Published = published,
+            Thumbnail = Str(root, "thumbnail")
+        };
+    }
+
+    public static async Task<PlaylistMetadata> GetPlaylistMetadataAsync(string url, int maxItems, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        var output = await RunCaptureAsync(exe, new[] { "--flat-playlist", "--dump-single-json", "--no-warnings", "--playlist-end", Math.Max(1, maxItems).ToString(CultureInfo.InvariantCulture), "--skip-download", url }, ct);
+        using var doc = JsonDocument.Parse(output);
+        var root = doc.RootElement;
+        var entries = new List<PlaylistEntryMetadata>();
+        if (root.TryGetProperty("entries", out var array) && array.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in array.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.Object) continue;
+                string id = Str(item, "id");
+                if (id.Length == 0) continue;
+                double seconds = item.TryGetProperty("duration", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetDouble() : -1;
+                entries.Add(new PlaylistEntryMetadata
+                {
+                    Id = id,
+                    Title = Str(item, "title"),
+                    Channel = FirstNonEmpty(Str(item, "channel"), Str(item, "uploader")),
+                    Duration = seconds >= 0 ? TimeSpan.FromSeconds(seconds) : null,
+                    Thumbnail = Str(item, "thumbnail")
+                });
+                if (entries.Count >= maxItems) break;
+            }
+        }
+        return new PlaylistMetadata
+        {
+            Title = FirstNonEmpty(Str(root, "title"), Str(root, "playlist_title")),
+            Channel = FirstNonEmpty(Str(root, "channel"), Str(root, "uploader")),
+            Entries = entries
+        };
+    }
+
+    static string FirstNonEmpty(params string[] values) => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? "";
+
     public static async Task<MediaTrackInfo> GetTracksAsync(string url, CancellationToken ct)
     {
         var exe = await EnsureAsync(ct);
