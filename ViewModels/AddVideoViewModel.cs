@@ -570,7 +570,7 @@ public partial class AddVideoViewModel : ObservableObject
         if (CreateM3U && _res?.IsPlaylist == true) WritePlaylistM3U(items);
         // Queue first, then navigate. All progress callbacks are marshalled to the UI dispatcher.
         Url = "";
-        _mgr.Add(items, now, respectAutoStart: now);
+        _mgr.Add(items, now, respectAutoStart: false);
         Done?.Invoke();
     }
 
