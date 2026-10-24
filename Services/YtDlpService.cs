@@ -426,7 +426,7 @@ public static class YtDlpService
             var match = ProgressPercentRegex.Match(candidate);
             if (match.Success && double.TryParse(match.Groups["percent"].Value,
                 System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var pct))
-                progress?.Invoke(Math.Clamp(pct, 0, 100));
+                progress?.Invoke(Math.Clamp(pct, 0, 95));
         }
     }
 
