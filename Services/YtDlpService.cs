@@ -136,7 +136,7 @@ public static class YtDlpService
     {
         var exe = await EnsureAsync(ct);
         Directory.CreateDirectory(item.OutputFolder);
-        var workspace = TempFileService.CreateWorkspace(item.Id);
+        var workspace = TempFileService.CreateWorkspace(item.OutputFolder, item.Id);
         bool completed = false;
         try
         {
