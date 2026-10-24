@@ -287,7 +287,7 @@ public static class YtDlpService
             .Where(path => IsSubtitleFile(path) && !before.Contains(path))
             .ToList();
 
-        if (matchingFiles.Count == 0 && result.ExitCode != 0)
+        if (matchingFiles.Count == 0)
         {
             // A selected source can be unavailable even when the other subtitle type exists.
             // Try the alternate source once, without changing the user's saved selection.
