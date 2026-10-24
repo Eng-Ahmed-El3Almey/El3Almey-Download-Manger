@@ -218,43 +218,102 @@ public static class YtDlpService
         if (string.IsNullOrWhiteSpace(selected) || selected.Equals("none", StringComparison.OrdinalIgnoreCase)) return;
 
         bool automatic = selected.StartsWith("auto:", StringComparison.OrdinalIgnoreCase);
-        string language = selected.StartsWith("auto:", StringComparison.OrdinalIgnoreCase) || selected.StartsWith("original:", StringComparison.OrdinalIgnoreCase)
+        bool original = selected.StartsWith("original:", StringComparison.OrdinalIgnoreCase);
+        string language = automatic || original
             ? selected[(selected.IndexOf(':') + 1)..]
-            : selected; // backward compatibility with items saved by earlier versions
+            : selected;
+
         if (string.IsNullOrWhiteSpace(language)) return;
 
-        var args = new List<string> { "--no-warnings", "--no-playlist", "--skip-download", "--sub-langs", language, "--sub-format", "vtt/best", "--output", Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s") };
-        args.Add(automatic ? "--write-auto-subs" : "--write-subs");
-        args.Add(item.Url);
-
-        var psi = new ProcessStartInfo(exe) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true, RedirectStandardOutput = true };
-        foreach (var arg in args) psi.ArgumentList.Add(arg);
-        using var process = Process.Start(psi);
-        if (process == null) return;
-        var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
-        var stderrTask = process.StandardError.ReadToEndAsync(ct);
-        try
+        Directory.CreateDirectory(item.OutputFolder);
+        string outputTemplate = Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s");
+        var args = new List<string>
         {
-            await process.WaitForExitAsync(ct);
-            string stdout = await stdoutTask;
-            string stderr = await stderrTask;
-            if (process.ExitCode != 0)
+            "--no-warnings",
+            "--no-playlist",
+            "--ignore-errors",
+            "--skip-download",
+            "--write-subs",
+            "--sub-langs", language,
+            "--sub-format", "vtt/best",
+            "--output", outputTemplate,
+            item.Url
+        };
+
+        // Original and automatically generated subtitles are separate YouTube sources.
+        // Retry with the other source only if the requested source produced no subtitle file.
+        var before = new HashSet<string>(
+            Directory.EnumerateFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly),
+            StringComparer.OrdinalIgnoreCase);
+
+        async Task<(int ExitCode, string Stdout, string Stderr)> RunSubtitleCommandAsync(bool useAutomatic)
+        {
+            var runArgs = args.Where(a => a != "--write-subs").ToList();
+            if (useAutomatic)
             {
-                try
-                {
-                    var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "El3AlmeyDownloadManager", "logs");
-                    Directory.CreateDirectory(logDir);
-                    File.AppendAllText(Path.Combine(logDir, "subtitle-warnings.log"),
-                        $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{language}; {(automatic ? "generated" : "original")}] ExitCode={process.ExitCode}{Environment.NewLine}{stderr}{Environment.NewLine}{stdout}{Environment.NewLine}---{Environment.NewLine}");
-                }
-                catch { }
+                runArgs.Add("--write-auto-subs");
+            }
+            else
+            {
+                runArgs.Add("--write-subs");
+            }
+
+            var psi = new ProcessStartInfo(exe)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+            foreach (var arg in runArgs) psi.ArgumentList.Add(arg);
+            using var process = Process.Start(psi);
+            if (process == null) return (-1, "", "yt-dlp could not start.");
+            var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
+            var stderrTask = process.StandardError.ReadToEndAsync(ct);
+            try
+            {
+                await process.WaitForExitAsync(ct);
+                return (process.ExitCode, await stdoutTask, await stderrTask);
+            }
+            catch (OperationCanceledException)
+            {
+                try { process.Kill(true); } catch { }
+                throw;
             }
         }
-        catch (OperationCanceledException)
+
+        var result = await RunSubtitleCommandAsync(automatic);
+        var matchingFiles = Directory.EnumerateFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
+            .Where(path => IsSubtitleFile(path) && !before.Contains(path))
+            .ToList();
+
+        if (matchingFiles.Count == 0 && result.ExitCode != 0)
         {
-            try { process.Kill(true); } catch { }
-            throw;
+            // A selected source can be unavailable even when the other subtitle type exists.
+            // Try the alternate source once, without changing the user's saved selection.
+            result = await RunSubtitleCommandAsync(!automatic);
+            matchingFiles = Directory.EnumerateFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
+                .Where(path => IsSubtitleFile(path) && !before.Contains(path))
+                .ToList();
         }
+
+        try
+        {
+            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "El3AlmeyDownloadManager", "logs");
+            Directory.CreateDirectory(logDir);
+            File.AppendAllText(Path.Combine(logDir, "subtitle-warnings.log"),
+                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{language}; requested={(automatic ? "generated" : original ? "original" : "legacy")}] ExitCode={result.ExitCode}; FilesCreated={matchingFiles.Count}{Environment.NewLine}{result.Stderr}{Environment.NewLine}{result.Stdout}{Environment.NewLine}---{Environment.NewLine}");
+        }
+        catch { }
+    }
+
+    static bool IsSubtitleFile(string path)
+    {
+        string extension = Path.GetExtension(path);
+        return extension.Equals(".vtt", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".srt", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".ass", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".lrc", StringComparison.OrdinalIgnoreCase);
     }
 
     static readonly Regex ProgressPercentRegex = new(@"(?<percent>\d{1,3}(?:\.\d+)?)\s*%", RegexOptions.Compiled | RegexOptions.CultureInvariant);
