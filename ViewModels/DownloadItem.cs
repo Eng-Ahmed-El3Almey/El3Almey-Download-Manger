@@ -28,6 +28,7 @@ public partial class DownloadItem : ObservableObject
     public bool IsPlaylist => !string.IsNullOrWhiteSpace(PlaylistGroupId);
     public bool IsPlaylistRepresentative => IsPlaylist && PlaylistIndex == 1;
     public bool CanOpenPlaylist => IsPlaylistRepresentative;
+    public bool CanShowPrimaryAction => !IsPlaylistRepresentative;
     public string PlaylistTotalSizeText => IsPlaylistRepresentative && PlaylistTotalBytes > 0 ? $"Total {Fmt.Bytes(PlaylistTotalBytes)}" : "";
     public long PlaylistTotalBytes { get; private set; }
     public string DisplayTitle => IsPlaylistRepresentative ? PlaylistTitle : (IsPlaylist && PlaylistIndex > 0 && !string.IsNullOrWhiteSpace(FileBaseName) ? FileBaseName : Title);
