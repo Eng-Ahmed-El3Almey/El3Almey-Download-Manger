@@ -55,9 +55,6 @@ public partial class AddVideoViewModel : ObservableObject
     public Func<string, bool?>? DuplicateFilePrompt { get; set; }
     // true = playlist, false = only the linked video, null = leave the preview without changing mode
     public Func<string, bool?>? PlaylistLinkPrompt { get; set; }
-    // true = embed chapters in the downloaded video; false/null = download without requesting chapters
-    public Func<string, bool?>? ChapterPrompt { get; set; }
-    bool _keepChaptersForCurrentVideo;
 
     public ObservableCollection<QualityOption> VideoQualities { get; } = new();
     public ObservableCollection<QualityOption> AudioQualities { get; } = new();
@@ -107,6 +104,7 @@ public partial class AddVideoViewModel : ObservableObject
     [ObservableProperty] private bool _createSubfolder;
     [ObservableProperty] private bool _numberItems;
     [ObservableProperty] private bool _createM3U;
+    [ObservableProperty] private bool _includeChapters;
     [ObservableProperty] private bool _addThumbnail;
     [ObservableProperty] private bool _allSelected = true;
     [ObservableProperty] private int _selectedEntries;
@@ -222,13 +220,6 @@ public partial class AddVideoViewModel : ObservableObject
         {
             var r = await YouTubeService.ResolveAsync(url, resolveSingle, ct);
             if (ct.IsCancellationRequested) return;
-            _keepChaptersForCurrentVideo = false;
-            if (!r.IsPlaylist && r.Tracks.HasChapters && ChapterPrompt != null)
-            {
-                var keepChapters = ChapterPrompt(r.Title);
-                if (ct.IsCancellationRequested) return;
-                _keepChaptersForCurrentVideo = keepChapters == true;
-            }
             Apply(r);
         }
         catch (OperationCanceledException) { }
@@ -659,7 +650,7 @@ public partial class AddVideoViewModel : ObservableObject
             AudioTrackLanguage = SelectedAudioTrack?.Id ?? "default",
             SubtitleTrackLanguage = SelectedAutoTranslatedSubtitleTrack?.Id is string autoId && autoId != "none"
                 ? autoId : SelectedOriginalSubtitleTrack?.Id ?? "none",
-            IncludeChapters = !IsAudio && !r.IsPlaylist && _keepChaptersForCurrentVideo,
+            IncludeChapters = !IsAudio && !r.IsPlaylist && IncludeChapters,
             OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total,
             PlaylistGroupId = playlistGroupId, PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
         };
