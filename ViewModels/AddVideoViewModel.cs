@@ -173,7 +173,7 @@ public partial class AddVideoViewModel : ObservableObject
         SaveFolder = IsAudio ? s.AudioDownloadFolder : s.DownloadFolder;
         CreateSubfolder = s.CreatePlaylistSubfolder;
         NumberItems = s.NumberPlaylistItems;
-        IncludeChapters = s.IncludeChaptersByDefault;
+        IncludeChapters = s.IncludeChaptersByDefault || (_res?.Tracks.HasChapters ?? false);
         AddThumbnail = true;
         IsAudio = s.DefaultIsAudio;
     }
@@ -652,7 +652,7 @@ public partial class AddVideoViewModel : ObservableObject
             AudioTrackLanguage = SelectedAudioTrack?.Id ?? "default",
             SubtitleTrackLanguage = SelectedAutoTranslatedSubtitleTrack?.Id is string autoId && autoId != "none"
                 ? autoId : SelectedOriginalSubtitleTrack?.Id ?? "none",
-            IncludeChapters = !IsAudio && !r.IsPlaylist && IncludeChapters,
+            IncludeChapters = !IsAudio && IncludeChapters,
             OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total,
             PlaylistGroupId = playlistGroupId, PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
         };
