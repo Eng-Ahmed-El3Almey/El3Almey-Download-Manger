@@ -241,6 +241,7 @@ public partial class AddVideoViewModel : ObservableObject
     void Apply(ResolveResult r)
     {
         _res = r;
+        IncludeChapters = !IsAudio && (SettingsStore.Current.IncludeChaptersByDefault || r.Tracks.HasChapters);
         Title = r.Title;
         Channel = r.Channel;
         Thumb = r.Thumb;
