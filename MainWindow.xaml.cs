@@ -138,11 +138,13 @@ public partial class MainWindow : Window
     
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Tab || Keyboard.Modifiers is not (ModifierKeys.Control or (ModifierKeys.Control | ModifierKeys.Shift)))
+        var modifiers = Keyboard.Modifiers;
+        if (e.Key != Key.Tab || !modifiers.HasFlag(ModifierKeys.Control)
+            || (modifiers & ~(ModifierKeys.Control | ModifierKeys.Shift)) != ModifierKeys.None)
             return;
 
         e.Handled = true;
-        bool reverse = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
+        bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
         var pages = new Action[] { ShowAdd, ShowDownloads, ShowHistory, ShowSettings };
         int current = NavAdd.IsChecked == true ? 0
             : NavDownloads.IsChecked == true ? 1
