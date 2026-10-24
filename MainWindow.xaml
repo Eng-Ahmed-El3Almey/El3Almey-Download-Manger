@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="El3Almey Download Manager" Icon="{StaticResource AppIcon}" Width="1400" Height="860" MinWidth="1100" MinHeight="680"
         Background="{StaticResource WindowBg}" WindowStartupLocation="CenterScreen"
-        WindowStyle="None" ResizeMode="CanResize">
+        WindowStyle="None" ResizeMode="CanResize" PreviewKeyDown="MainWindow_PreviewKeyDown">
   <WindowChrome.WindowChrome>
     <WindowChrome CaptionHeight="0" ResizeBorderThickness="5" GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
   </WindowChrome.WindowChrome>
