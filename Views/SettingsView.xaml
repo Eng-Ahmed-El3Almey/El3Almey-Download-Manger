@@ -190,6 +190,13 @@
                     <TextBlock Text="Prefix filenames with their playlist order." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/>
                   </StackPanel>
                 </CheckBox>
+                <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,4"/>
+                <CheckBox Style="{StaticResource SettingToggle}" IsChecked="{Binding IncludeChaptersByDefault}">
+                  <StackPanel>
+                    <TextBlock Text="Embed YouTube chapters by default" FontSize="13" FontWeight="SemiBold"/>
+                    <TextBlock Text="Start with chapter embedding enabled for single-video downloads. You can change it for each download." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                  </StackPanel>
+                </CheckBox>
               </StackPanel>
             </Border>
           </StackPanel>
