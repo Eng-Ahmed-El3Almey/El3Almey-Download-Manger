@@ -13,6 +13,7 @@ public class AppSettings
     public bool AddThumbnailToMp3 { get; set; } = true;
     public bool CreatePlaylistSubfolder { get; set; } = true;
     public bool NumberPlaylistItems { get; set; } = false;
+    public bool IncludeChaptersByDefault { get; set; } = false;
     public int MaxConcurrent { get; set; } = 3;
     public bool AutoStartQueue { get; set; } = true;
     public string FfmpegPath { get; set; } = "";

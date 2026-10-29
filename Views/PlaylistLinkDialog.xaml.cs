@@ -37,4 +37,5 @@ public partial class PlaylistLinkDialog : Window
     }
 
     void CancelButton_Click(object sender, RoutedEventArgs e) => Close();
+    void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 }

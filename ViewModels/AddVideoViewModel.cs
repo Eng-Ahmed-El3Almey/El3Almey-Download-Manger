@@ -55,9 +55,6 @@ public partial class AddVideoViewModel : ObservableObject
     public Func<string, bool?>? DuplicateFilePrompt { get; set; }
     // true = playlist, false = only the linked video, null = leave the preview without changing mode
     public Func<string, bool?>? PlaylistLinkPrompt { get; set; }
-    // true = embed chapters in the downloaded video; false/null = download without requesting chapters
-    public Func<string, bool?>? ChapterPrompt { get; set; }
-    bool _keepChaptersForCurrentVideo;
 
     public ObservableCollection<QualityOption> VideoQualities { get; } = new();
     public ObservableCollection<QualityOption> AudioQualities { get; } = new();
@@ -91,22 +88,11 @@ public partial class AddVideoViewModel : ObservableObject
     [ObservableProperty] private MediaTrackOption? _selectedOriginalSubtitleTrack;
     [ObservableProperty] private MediaTrackOption? _selectedAutoTranslatedSubtitleTrack;
 
-    partial void OnSelectedOriginalSubtitleTrackChanged(MediaTrackOption? value)
-    {
-        if (value != null && value.Id != "none" && SelectedAutoTranslatedSubtitleTrack?.Id != "none")
-            SelectedAutoTranslatedSubtitleTrack = AutoTranslatedSubtitleTracks.FirstOrDefault(t => t.Id == "none");
-    }
-
-    partial void OnSelectedAutoTranslatedSubtitleTrackChanged(MediaTrackOption? value)
-    {
-        if (value != null && value.Id != "none" && SelectedOriginalSubtitleTrack?.Id != "none")
-            SelectedOriginalSubtitleTrack = OriginalSubtitleTracks.FirstOrDefault(t => t.Id == "none");
-    }
-
     [ObservableProperty] private string _saveFolder = "";
     [ObservableProperty] private bool _createSubfolder;
     [ObservableProperty] private bool _numberItems;
     [ObservableProperty] private bool _createM3U;
+    [ObservableProperty] private bool _includeChapters;
     [ObservableProperty] private bool _addThumbnail;
     [ObservableProperty] private bool _allSelected = true;
     [ObservableProperty] private int _selectedEntries;
@@ -115,6 +101,7 @@ public partial class AddVideoViewModel : ObservableObject
     public bool HasError => State == LinkState.Error;
     public bool IsVideoMode => State == LinkState.Video;
     public bool IsPlaylistMode => State == LinkState.Playlist;
+    public bool IsSingleVideoMode => IsVideoMode && !IsPlaylistMode;
     public bool HasContent => IsVideoMode || IsPlaylistMode;
     public bool IsVideo { get => !IsAudio; set { if (value) IsAudio = false; } }
     public bool CanDownload => HasContent
@@ -174,6 +161,7 @@ public partial class AddVideoViewModel : ObservableObject
         SaveFolder = IsAudio ? s.AudioDownloadFolder : s.DownloadFolder;
         CreateSubfolder = s.CreatePlaylistSubfolder;
         NumberItems = s.NumberPlaylistItems;
+        IncludeChapters = s.IncludeChaptersByDefault || (_res?.Tracks.HasChapters ?? false);
         AddThumbnail = true;
         IsAudio = s.DefaultIsAudio;
     }
@@ -222,13 +210,6 @@ public partial class AddVideoViewModel : ObservableObject
         {
             var r = await YouTubeService.ResolveAsync(url, resolveSingle, ct);
             if (ct.IsCancellationRequested) return;
-            _keepChaptersForCurrentVideo = false;
-            if (!r.IsPlaylist && r.Tracks.HasChapters && ChapterPrompt != null)
-            {
-                var keepChapters = ChapterPrompt(r.Title);
-                if (ct.IsCancellationRequested) return;
-                _keepChaptersForCurrentVideo = keepChapters == true;
-            }
             Apply(r);
         }
         catch (OperationCanceledException) { }
@@ -260,6 +241,7 @@ public partial class AddVideoViewModel : ObservableObject
     void Apply(ResolveResult r)
     {
         _res = r;
+        IncludeChapters = !IsAudio && (SettingsStore.Current.IncludeChaptersByDefault || r.Tracks.HasChapters);
         Title = r.Title;
         Channel = r.Channel;
         Thumb = r.Thumb;
@@ -405,7 +387,7 @@ public partial class AddVideoViewModel : ObservableObject
     // ------------------------------------------------------------ change notifications
     partial void OnStateChanged(LinkState value)
     {
-        foreach (var n in new[] { nameof(IsLoading), nameof(HasError), nameof(IsVideoMode), nameof(IsPlaylistMode), nameof(HasContent), nameof(CanDownloadAgain) })
+        foreach (var n in new[] { nameof(IsLoading), nameof(HasError), nameof(IsVideoMode), nameof(IsPlaylistMode), nameof(IsSingleVideoMode), nameof(HasContent), nameof(CanDownloadAgain) })
             OnPropertyChanged(n);
         Totals();
     }
@@ -577,7 +559,7 @@ public partial class AddVideoViewModel : ObservableObject
         if (CreateM3U && _res?.IsPlaylist == true) WritePlaylistM3U(items);
         // Queue first, then navigate. All progress callbacks are marshalled to the UI dispatcher.
         Url = "";
-        _mgr.Add(items, now);
+        _mgr.Add(items, now, respectAutoStart: false);
         Done?.Invoke();
     }
 
@@ -657,9 +639,9 @@ public partial class AddVideoViewModel : ObservableObject
             Url = $"https://www.youtube.com/watch?v={id}",
             IsAudio = IsAudio, Height = h, Kbps = k, Format = IsAudio ? SelectedAudioFormat : SelectedVideoFormat, AddThumbnail = IsAudio,
             AudioTrackLanguage = SelectedAudioTrack?.Id ?? "default",
-            SubtitleTrackLanguage = SelectedAutoTranslatedSubtitleTrack?.Id is string autoId && autoId != "none"
-                ? autoId : SelectedOriginalSubtitleTrack?.Id ?? "none",
-            IncludeChapters = !IsAudio && !r.IsPlaylist && _keepChaptersForCurrentVideo,
+            SubtitleTrackLanguage = string.Join(";", new[] { SelectedOriginalSubtitleTrack?.Id, SelectedAutoTranslatedSubtitleTrack?.Id }
+                .Where(id => !string.IsNullOrWhiteSpace(id) && id != "none").Distinct(StringComparer.OrdinalIgnoreCase)),
+            IncludeChapters = !IsAudio && IncludeChapters,
             OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total,
             PlaylistGroupId = playlistGroupId, PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
         };

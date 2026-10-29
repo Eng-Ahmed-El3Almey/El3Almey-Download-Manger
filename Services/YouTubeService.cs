@@ -50,17 +50,61 @@ public static class YouTubeService
         var vid = VideoId.TryParse(url);
         var pid = PlaylistId.TryParse(url);
 
+        // Prefer yt-dlp for resolving YouTube metadata because YoutubeExplode can
+        // reject otherwise valid videos/playlists when YouTube changes its responses.
         if (pid != null && !forceSingle)
         {
-            try { return await ResolvePlaylist(pid.Value, vid, ct); }
+            try { return await ResolvePlaylistWithYtDlp(url, pid.Value, vid, ct); }
             catch (OperationCanceledException) { throw; }
-            catch when (vid != null) { /* e.g. auto-generated mix: fall back to the single video */ }
+            catch when (vid != null)
+            {
+                // Mixed video/playlist URLs (including generated mixes) may not expose
+                // a readable playlist; resolve the explicitly linked video instead.
+            }
         }
-        if (vid == null) throw new InvalidOperationException("Unsupported link");
-        return await ResolveVideo(vid.Value, ct);
+
+        if (vid == null)
+            throw new InvalidOperationException("Unsupported YouTube link. Please check that the video or playlist is public and available.");
+
+        try
+        {
+            return await ResolveVideoWithYtDlp(url, vid.Value, ct);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ytDlpError)
+        {
+            try { return await ResolveVideoWithYoutubeExplode(vid.Value, ct); }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception fallbackError)
+            {
+                throw new InvalidOperationException(
+                    "Could not load this YouTube video. yt-dlp: " + ytDlpError.Message +
+                    " | fallback: " + fallbackError.Message, ytDlpError);
+            }
+        }
     }
 
-    static async Task<ResolveResult> ResolveVideo(VideoId id, CancellationToken ct)
+    static async Task<ResolveResult> ResolveVideoWithYtDlp(string url, VideoId id, CancellationToken ct)
+    {
+        var metadata = await YtDlpService.GetVideoMetadataAsync(url, ct);
+        var manifest = await Yt.Videos.Streams.GetManifestAsync(id, ct);
+        var tracks = await YtDlpService.GetTracksAsync("https://www.youtube.com/watch?v=" + id.Value, ct);
+        return new ResolveResult
+        {
+            IsPlaylist = false,
+            VideoId = id.Value,
+            Title = metadata.Title,
+            Channel = metadata.Channel,
+            Duration = metadata.Duration,
+            Views = metadata.Views,
+            Published = metadata.Published,
+            Thumb = string.IsNullOrWhiteSpace(metadata.Thumbnail) ? Thumb(id.Value) : metadata.Thumbnail,
+            Manifest = manifest,
+            Tracks = tracks
+        };
+    }
+
+    static async Task<ResolveResult> ResolveVideoWithYoutubeExplode(VideoId id, CancellationToken ct)
     {
         var video = await Yt.Videos.GetAsync(id, ct);
         var manifest = await Yt.Videos.Streams.GetManifestAsync(id, ct);
@@ -80,45 +124,64 @@ public static class YouTubeService
         };
     }
 
-    static async Task<ResolveResult> ResolvePlaylist(PlaylistId pid, VideoId? currentVideo, CancellationToken ct)
+    static async Task<ResolveResult> ResolvePlaylistWithYtDlp(string url, PlaylistId pid, VideoId? currentVideo, CancellationToken ct)
     {
-        var playlist = await Yt.Playlists.GetAsync(pid, ct);
+        var metadata = await YtDlpService.GetPlaylistMetadataAsync(url, MaxPlaylistItems, ct);
         var res = new ResolveResult
         {
             IsPlaylist = true,
-            PlaylistTitle = playlist.Title,
-            Title = playlist.Title,
-            Channel = playlist.Author?.ChannelTitle ?? "",
+            PlaylistTitle = string.IsNullOrWhiteSpace(metadata.Title) ? pid.Value : metadata.Title,
+            Title = string.IsNullOrWhiteSpace(metadata.Title) ? pid.Value : metadata.Title,
+            Channel = metadata.Channel,
             SingleVideoId = currentVideo?.Value
         };
 
         int i = 0;
         TimeSpan total = TimeSpan.Zero;
-        await foreach (var v in Yt.Playlists.GetVideosAsync(pid, ct))
+        foreach (var entry in metadata.Entries)
         {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(entry.Id)) continue;
             i++;
+            var duration = entry.Duration;
             res.Entries.Add(new EntryInfo
             {
                 Index = i,
-                Id = v.Id.Value,
-                Title = v.Title,
-                Channel = v.Author.ChannelTitle,
-                Duration = v.Duration,
-                Thumb = Thumb(v.Id.Value, "mqdefault")
+                Id = entry.Id,
+                Title = string.IsNullOrWhiteSpace(entry.Title) ? "Video " + i : entry.Title,
+                Channel = string.IsNullOrWhiteSpace(entry.Channel) ? metadata.Channel : entry.Channel,
+                Duration = duration,
+                Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail) ? Thumb(entry.Id, "mqdefault") : entry.Thumbnail
             });
-            if (v.Duration != null) total += v.Duration.Value;
+            if (duration != null) total += duration.Value;
             if (i >= MaxPlaylistItems) break;
         }
-        if (res.Entries.Count == 0) throw new InvalidOperationException("Empty playlist");
+
+        if (res.Entries.Count == 0) throw new InvalidOperationException("yt-dlp returned no available playlist entries.");
 
         res.Duration = total;
-        res.VideoId = res.Entries[0].Id;
-        res.Thumb = Thumb(res.VideoId);
-        // availability of qualities is taken from the first video of the playlist
-        res.Manifest = await Yt.Videos.Streams.GetManifestAsync(VideoId.Parse(res.VideoId), ct);
-        res.Tracks = await YtDlpService.GetTracksAsync("https://www.youtube.com/watch?v=" + res.VideoId, ct);
-        return res;
+        // A deleted/private first entry should not make the entire playlist unusable.
+        Exception? lastError = null;
+        foreach (var entry in res.Entries)
+        {
+            try
+            {
+                var id = VideoId.Parse(entry.Id);
+                var manifest = await Yt.Videos.Streams.GetManifestAsync(id, ct);
+                var tracks = await YtDlpService.GetTracksAsync("https://www.youtube.com/watch?v=" + entry.Id, ct);
+                res.VideoId = entry.Id;
+                res.Thumb = entry.Thumb;
+                res.Manifest = manifest;
+                res.Tracks = tracks;
+                return res;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex) { lastError = ex; }
+        }
+
+        throw new InvalidOperationException("Playlist entries were found, but no available video could be used to load quality and track information. " + lastError?.Message);
     }
+
 }
 
 public static class StreamPicker

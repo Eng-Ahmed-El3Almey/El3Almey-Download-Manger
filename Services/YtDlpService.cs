@@ -48,6 +48,93 @@ public static class YtDlpService
         finally { Gate.Release(); }
     }
 
+    public sealed class VideoMetadata
+    {
+        public string Title { get; init; } = "";
+        public string Channel { get; init; } = "";
+        public TimeSpan? Duration { get; init; }
+        public long Views { get; init; }
+        public DateTimeOffset? Published { get; init; }
+        public string Thumbnail { get; init; } = "";
+    }
+
+    public sealed class PlaylistEntryMetadata
+    {
+        public string Id { get; init; } = "";
+        public string Title { get; init; } = "";
+        public string Channel { get; init; } = "";
+        public TimeSpan? Duration { get; init; }
+        public string Thumbnail { get; init; } = "";
+    }
+
+    public sealed class PlaylistMetadata
+    {
+        public string Title { get; init; } = "";
+        public string Channel { get; init; } = "";
+        public List<PlaylistEntryMetadata> Entries { get; init; } = new();
+    }
+
+    public static async Task<VideoMetadata> GetVideoMetadataAsync(string url, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        var output = await RunCaptureAsync(exe, new[] { "--dump-single-json", "--no-warnings", "--no-playlist", "--skip-download", url }, ct);
+        using var doc = JsonDocument.Parse(output);
+        var root = doc.RootElement;
+        long views = root.TryGetProperty("view_count", out var viewsEl) && viewsEl.ValueKind == JsonValueKind.Number ? viewsEl.GetInt64() : 0;
+        TimeSpan? duration = root.TryGetProperty("duration", out var durationEl) && durationEl.ValueKind == JsonValueKind.Number
+            ? TimeSpan.FromSeconds(Math.Max(0, durationEl.GetDouble())) : null;
+        DateTimeOffset? published = null;
+        string uploadDate = Str(root, "release_date");
+        if (uploadDate.Length == 0) uploadDate = Str(root, "upload_date");
+        if (uploadDate.Length == 8 && DateTime.TryParseExact(uploadDate, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date))
+            published = new DateTimeOffset(date, TimeSpan.Zero);
+        return new VideoMetadata
+        {
+            Title = Str(root, "title"),
+            Channel = FirstNonEmpty(Str(root, "channel"), Str(root, "uploader"), Str(root, "channel_id")),
+            Duration = duration,
+            Views = views,
+            Published = published,
+            Thumbnail = Str(root, "thumbnail")
+        };
+    }
+
+    public static async Task<PlaylistMetadata> GetPlaylistMetadataAsync(string url, int maxItems, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        var output = await RunCaptureAsync(exe, new[] { "--flat-playlist", "--dump-single-json", "--no-warnings", "--playlist-end", Math.Max(1, maxItems).ToString(CultureInfo.InvariantCulture), "--skip-download", url }, ct);
+        using var doc = JsonDocument.Parse(output);
+        var root = doc.RootElement;
+        var entries = new List<PlaylistEntryMetadata>();
+        if (root.TryGetProperty("entries", out var array) && array.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in array.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.Object) continue;
+                string id = Str(item, "id");
+                if (id.Length == 0) continue;
+                double seconds = item.TryGetProperty("duration", out var d) && d.ValueKind == JsonValueKind.Number ? d.GetDouble() : -1;
+                entries.Add(new PlaylistEntryMetadata
+                {
+                    Id = id,
+                    Title = Str(item, "title"),
+                    Channel = FirstNonEmpty(Str(item, "channel"), Str(item, "uploader")),
+                    Duration = seconds >= 0 ? TimeSpan.FromSeconds(seconds) : null,
+                    Thumbnail = Str(item, "thumbnail")
+                });
+                if (entries.Count >= maxItems) break;
+            }
+        }
+        return new PlaylistMetadata
+        {
+            Title = FirstNonEmpty(Str(root, "title"), Str(root, "playlist_title")),
+            Channel = FirstNonEmpty(Str(root, "channel"), Str(root, "uploader")),
+            Entries = entries
+        };
+    }
+
+    static string FirstNonEmpty(params string[] values) => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? "";
+
     public static async Task<MediaTrackInfo> GetTracksAsync(string url, CancellationToken ct)
     {
         var exe = await EnsureAsync(ct);
@@ -136,9 +223,15 @@ public static class YtDlpService
     {
         var exe = await EnsureAsync(ct);
         Directory.CreateDirectory(item.OutputFolder);
+        var workspace = TempFileService.CreateWorkspace(item.OutputFolder, item.Id);
+        bool completed = false;
+        try
+        {
         var args = new List<string>
         {
             "--no-warnings", "--newline", "--no-playlist", "--windows-filenames", "--progress",
+            // Emit progress more frequently so the UI does not appear frozen and then jump.
+            "--progress-delta", "0.5",
             // Resume partial files when a connection drops; retain fragment data for retry.
             "--continue", "--no-overwrites", "--keep-fragments",
             "--progress-template", "download:__EL3ALMEY_PROGRESS__%(progress._percent_str)s",
@@ -152,7 +245,7 @@ public static class YtDlpService
             "--retry-sleep", "http:exp=1:20",
             "--retry-sleep", "fragment:exp=1:10",
             "--concurrent-fragments", "4",
-            "--output", Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s")
+            "--output", Path.Combine(workspace, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s")
         };
         string audioLang = string.IsNullOrWhiteSpace(item.AudioTrackLanguage) || item.AudioTrackLanguage == "default" ? "" : item.AudioTrackLanguage;
         if (item.IsAudio)
@@ -188,62 +281,141 @@ public static class YtDlpService
             if (details.Length == 0) details = stdout.Trim();
             throw new InvalidOperationException("yt-dlp download failed: " + details);
         }
-        var expected = Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName));
-        var file = Directory.GetFiles(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
+        var expected = Path.Combine(workspace, Fmt.Sanitize(item.FileBaseName));
+        var file = Directory.GetFiles(workspace, Fmt.Sanitize(item.FileBaseName) + ".*", SearchOption.TopDirectoryOnly)
             .Where(f => !f.EndsWith(".vtt", StringComparison.OrdinalIgnoreCase) && !f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) && !f.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(File.GetLastWriteTimeUtc).FirstOrDefault();
         if (file == null) throw new FileNotFoundException("yt-dlp finished but the output media file could not be located. " + expected);
-        item.FilePath = file;
+        item.FilePath = TempFileService.MoveToDestination(file, Path.Combine(item.OutputFolder, Path.GetFileName(file)));
         item.Progress = 96;
 
         // Subtitle download is deliberately separate: a missing/blocked caption must not fail the video.
         await DownloadSubtitleBestEffortAsync(item, exe, ct);
         item.Progress = 100;
+        completed = true;
+        }
+        finally
+        {
+            // Preserve partial files after cancellation or failure so yt-dlp can resume them on retry.
+            if (completed) TempFileService.TryDeleteWorkspace(workspace);
+        }
     }
 
     static async Task DownloadSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct)
     {
-        string selected = item.SubtitleTrackLanguage ?? "none";
-        if (string.IsNullOrWhiteSpace(selected) || selected.Equals("none", StringComparison.OrdinalIgnoreCase)) return;
+        var selections = (item.SubtitleTrackLanguage ?? "none")
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(value => !value.Equals("none", StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        foreach (var selection in selections)
+            await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection);
+    }
+
+    static async Task DownloadSingleSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct, string selected)
+    {
 
         bool automatic = selected.StartsWith("auto:", StringComparison.OrdinalIgnoreCase);
-        string language = selected.StartsWith("auto:", StringComparison.OrdinalIgnoreCase) || selected.StartsWith("original:", StringComparison.OrdinalIgnoreCase)
+        bool original = selected.StartsWith("original:", StringComparison.OrdinalIgnoreCase);
+        string language = automatic || original
             ? selected[(selected.IndexOf(':') + 1)..]
-            : selected; // backward compatibility with items saved by earlier versions
+            : selected;
+
         if (string.IsNullOrWhiteSpace(language)) return;
 
-        var args = new List<string> { "--no-warnings", "--no-playlist", "--skip-download", "--sub-langs", language, "--sub-format", "vtt/best", "--output", Path.Combine(item.OutputFolder, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s") };
-        args.Add(automatic ? "--write-auto-subs" : "--write-subs");
-        args.Add(item.Url);
+        Directory.CreateDirectory(item.OutputFolder);
+        string baseName = Fmt.Sanitize(item.FileBaseName);
+        string workspace = TempFileService.CreateWorkspace(item.OutputFolder, item.Id);
+        string outputTemplate = Path.Combine(workspace, baseName + ".%(ext)s");
+        (int ExitCode, string Stdout, string Stderr) result = (-1, "", "Subtitle command did not run.");
+        var found = new List<string>();
 
-        var psi = new ProcessStartInfo(exe) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true, RedirectStandardOutput = true };
-        foreach (var arg in args) psi.ArgumentList.Add(arg);
-        using var process = Process.Start(psi);
-        if (process == null) return;
-        var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
-        var stderrTask = process.StandardError.ReadToEndAsync(ct);
-        try
+        async Task<(int ExitCode, string Stdout, string Stderr)> RunSubtitleCommandAsync(bool useAutomatic)
         {
-            await process.WaitForExitAsync(ct);
-            string stdout = await stdoutTask;
-            string stderr = await stderrTask;
-            if (process.ExitCode != 0)
+            var runArgs = new List<string>
             {
-                try
-                {
-                    var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "El3AlmeyDownloadManager", "logs");
-                    Directory.CreateDirectory(logDir);
-                    File.AppendAllText(Path.Combine(logDir, "subtitle-warnings.log"),
-                        $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{language}; {(automatic ? "generated" : "original")}] ExitCode={process.ExitCode}{Environment.NewLine}{stderr}{Environment.NewLine}{stdout}{Environment.NewLine}---{Environment.NewLine}");
-                }
-                catch { }
+                "--no-warnings",
+                "--no-playlist",
+                "--ignore-errors",
+                "--skip-download",
+                useAutomatic ? "--write-auto-subs" : "--write-subs",
+                "--sub-langs", language,
+                "--sub-format", "vtt/best",
+                "--output", outputTemplate,
+                item.Url
+            };
+
+            var psi = new ProcessStartInfo(exe)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+            foreach (var arg in runArgs) psi.ArgumentList.Add(arg);
+            using var process = Process.Start(psi);
+            if (process == null) return (-1, "", "yt-dlp could not start.");
+            var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
+            var stderrTask = process.StandardError.ReadToEndAsync(ct);
+            try
+            {
+                await process.WaitForExitAsync(ct);
+                return (process.ExitCode, await stdoutTask, await stderrTask);
+            }
+            catch (OperationCanceledException)
+            {
+                try { process.Kill(true); } catch { }
+                throw;
             }
         }
-        catch (OperationCanceledException)
+
+        try
         {
-            try { process.Kill(true); } catch { }
-            throw;
+            // Use a clean workspace so existing media/subtitle files cannot make yt-dlp
+            // incorrectly skip the caption or make the app mistake an old file for a new one.
+            result = await RunSubtitleCommandAsync(automatic);
+            found = Directory.Exists(workspace)
+                ? Directory.EnumerateFiles(workspace, baseName + ".*", SearchOption.TopDirectoryOnly).Where(IsSubtitleFile).ToList()
+                : new List<string>();
+
+            if (found.Count == 0)
+            {
+                // Some videos expose only original captions or only generated captions.
+                result = await RunSubtitleCommandAsync(!automatic);
+                found = Directory.Exists(workspace)
+                    ? Directory.EnumerateFiles(workspace, baseName + ".*", SearchOption.TopDirectoryOnly).Where(IsSubtitleFile).ToList()
+                    : new List<string>();
+            }
+
+            foreach (var source in found)
+            {
+                var destination = Path.Combine(item.OutputFolder, Path.GetFileName(source));
+                File.Move(source, destination, true);
+            }
         }
+        finally
+        {
+            TempFileService.TryDeleteWorkspace(workspace);
+        }
+
+        try
+        {
+            var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "El3AlmeyDownloadManager", "logs");
+            Directory.CreateDirectory(logDir);
+            File.AppendAllText(Path.Combine(logDir, "subtitle-warnings.log"),
+                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{language}; requested={(automatic ? "generated" : original ? "original" : "legacy")}] ExitCode={result.ExitCode}; FilesCreated={found.Count}{Environment.NewLine}{result.Stderr}{Environment.NewLine}{result.Stdout}{Environment.NewLine}---{Environment.NewLine}");
+        }
+        catch { }
+    }
+
+    static bool IsSubtitleFile(string path)
+    {
+        string extension = Path.GetExtension(path);
+        return extension.Equals(".vtt", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".srt", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".ass", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".lrc", StringComparison.OrdinalIgnoreCase);
     }
 
     static readonly Regex ProgressPercentRegex = new(@"(?<percent>\d{1,3}(?:\.\d+)?)\s*%", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -266,7 +438,7 @@ public static class YtDlpService
             var match = ProgressPercentRegex.Match(candidate);
             if (match.Success && double.TryParse(match.Groups["percent"].Value,
                 System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var pct))
-                progress?.Invoke(Math.Clamp(pct, 0, 100));
+                progress?.Invoke(Math.Clamp(pct, 0, 95));
         }
     }
 

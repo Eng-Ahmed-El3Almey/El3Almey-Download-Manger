@@ -165,6 +165,26 @@
         </Grid>
       </Border>
 
+      <!-- Video options -->
+      <Border Style="{StaticResource SectionCard}">
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <Border Width="38" Height="38" CornerRadius="11" Background="#183D75" VerticalAlignment="Top">
+            <TextBlock Style="{StaticResource Icon}" Text="&#xE714;" Foreground="#80B7FF" FontSize="19"/>
+          </Border>
+          <StackPanel Grid.Column="1" Margin="8,0,0,0">
+            <TextBlock Text="Video options" Style="{StaticResource SectionTitle}"/>
+            <TextBlock Text="Default options applied to individual video downloads." Style="{StaticResource SectionSubtitle}"/>
+            <CheckBox Style="{StaticResource SettingToggle}" IsChecked="{Binding IncludeChaptersByDefault}">
+              <StackPanel>
+                <TextBlock Text="Embed YouTube chapters by default" FontSize="13" FontWeight="SemiBold"/>
+                <TextBlock Text="Start with chapter embedding enabled for single-video downloads. You can change it for each download." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+              </StackPanel>
+            </CheckBox>
+          </StackPanel>
+        </Grid>
+      </Border>
+
       <!-- Playlist behavior -->
       <Border Style="{StaticResource SectionCard}">
         <Grid>

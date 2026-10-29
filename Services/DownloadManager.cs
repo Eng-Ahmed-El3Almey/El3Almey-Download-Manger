@@ -31,6 +31,7 @@ public class DownloadRecord
     public string Error { get; set; } = "";
     public DownloadStatus Status { get; set; }
     public long TotalBytes { get; set; }
+    public double Progress { get; set; }
     public DateTime AddedAt { get; set; }
     public DateTime? FinishedAt { get; set; }
 }
@@ -83,7 +84,7 @@ public class DownloadManager
                     AddedAt = r.AddedAt, FinishedAt = r.FinishedAt,
                     Status = r.Status is DownloadStatus.Downloading or DownloadStatus.Queued
                              ? DownloadStatus.Paused : r.Status,
-                    Progress = r.Status == DownloadStatus.Completed ? 100 : 0
+                    Progress = r.Status == DownloadStatus.Completed ? 100 : Math.Clamp(r.Progress, 0, 99.9)
                 };
                 Hook(it);
                 Items.Add(it);
@@ -104,7 +105,7 @@ public class DownloadManager
         AudioTrackLanguage = i.AudioTrackLanguage, SubtitleTrackLanguage = i.SubtitleTrackLanguage,
         AddThumbnail = i.AddThumbnail, IncludeChapters = i.IncludeChapters, OutputFolder = i.OutputFolder, FileBaseName = i.FileBaseName,
         PlaylistGroupId = i.PlaylistGroupId, PlaylistTitle = i.PlaylistTitle, PlaylistIndex = i.PlaylistIndex, PlaylistCount = i.PlaylistCount,
-        FilePath = i.FilePath, Error = i.Error, Status = i.Status, TotalBytes = i.TotalBytes,
+        FilePath = i.FilePath, Error = i.Error, Status = i.Status, TotalBytes = i.TotalBytes, Progress = i.Progress,
         AddedAt = i.AddedAt, FinishedAt = i.FinishedAt
     }).ToList();
 
@@ -113,15 +114,13 @@ public class DownloadManager
     {
         if (_saveTimer.Dispatcher.CheckAccess())
         {
-            _saveTimer.Stop();
-            _saveTimer.Start();
+            if (!_saveTimer.IsEnabled) _saveTimer.Start();
         }
         else
         {
             _ = _saveTimer.Dispatcher.BeginInvoke(new Action(() =>
             {
-                _saveTimer.Stop();
-                _saveTimer.Start();
+                if (!_saveTimer.IsEnabled) _saveTimer.Start();
             }), DispatcherPriority.Background);
         }
     }
@@ -207,10 +206,11 @@ public class DownloadManager
             children.FirstOrDefault(x => x.IsPlaylistRepresentative)?.UpdatePlaylistSummary(children);
         }
         if (e.PropertyName == nameof(DownloadItem.Status)) { ScheduleSave(); Changed?.Invoke(); }
+        else if (e.PropertyName == nameof(DownloadItem.Progress)) ScheduleSave();
     }
 
     // ------------------------------------------------------------ commands
-    public void Add(IEnumerable<DownloadItem> items, bool startNow)
+    public void Add(IEnumerable<DownloadItem> items, bool startNow, bool respectAutoStart = true)
     {
         foreach (var it in items)
         {
@@ -219,7 +219,7 @@ public class DownloadManager
             Hook(it);
             Items.Add(it);
             // Both immediate downloads and queued downloads respect the concurrency limit.
-            it.WantsStart = startNow || S.AutoStartQueue;
+            it.WantsStart = startNow || (respectAutoStart && S.AutoStartQueue);
         }
         ScheduleSave();
         Changed?.Invoke();
@@ -262,7 +262,7 @@ public class DownloadManager
         var cts = new CancellationTokenSource();
         _running[it.Id] = cts;
         it.Error = "";
-        it.Progress = 0;
+        // Preserve the last visible percentage when resuming a paused download.
         it.Status = DownloadStatus.Downloading;
         // Yield before any engine/tool preparation so Start Download never blocks the WPF UI thread.
         await Task.Yield();
@@ -286,7 +286,6 @@ public class DownloadManager
                 {
                     it.Error = $"Temporary connection problem. Retrying ({attempt + 1}/{maxTransientRetries})…";
                     await Task.Delay(TimeSpan.FromSeconds(2 + attempt * 3), cts.Token);
-                    it.Progress = 0;
                 }
             }
             it.Progress = 100;
@@ -383,7 +382,7 @@ public class DownloadManager
     public void Retry(DownloadItem it)
     {
         if (_running.ContainsKey(it.Id)) return;
-        it.Progress = 0;
+        // Keep the last visible progress when retrying so the UI does not jump backwards.
         it.Error = "";
         it.WantsStart = true;
         it.Status = DownloadStatus.Queued;

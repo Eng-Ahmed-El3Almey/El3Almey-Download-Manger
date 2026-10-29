@@ -143,11 +143,16 @@ public static class DownloadEngine
         var dispatcher = Application.Current?.Dispatcher;
         if (dispatcher == null || dispatcher.CheckAccess())
         {
-            item.Progress = value;
+            // Progress is monotonic for a single download item. yt-dlp may report a fresh
+            // per-process percentage after Resume; never let that reset the saved UI progress.
+            if (value > item.Progress) item.Progress = value;
             return;
         }
         if (!dispatcher.HasShutdownStarted && !dispatcher.HasShutdownFinished)
-            _ = dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => item.Progress = value));
+            _ = dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+            {
+                if (value > item.Progress) item.Progress = value;
+            }));
     }
 
     public static void ClearProgressState(Guid itemId) => LastProgressBucket.TryRemove(itemId, out _);

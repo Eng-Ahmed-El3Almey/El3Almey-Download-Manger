@@ -114,7 +114,19 @@
         <TextBlock x:Name="CancelButtonText" Text="Cancel"/>
       </Button>
       </StackPanel>
-      <Button Content="×" Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-12,-12,0" Click="CloseButton_Click" Background="#14243F" Foreground="#EAF1FF" BorderBrush="#263A60" BorderThickness="1" FontSize="18" Cursor="Hand"/>
+      <Button Content="×" Width="30" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-12,-12,0" Click="CloseButton_Click" Background="#14243F" Foreground="#EAF1FF" BorderBrush="#263A60" BorderThickness="1" FontSize="18" Cursor="Hand">
+        <Button.Template>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="CloseSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CloseSurface" Property="Background" Value="#B42335"/><Setter TargetName="CloseSurface" Property="BorderBrush" Value="#E5484D"/><Setter Property="Foreground" Value="White"/></Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="CloseSurface" Property="Background" Value="#7F1D2D"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Button.Template>
+      </Button>
     </Grid>
   </Border>
 </Window>

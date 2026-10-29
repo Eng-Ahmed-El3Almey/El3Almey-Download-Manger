@@ -268,6 +268,9 @@
                     <TextBlock Text="{DynamicResource S.NumberItems}" FontSize="14" TextWrapping="Wrap"/></CheckBox>
                   <CheckBox Style="{StaticResource PlaylistOptionSwitch}" IsChecked="{Binding CreateM3U}" IsEnabled="{Binding IsPlaylistMode}" Margin="0,14,0,0">
                     <TextBlock Text="{DynamicResource S.CreateM3U}" FontSize="14" TextWrapping="Wrap"/></CheckBox>
+                  <CheckBox Style="{StaticResource PlaylistOptionSwitch}" IsChecked="{Binding IncludeChapters}" IsEnabled="{Binding HasContent}" Margin="0,14,0,0">
+                    <TextBlock Text="Embed YouTube chapters" FontSize="14" TextWrapping="Wrap"/>
+                  </CheckBox>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                   <TextBlock Text="{DynamicResource S.SaveToFolder}" Style="{StaticResource Muted}" FontSize="13"/>

@@ -50,6 +50,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private QualityChoice _defaultAudio;
     [ObservableProperty] private bool _createSubfolder;
     [ObservableProperty] private bool _numberItems;
+    [ObservableProperty] private bool _includeChaptersByDefault;
     [ObservableProperty] private int _maxConcurrent;
     [ObservableProperty] private bool _autoStart;
     [ObservableProperty] private string _ffmpegPath;
@@ -78,6 +79,7 @@ public partial class SettingsViewModel : ObservableObject
         _defaultAudio = AudioChoices.FirstOrDefault(c => c.Value == S.DefaultAudioKbps) ?? AudioChoices[2];
         _createSubfolder = S.CreatePlaylistSubfolder;
         _numberItems = S.NumberPlaylistItems;
+        _includeChaptersByDefault = S.IncludeChaptersByDefault;
         _maxConcurrent = S.MaxConcurrent;
         _autoStart = S.AutoStartQueue;
         _ffmpegPath = S.FfmpegPath;
@@ -95,6 +97,7 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnDefaultAudioChanged(QualityChoice value) => Commit(() => S.DefaultAudioKbps = value.Value);
     partial void OnCreateSubfolderChanged(bool value) => Commit(() => S.CreatePlaylistSubfolder = value);
     partial void OnNumberItemsChanged(bool value) => Commit(() => S.NumberPlaylistItems = value);
+    partial void OnIncludeChaptersByDefaultChanged(bool value) => Commit(() => S.IncludeChaptersByDefault = value);
     partial void OnMaxConcurrentChanged(int value) => Commit(() => S.MaxConcurrent = value);
     partial void OnAutoStartChanged(bool value) => Commit(() => S.AutoStartQueue = value);
     partial void OnFfmpegPathChanged(string value)

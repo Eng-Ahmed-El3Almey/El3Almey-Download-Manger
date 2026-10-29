@@ -10,18 +10,18 @@
         <Border Width="38" Height="38" CornerRadius="10" Background="#0F3A2A" DockPanel.Dock="Left">
           <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="19" Foreground="#2FD27A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
-        <Button Content="×" Width="28" Height="28" DockPanel.Dock="Right" Click="Close_Click" FontSize="20" Cursor="Hand">
-          <Button.Style>
-            <Style TargetType="Button">
-              <Setter Property="Background" Value="Transparent"/>
-              <Setter Property="Foreground" Value="#9AABCA"/>
-              <Setter Property="BorderThickness" Value="0"/>
-              <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#213758"/><Setter Property="Foreground" Value="White"/></Trigger>
-                <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="#152644"/></Trigger>
-              </Style.Triggers>
-            </Style>
-          </Button.Style>
+        <Button Content="×" Width="28" Height="28" DockPanel.Dock="Right" Click="Close_Click" FontSize="20" Cursor="Hand" Background="Transparent" Foreground="#9AABCA" BorderThickness="0">
+          <Button.Template>
+            <ControlTemplate TargetType="Button">
+              <Border x:Name="CloseSurface" Background="{TemplateBinding Background}" CornerRadius="7">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CloseSurface" Property="Background" Value="#B42335"/><Setter Property="Foreground" Value="White"/></Trigger>
+                <Trigger Property="IsPressed" Value="True"><Setter TargetName="CloseSurface" Property="Background" Value="#7F1D2D"/></Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Button.Template>
         </Button>
         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
           <TextBlock Text="El3Almey Download Manager" FontSize="12" Foreground="#9AABCA"/>

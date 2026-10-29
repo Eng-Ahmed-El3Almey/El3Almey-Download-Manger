@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 using El3Almey.Services;
 using El3Almey.ViewModels;
 using El3Almey.Wpf.Views;
@@ -42,11 +43,6 @@ public partial class MainWindow : Window
                 var dialog = new PlaylistLinkDialog(playlistTitle, Loc.Language == "ar") { Owner = this };
                 return dialog.ShowDialog() == true ? dialog.DownloadPlaylist
                     : dialog.DialogResult == false ? false : null;
-            },
-            ChapterPrompt = title =>
-            {
-                var dialog = new ChaptersPromptDialog(title, Loc.Language == "ar") { Owner = this };
-                return dialog.ShowDialog() == true;
             }
         };
         _history = new HistoryViewModel(_manager)
@@ -117,9 +113,17 @@ public partial class MainWindow : Window
 
     void Navigate(System.Windows.Controls.UserControl v, System.Windows.Controls.RadioButton nav, bool search)
     {
-        Host.Content = v;
         nav.IsChecked = true;
         SearchBox.Visibility = search ? Visibility.Visible : Visibility.Collapsed;
+
+        // Fade each page in to make navigation feel smooth without rebuilding the view.
+        Host.BeginAnimation(UIElement.OpacityProperty, null);
+        Host.Opacity = 0;
+        Host.Content = v;
+        Host.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        });
     }
 
     void ShowAdd() => Navigate(_addView, NavAdd, false);
@@ -140,6 +144,23 @@ public partial class MainWindow : Window
     void NavDownloads_Click(object s, RoutedEventArgs e) => ShowDownloads();
     void NavHistory_Click(object s, RoutedEventArgs e) => ShowHistory();
     void NavSettings_Click(object s, RoutedEventArgs e) => ShowSettings();
+    
+    private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        var modifiers = Keyboard.Modifiers;
+        if (e.Key != Key.Tab || !modifiers.HasFlag(ModifierKeys.Control)
+            || (modifiers & ~(ModifierKeys.Control | ModifierKeys.Shift)) != ModifierKeys.None)
+            return;
+
+        e.Handled = true;
+        bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
+        var pages = new Action[] { ShowAdd, ShowDownloads, ShowHistory, ShowSettings };
+        int current = NavAdd.IsChecked == true ? 0
+            : NavDownloads.IsChecked == true ? 1
+            : NavHistory.IsChecked == true ? 2 : 3;
+        int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
+        pages[next]();
+    }
 
     void TitleBar_MouseDown(object s, MouseButtonEventArgs e)
     {
