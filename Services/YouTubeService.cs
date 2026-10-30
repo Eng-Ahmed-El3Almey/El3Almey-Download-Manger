@@ -161,23 +161,23 @@ public static class YouTubeService
         if (res.Entries.Count == 0) throw new InvalidOperationException("yt-dlp returned no available playlist entries.");
 
         res.Duration = total;
-        // A deleted/private first entry should not make the entire playlist unusable.
-        // Collect per-video formats instead of assuming the first playlist item represents
-        // every other item. A bounded worker count avoids launching hundreds of yt-dlp processes.
-        using var formatGate = new SemaphoreSlim(4, 4);
-        var formatTasks = res.Entries.Select(async entry =>
+        // Resolve all playlist format metadata in one yt-dlp process instead of
+        // starting a separate process for every video.
+        try
         {
-            await formatGate.WaitAsync(ct);
-            try
+            var formatEstimates = await YtDlpService.GetPlaylistFormatEstimatesAsync(url, MaxPlaylistItems, ct);
+            foreach (var entry in res.Entries)
             {
-                entry.VideoFormats = await YtDlpService.GetVideoFormatEstimatesAsync(
-                    "https://www.youtube.com/watch?v=" + entry.Id, ct);
+                if (formatEstimates.TryGetValue(entry.Id, out var estimates))
+                    entry.VideoFormats = estimates;
             }
-            catch (OperationCanceledException) { throw; }
-            catch { /* One unavailable item must not invalidate the whole playlist. */ }
-            finally { formatGate.Release(); }
-        }).ToArray();
-        await Task.WhenAll(formatTasks);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch
+        {
+            // Keep playlist loading resilient; the representative manifest below
+            // still provides a fallback for the first usable entry.
+        }
 
         Exception? lastError = null;
         foreach (var entry in res.Entries)
