@@ -32,6 +32,7 @@ public partial class PlaylistEntryVm : ObservableObject
     public Dictionary<int, long> QualitySizes { get; init; } = new();
     [ObservableProperty] private bool _isSelected = true;
     [ObservableProperty] private string _sizeText = "—";
+    [ObservableProperty] private string _qualityText = "—";
 }
 
 public enum LinkState { Idle, Loading, Video, Playlist, Error }
@@ -480,12 +481,16 @@ public partial class AddVideoViewModel : ObservableObject
         }
         if (SelectedVideoQuality == null)
         {
-            foreach (var e in Entries) e.SizeText = "—";
+            foreach (var e in Entries) { e.QualityText = "—"; e.SizeText = "—"; }
             return;
         }
         foreach (var e in Entries)
         {
-            long bytes = EstimateEntrySize(e, SelectedVideoQuality.Height);
+            int actualHeight = e.QualitySizes.Keys.Where(h => h <= SelectedVideoQuality.Height)
+                .DefaultIfEmpty(e.QualitySizes.Keys.DefaultIfEmpty(0).Min()).Max();
+            long bytes = actualHeight > 0 && e.QualitySizes.TryGetValue(actualHeight, out var exactBytes)
+                ? exactBytes : 0;
+            e.QualityText = actualHeight > 0 ? $"{actualHeight}p" : "Unavailable";
             e.SizeText = bytes > 0 ? "~ " + Fmt.Bytes(bytes) : "Unavailable";
         }
     }
