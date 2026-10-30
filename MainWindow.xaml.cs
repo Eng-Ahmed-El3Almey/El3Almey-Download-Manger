@@ -172,7 +172,7 @@ public partial class MainWindow : Window
 
         bool control = modifiers.HasFlag(ModifierKeys.Control);
         bool shift = modifiers.HasFlag(ModifierKeys.Shift);
-        bool typing = Keyboard.FocusedElement is System.Windows.Controls.TextBoxBase
+        bool typing = Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase
             || Keyboard.FocusedElement is System.Windows.Controls.PasswordBox;
 
         if (e.Key == Key.F1 && modifiers == ModifierKeys.None)
@@ -186,7 +186,7 @@ public partial class MainWindow : Window
 
         if (e.Key == Key.Escape && modifiers == ModifierKeys.None)
         {
-            if (SearchInput.IsKeyboardFocusWithin) { SearchInput.Clear(); Keyboard.ClearFocus(SearchInput); e.Handled = true; }
+            if (SearchInput.IsKeyboardFocusWithin) { SearchInput.Clear(); Keyboard.ClearFocus(); e.Handled = true; }
             else if (_addView.IsKeyboardFocusWithin) { _add.CancelCommand.Execute(null); e.Handled = true; }
             return;
         }
