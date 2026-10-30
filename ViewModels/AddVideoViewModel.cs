@@ -35,6 +35,8 @@ public partial class PlaylistEntryVm : ObservableObject
     [ObservableProperty] private bool _isSelected = true;
     [ObservableProperty] private string _sizeText = "—";
     [ObservableProperty] private string _qualityText = "—";
+    [ObservableProperty] private int _sortQualityHeight;
+    [ObservableProperty] private long _sortSizeBytes;
 }
 
 public enum LinkState { Idle, Loading, Video, Playlist, Error }
@@ -64,7 +66,8 @@ public partial class AddVideoViewModel : ObservableObject
     public ObservableCollection<QualityOption> AudioQualities { get; } = new();
     public ObservableCollection<PlaylistEntryVm> Entries { get; } = new();
     public ICollectionView EntriesView { get; }
-    bool _titleSortDescending = true;
+    string? _currentSortProperty;
+    bool _currentSortDescending = false;
     public ObservableCollection<MediaTrackOption> AudioTracks { get; } = new();
     public ObservableCollection<MediaTrackOption> OriginalSubtitleTracks { get; } = new();
     public ObservableCollection<MediaTrackOption> AutoTranslatedSubtitleTracks { get; } = new();
@@ -163,18 +166,22 @@ public partial class AddVideoViewModel : ObservableObject
     }
 
     [RelayCommand]
-    void SortByTitle()
+    void SortByColumn(string propertyName)
     {
-        _titleSortDescending = !_titleSortDescending;
+        if (string.IsNullOrWhiteSpace(propertyName)) return;
+        _currentSortDescending = _currentSortProperty == propertyName && !_currentSortDescending;
+        _currentSortProperty = propertyName;
         EntriesView.SortDescriptions.Clear();
         EntriesView.SortDescriptions.Add(new SortDescription(
-            nameof(PlaylistEntryVm.Title),
-            _titleSortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
+            propertyName,
+            _currentSortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
         EntriesView.Refresh();
-        OnPropertyChanged(nameof(TitleSortIndicator));
+        OnPropertyChanged(nameof(CurrentSortProperty));
+        OnPropertyChanged(nameof(SortIndicator));
     }
 
-    public string TitleSortIndicator => _titleSortDescending ? " ↓" : " ↑";
+    public string? CurrentSortProperty => _currentSortProperty;
+    public string SortIndicator => _currentSortDescending ? " ↓" : " ↑";
 
     void ApplyDefaults()
     {
@@ -493,14 +500,14 @@ public partial class AddVideoViewModel : ObservableObject
         if (IsAudio && SelectedAudioQuality != null)
         {
             foreach (var e in Entries)
-                e.SizeText = e.Duration is TimeSpan d
-                    ? "~ " + Fmt.Bytes((long)(d.TotalSeconds * SelectedAudioQuality.Kbps * 125))
-                    : "—";
+                e.SortQualityHeight = SelectedAudioQuality.Height;
+                e.SortSizeBytes = e.Duration is TimeSpan d ? (long)(d.TotalSeconds * SelectedAudioQuality.Kbps * 125) : 0;
+                e.SizeText = e.SortSizeBytes > 0 ? "~ " + Fmt.Bytes(e.SortSizeBytes) : "—";
             return;
         }
         if (SelectedVideoQuality == null)
         {
-            foreach (var e in Entries) { e.QualityText = "—"; e.SizeText = "—"; }
+            foreach (var e in Entries) { e.QualityText = "—"; e.SizeText = "—"; e.SortQualityHeight = 0; e.SortSizeBytes = 0; }
             return;
         }
         foreach (var e in Entries)
@@ -510,6 +517,8 @@ public partial class AddVideoViewModel : ObservableObject
             long bytes = actualHeight > 0 && e.QualitySizes.TryGetValue(actualHeight, out var exactBytes)
                 ? exactBytes : 0;
             e.QualityText = actualHeight > 0 ? $"{actualHeight}p" : "Unavailable";
+            e.SortQualityHeight = actualHeight;
+            e.SortSizeBytes = bytes;
             e.SizeText = bytes > 0 ? "~ " + Fmt.Bytes(bytes) : "Unavailable";
         }
     }
