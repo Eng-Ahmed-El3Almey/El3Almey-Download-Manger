@@ -164,45 +164,86 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (modifiers != ModifierKeys.Control || CloseConfirmOverlay.Visibility == Visibility.Visible)
+        if (CloseConfirmOverlay.Visibility == Visibility.Visible)
+        {
+            if (e.Key == Key.Escape) { CloseConfirmCancel_Click(this, new RoutedEventArgs()); e.Handled = true; }
             return;
+        }
 
+        bool control = modifiers.HasFlag(ModifierKeys.Control);
+        bool shift = modifiers.HasFlag(ModifierKeys.Shift);
+        bool typing = Keyboard.FocusedElement is System.Windows.Controls.TextBoxBase
+            || Keyboard.FocusedElement is System.Windows.Controls.PasswordBox;
+
+        if (e.Key == Key.F1 && modifiers == ModifierKeys.None)
+        {
+            MessageBox.Show(this,
+                "Ctrl+1..4  Navigate pages\nCtrl+Tab / Ctrl+Shift+Tab  Next / previous page\nCtrl+P / Ctrl+R  Pause / resume all\nCtrl+F  Search downloads\nCtrl+L  Focus video URL\nEnter  Fetch link / open selected file\nCtrl+Enter  Start download\nCtrl+A / Ctrl+Shift+A  Select all / clear selection\nDelete  Remove selected items from list\nCtrl+Delete  Delete selected files after confirmation\nCtrl+O  Open selected item's folder\nCtrl+C  Copy selected item's URL\nF5  Refresh current list\nCtrl+Up / Ctrl+Down  Change selected quality\nCtrl+S  Save settings",
+                "Keyboard shortcuts", MessageBoxButton.OK, MessageBoxImage.Information);
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Escape && modifiers == ModifierKeys.None)
+        {
+            if (SearchInput.IsKeyboardFocusWithin) { SearchInput.Clear(); Keyboard.ClearFocus(); e.Handled = true; }
+            else if (_addView.IsKeyboardFocusWithin) { _add.CancelCommand.Execute(null); e.Handled = true; }
+            return;
+        }
+
+        if (e.Key == Key.F5 && modifiers == ModifierKeys.None)
+        {
+            if (NavDownloads.IsChecked == true) ShowDownloads();
+            else if (NavHistory.IsChecked == true) ShowHistory();
+            e.Handled = true;
+            return;
+        }
+
+        if (control && e.Key == Key.L)
+        {
+            ShowAdd();
+            if (_addView.FindName("UrlBox") is System.Windows.Controls.TextBox urlBox) { urlBox.Focus(); urlBox.SelectAll(); }
+            e.Handled = true; return;
+        }
+        if (control && e.Key == Key.O && !typing) { _downloads.OpenSelectedFolder(); e.Handled = true; return; }
+        if (control && e.Key == Key.C && !typing) { _downloads.CopySelectedUrl(); e.Handled = true; return; }
+        if (control && e.Key == Key.S) { SettingsStore.Save(); e.Handled = true; return; }
+        if (control && e.Key == Key.Up) { _add.ChangeSelectedQuality(-1); e.Handled = true; return; }
+        if (control && e.Key == Key.Down) { _add.ChangeSelectedQuality(1); e.Handled = true; return; }
+
+        if (control && e.Key == Key.A && !typing)
+        {
+            if (NavAdd.IsChecked == true && _add.IsPlaylistMode) _add.AllSelected = !shift;
+            else if (NavDownloads.IsChecked == true) _downloads.AllSelected = !shift;
+            e.Handled = true; return;
+        }
+        if (e.Key == Key.Delete && !typing && modifiers == ModifierKeys.Control)
+        { _downloads.DeleteSelectedCommand.Execute(null); e.Handled = true; return; }
+        if (e.Key == Key.Delete && !typing && modifiers == ModifierKeys.None)
+        { _downloads.RemoveSelectedCommand.Execute(null); e.Handled = true; return; }
+
+        if (control && e.Key == Key.Enter && NavAdd.IsChecked == true)
+        { _add.DownloadNowCommand.Execute(null); e.Handled = true; return; }
+        if (e.Key == Key.Enter && modifiers == ModifierKeys.None && NavAdd.IsChecked == true && !typing)
+        {
+            if (_add.HasContent) _add.DownloadNowCommand.Execute(null);
+            else _add.GetVideoCommand.Execute(null);
+            e.Handled = true; return;
+        }
+        if (e.Key == Key.Enter && modifiers == ModifierKeys.None && !typing && NavDownloads.IsChecked == true)
+        { _downloads.OpenSelectedFile(); e.Handled = true; return; }
+
+        if (!control) return;
         switch (e.Key)
         {
-            case Key.D1:
-            case Key.NumPad1:
-                ShowAdd();
-                e.Handled = true;
-                break;
-            case Key.D2:
-            case Key.NumPad2:
-                ShowDownloads();
-                e.Handled = true;
-                break;
-            case Key.D3:
-            case Key.NumPad3:
-                ShowHistory();
-                e.Handled = true;
-                break;
-            case Key.D4:
-            case Key.NumPad4:
-                ShowSettings();
-                e.Handled = true;
-                break;
-            case Key.P:
-                _downloads.PauseAllCommand.Execute(null);
-                e.Handled = true;
-                break;
-            case Key.R:
-                _downloads.ResumeAllCommand.Execute(null);
-                e.Handled = true;
-                break;
-            case Key.F:
-                ShowDownloads();
-                SearchInput.Focus();
-                SearchInput.SelectAll();
-                e.Handled = true;
-                break;
+            case Key.D1: case Key.NumPad1: ShowAdd(); e.Handled = true; break;
+            case Key.D2: case Key.NumPad2: ShowDownloads(); e.Handled = true; break;
+            case Key.D3: case Key.NumPad3: ShowHistory(); e.Handled = true; break;
+            case Key.D4: case Key.NumPad4: ShowSettings(); e.Handled = true; break;
+            case Key.P: _downloads.PauseAllCommand.Execute(null); e.Handled = true; break;
+            case Key.R: _downloads.ResumeAllCommand.Execute(null); e.Handled = true; break;
+            case Key.F: ShowDownloads(); SearchInput.Focus(); SearchInput.SelectAll(); e.Handled = true; break;
+            case Key.OemComma: ShowSettings(); e.Handled = true; break;
         }
     }
 
