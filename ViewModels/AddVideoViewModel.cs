@@ -8,7 +8,7 @@ namespace El3Almey.ViewModels;
 
 public partial class QualityOption : ObservableObject
 {
-    public string Label { get; init; } = "";
+    public string Label { get; set; } = "";
     public int Height { get; init; }
     public int Kbps { get; init; }
     [ObservableProperty] private long _sizeBytes;
@@ -448,9 +448,16 @@ public partial class AddVideoViewModel : ObservableObject
         // Refresh playlist quality-size estimates when the selection changes.
         if (_res?.IsPlaylist == true)
         {
+            var selectedEntries = Entries.Where(e => e.IsSelected).ToList();
             foreach (var q in VideoQualities)
-                q.SizeBytes = Entries.Where(e => e.IsSelected).Sum(e => EstimateEntrySize(e, q.Height));
-            var selectedSeconds = Entries.Where(e => e.IsSelected).Sum(e => e.Duration?.TotalSeconds ?? 0);
+            {
+                int exactCount = selectedEntries.Count(e => e.QualitySizes.ContainsKey(q.Height));
+                string tag = Heights.First(x => x.h == q.Height).tag;
+                string qualityLabel = tag == "" ? $"{q.Height}p" : $"{q.Height}p ({tag})";
+                q.Label = $"{qualityLabel} — {exactCount}/{selectedEntries.Count}";
+                q.SizeBytes = selectedEntries.Sum(e => EstimateEntrySize(e, q.Height));
+            }
+            var selectedSeconds = selectedEntries.Sum(e => e.Duration?.TotalSeconds ?? 0);
             foreach (var q in AudioQualities)
                 q.SizeBytes = (long)(selectedSeconds * q.Kbps * 125);
         }
