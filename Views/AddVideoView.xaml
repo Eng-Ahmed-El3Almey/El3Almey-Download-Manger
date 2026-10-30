@@ -94,7 +94,7 @@
       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="22"/><ColumnDefinition Width="320"/></Grid.ColumnDefinitions>
 
       <!-- ===================== main column ===================== -->
-      <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" IsDeferredScrollingEnabled="False" PanningMode="VerticalOnly">
         <StackPanel Margin="0,0,10,0">
 
           <TextBlock Text="{DynamicResource S.AddVideo}" FontSize="28" FontWeight="SemiBold"/>
@@ -215,7 +215,7 @@
               </Grid>
               <ListBox ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource EntryRow}" MaxHeight="330"
                        Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
-                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True">
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True">
                 <ListBox.ItemContainerStyle>
                   <Style TargetType="ListBoxItem">
                     <Setter Property="Template">
@@ -316,7 +316,7 @@
       </ScrollViewer>
 
       <!-- ===================== quality preview ===================== -->
-      <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+      <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" IsDeferredScrollingEnabled="False" PanningMode="VerticalOnly">
         <StackPanel>
           <Border Padding="16,16,16,12" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12">
             <StackPanel>
