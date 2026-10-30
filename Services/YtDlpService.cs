@@ -74,6 +74,12 @@ public static class YtDlpService
         public List<PlaylistEntryMetadata> Entries { get; init; } = new();
     }
 
+    public sealed class VideoFormatEstimate
+    {
+        public int Height { get; init; }
+        public long EstimatedBytes { get; init; }
+    }
+
     public static async Task<VideoMetadata> GetVideoMetadataAsync(string url, CancellationToken ct)
     {
         var exe = await EnsureAsync(ct);
@@ -134,6 +140,58 @@ public static class YtDlpService
     }
 
     static string FirstNonEmpty(params string[] values) => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? "";
+
+    public static async Task<List<VideoFormatEstimate>> GetVideoFormatEstimatesAsync(string url, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        var output = await RunCaptureAsync(exe, new[] { "--dump-single-json", "--no-warnings", "--no-playlist", "--skip-download", url }, ct);
+        using var doc = JsonDocument.Parse(output);
+        var root = doc.RootElement;
+        double duration = root.TryGetProperty("duration", out var durationElement) && durationElement.ValueKind == JsonValueKind.Number
+            ? Math.Max(0, durationElement.GetDouble()) : 0;
+        var formats = root.TryGetProperty("formats", out var formatsElement) && formatsElement.ValueKind == JsonValueKind.Array
+            ? formatsElement.EnumerateArray().ToList() : new List<JsonElement>();
+
+        double bestAudioBitsPerSecond = formats
+            .Where(f => Str(f, "vcodec") == "none" && Str(f, "acodec") != "none")
+            .Select(f => Number(f, "tbr") * 1000d)
+            .DefaultIfEmpty(0).Max();
+
+        var estimates = new Dictionary<int, long>();
+        foreach (var format in formats)
+        {
+            string vcodec = Str(format, "vcodec");
+            string acodec = Str(format, "acodec");
+            if (string.IsNullOrWhiteSpace(vcodec) || vcodec == "none") continue;
+            int height = (int)Number(format, "height");
+            if (height <= 0) continue;
+
+            // The downloader selects a video-only stream plus the best audio stream.
+            // Progressive formats already include audio, so do not add it twice.
+            bool hasAudio = !string.IsNullOrWhiteSpace(acodec) && acodec != "none";
+            double videoBitsPerSecond = Number(format, "tbr") * 1000d;
+            long bytes = FileSize(format);
+            if (bytes <= 0 && duration > 0 && videoBitsPerSecond > 0)
+                bytes = (long)(videoBitsPerSecond / 8d * duration);
+            if (!hasAudio && duration > 0 && bestAudioBitsPerSecond > 0)
+                bytes += (long)(bestAudioBitsPerSecond / 8d * duration);
+            if (bytes <= 0) continue;
+            if (!estimates.TryGetValue(height, out long previous) || bytes > previous)
+                estimates[height] = bytes;
+        }
+        return estimates.OrderBy(x => x.Key)
+            .Select(x => new VideoFormatEstimate { Height = x.Key, EstimatedBytes = x.Value }).ToList();
+    }
+
+    static double Number(JsonElement element, string name) =>
+        element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Number ? value.GetDouble() : 0;
+
+    static long FileSize(JsonElement format)
+    {
+        double size = Number(format, "filesize");
+        if (size <= 0) size = Number(format, "filesize_approx");
+        return size > 0 && size < long.MaxValue ? (long)size : 0;
+    }
 
     public static async Task<MediaTrackInfo> GetTracksAsync(string url, CancellationToken ct)
     {
