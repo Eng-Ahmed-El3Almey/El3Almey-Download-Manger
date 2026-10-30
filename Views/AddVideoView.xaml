@@ -117,7 +117,7 @@
             <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
             <TextBlock Text="{Binding Channel}" FontSize="12" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
           </StackPanel>
-          <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="4,0"/>
+          <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
           <TextBlock Grid.Column="5" Text="{Binding QualityText}" FontSize="12" Foreground="#8FC2FF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
           <TextBlock Grid.Column="6" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,8,0"/>
         </Grid>
@@ -259,7 +259,7 @@
                     </StackPanel>
                   </Button>
                   <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="4" Command="{Binding SortByColumnCommand}" CommandParameter="Duration" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                       <TextBlock Text="Duration" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                       <TextBlock Text="{Binding DurationSortIndicator}" FontSize="12" FontWeight="Bold" Foreground="#4A9BFF" Margin="3,0,0,0"/>
                     </StackPanel>
