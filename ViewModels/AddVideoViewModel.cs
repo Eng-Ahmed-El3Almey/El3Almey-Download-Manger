@@ -341,7 +341,10 @@ public partial class AddVideoViewModel : ObservableObject
                 var supported = Entries.Where(e => e.QualitySizes.ContainsKey(h)).ToList();
                 supportedCount = supported.Count;
                 available = supportedCount > 0;
-                size = Entries.Where(e => e.IsSelected).Sum(e => EstimateEntrySize(e, h));
+                // Never show a fallback/lower-resolution estimate for a quality the playlist does not contain.
+                size = available
+                    ? Entries.Where(e => e.IsSelected).Sum(e => EstimateEntrySize(e, h))
+                    : 0;
             }
             else
             {
