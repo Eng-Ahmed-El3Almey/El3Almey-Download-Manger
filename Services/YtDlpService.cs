@@ -152,35 +152,63 @@ public static class YtDlpService
         var formats = root.TryGetProperty("formats", out var formatsElement) && formatsElement.ValueKind == JsonValueKind.Array
             ? formatsElement.EnumerateArray().ToList() : new List<JsonElement>();
 
-        double bestAudioBitsPerSecond = formats
-            .Where(f => Str(f, "vcodec") == "none" && Str(f, "acodec") != "none")
-            .Select(f => Number(f, "tbr") * 1000d)
-            .DefaultIfEmpty(0).Max();
+        // yt-dlp returns formats in its quality-sort order (worst to best).
+        // Its "bestvideo" selector chooses the last eligible video-only format,
+        // while "bestaudio" chooses the last eligible audio-only format.
+        var videoOnly = formats.Where(f =>
+            Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") == "none"
+            && Number(f, "height") > 0).ToList();
+        var progressive = formats.Where(f =>
+            Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") is not ("" or "none")
+            && Number(f, "height") > 0).ToList();
+        var audioOnly = formats.Where(f =>
+            Str(f, "vcodec") == "none" && Str(f, "acodec") is not ("" or "none")).ToList();
 
-        var estimates = new Dictionary<int, long>();
-        foreach (var format in formats)
+        var availableHeights = videoOnly.Concat(progressive)
+            .Select(f => (int)Number(f, "height"))
+            .Where(h => h > 0).Distinct().OrderBy(h => h).ToList();
+        var estimates = new List<VideoFormatEstimate>();
+
+        foreach (int targetHeight in availableHeights)
         {
-            string vcodec = Str(format, "vcodec");
-            string acodec = Str(format, "acodec");
-            if (string.IsNullOrWhiteSpace(vcodec) || vcodec == "none") continue;
-            int height = (int)Number(format, "height");
-            if (height <= 0) continue;
+            // Mirror the download selector: bestvideo<=height + bestaudio,
+            // then progressive best<=height, and finally yt-dlp's unrestricted best fallback.
+            var selectedVideo = videoOnly.LastOrDefault(f => Number(f, "height") <= targetHeight);
+            bool includesAudio = false;
+            if (selectedVideo == default)
+            {
+                selectedVideo = progressive.LastOrDefault(f => Number(f, "height") <= targetHeight);
+                includesAudio = selectedVideo != default;
+            }
+            if (selectedVideo == default)
+            {
+                selectedVideo = formats.LastOrDefault(f =>
+                    Str(f, "vcodec") is not ("" or "none") && Number(f, "height") > 0);
+                includesAudio = selectedVideo != default && Str(selectedVideo, "acodec") != "none";
+            }
+            if (selectedVideo == default) continue;
 
-            // The downloader selects a video-only stream plus the best audio stream.
-            // Progressive formats already include audio, so do not add it twice.
-            bool hasAudio = !string.IsNullOrWhiteSpace(acodec) && acodec != "none";
-            double videoBitsPerSecond = Number(format, "tbr") * 1000d;
-            long bytes = FileSize(format);
-            if (bytes <= 0 && duration > 0 && videoBitsPerSecond > 0)
-                bytes = (long)(videoBitsPerSecond / 8d * duration);
-            if (!hasAudio && duration > 0 && bestAudioBitsPerSecond > 0)
-                bytes += (long)(bestAudioBitsPerSecond / 8d * duration);
-            if (bytes <= 0) continue;
-            if (!estimates.TryGetValue(height, out long previous) || bytes > previous)
-                estimates[height] = bytes;
+            long totalBytes = EstimateFormatBytes(selectedVideo, duration);
+            if (!includesAudio)
+            {
+                var selectedAudio = audioOnly.LastOrDefault();
+                if (selectedAudio != default)
+                    totalBytes += EstimateFormatBytes(selectedAudio, duration);
+            }
+
+            if (totalBytes > 0)
+                estimates.Add(new VideoFormatEstimate { Height = targetHeight, EstimatedBytes = totalBytes });
         }
-        return estimates.OrderBy(x => x.Key)
-            .Select(x => new VideoFormatEstimate { Height = x.Key, EstimatedBytes = x.Value }).ToList();
+
+        return estimates;
+    }
+
+    static long EstimateFormatBytes(JsonElement format, double duration)
+    {
+        long bytes = FileSize(format);
+        if (bytes > 0) return bytes;
+        double bitrate = Number(format, "tbr") * 1000d;
+        return duration > 0 && bitrate > 0 ? (long)(bitrate / 8d * duration) : 0;
     }
 
     static double Number(JsonElement element, string name) =>
