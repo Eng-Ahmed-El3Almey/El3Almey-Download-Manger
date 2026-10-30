@@ -161,22 +161,27 @@ public static class YouTubeService
         if (res.Entries.Count == 0) throw new InvalidOperationException("yt-dlp returned no available playlist entries.");
 
         res.Duration = total;
-        // Resolve all playlist format metadata in one yt-dlp process instead of
-        // starting a separate process for every video.
-        try
+        // Resolve format metadata with bounded parallelism. Running one full
+        // playlist extraction serially makes large playlists noticeably slower.
+        // A small worker limit avoids overwhelming YouTube while keeping fetches responsive.
+        using (var semaphore = new SemaphoreSlim(6, 6))
         {
-            var formatEstimates = await YtDlpService.GetPlaylistFormatEstimatesAsync(url, MaxPlaylistItems, ct);
-            foreach (var entry in res.Entries)
+            var formatTasks = res.Entries.Select(async entry =>
             {
-                if (formatEstimates.TryGetValue(entry.Id, out var estimates))
-                    entry.VideoFormats = estimates;
-            }
-        }
-        catch (OperationCanceledException) { throw; }
-        catch
-        {
-            // Keep playlist loading resilient; the representative manifest below
-            // still provides a fallback for the first usable entry.
+                await semaphore.WaitAsync(ct);
+                try
+                {
+                    entry.VideoFormats = await YtDlpService.GetVideoFormatEstimatesAsync(
+                        "https://www.youtube.com/watch?v=" + entry.Id, ct);
+                }
+                catch (OperationCanceledException) { throw; }
+                catch
+                {
+                    // One unavailable/private/blocked entry must not invalidate the other videos.
+                }
+                finally { semaphore.Release(); }
+            });
+            await Task.WhenAll(formatTasks);
         }
 
         Exception? lastError = null;
