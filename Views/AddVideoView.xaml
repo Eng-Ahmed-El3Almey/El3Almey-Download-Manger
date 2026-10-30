@@ -113,13 +113,13 @@
           <Border Grid.Column="2" Width="76" Height="44" CornerRadius="6" Background="#1D3358" Margin="0,0,12,0" VerticalAlignment="Center" ClipToBounds="True">
             <Image Source="{Binding Thumb, Mode=OneWay}" Stretch="UniformToFill" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="HighQuality"/>
           </Border>
-          <StackPanel Grid.Column="3" VerticalAlignment="Center">
-            <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Text="{Binding Channel}" FontSize="12" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
+          <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextAlignment="Left"/>
+            <TextBlock Text="{Binding Channel}" FontSize="12" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextAlignment="Left" Margin="0,3,0,0"/>
           </StackPanel>
           <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
-          <TextBlock Grid.Column="5" Text="{Binding QualityText}" FontSize="12" Foreground="#8FC2FF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-          <TextBlock Grid.Column="6" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,8,0"/>
+          <TextBlock Grid.Column="5" Text="{Binding QualityText}" FontSize="12" Foreground="#8FC2FF" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+          <TextBlock Grid.Column="6" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" TextAlignment="Right" Margin="4,0,8,0"/>
         </Grid>
       </Border>
       <DataTemplate.Triggers>
@@ -247,35 +247,45 @@
                   <TextBlock Text="{DynamicResource S.SelectAll}" FontSize="13"/></CheckBox>
                 <TextBlock Text="{Binding SelectedCountText}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Right" Margin="0,0,10,0"/>
               </Grid>
+              <!-- Playlist table header: each label and sort marker share the same alignment group as its data column. -->
               <Border Margin="0,4,0,6" Height="42" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
                 <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/><ColumnDefinition Width="84"/><ColumnDefinition Width="88"/><ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="88"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="84"/>
+                    <ColumnDefinition Width="88"/>
+                    <ColumnDefinition Width="100"/>
                   </Grid.ColumnDefinitions>
-                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="3" Command="{Binding SortByColumnCommand}" CommandParameter="Title" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="0">
-                    <Grid VerticalAlignment="Center">
-                      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="16"/></Grid.ColumnDefinitions>
-                      <TextBlock Text="Video title" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                      <TextBlock Grid.Column="1" Text="{Binding TitleSortIndicator}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#4A9BFF"/>
-                    </Grid>
+                  <Button Grid.Column="3" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Title"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                      <TextBlock Text="Video title" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                      <TextBlock Text="{Binding TitleSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="6,0,0,0"/>
+                    </StackPanel>
                   </Button>
-                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="4" Command="{Binding SortByColumnCommand}" CommandParameter="Duration" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0">
-                    <Grid VerticalAlignment="Center">
-                      <TextBlock Text="Duration" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                      <TextBlock Text="{Binding DurationSortIndicator}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#4A9BFF"/>
-                    </Grid>
+                  <Button Grid.Column="4" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Duration"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <TextBlock Text="Duration" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                      <TextBlock Text="{Binding DurationSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
+                    </StackPanel>
                   </Button>
-                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="5" Command="{Binding SortByColumnCommand}" CommandParameter="SortQualityHeight" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0">
-                    <Grid VerticalAlignment="Center">
-                      <TextBlock Text="Quality" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                      <TextBlock Text="{Binding QualitySortIndicator}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#4A9BFF"/>
-                    </Grid>
+                  <Button Grid.Column="5" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortQualityHeight"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <TextBlock Text="Quality" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                      <TextBlock Text="{Binding QualitySortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
+                    </StackPanel>
                   </Button>
-                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="6" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0">
-                    <Grid VerticalAlignment="Center">
-                      <TextBlock Text="Est. size" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                      <TextBlock Text="{Binding SizeSortIndicator}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#4A9BFF"/>
-                    </Grid>
+                  <Button Grid.Column="6" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Right">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0,8,0">
+                      <TextBlock Text="Est. size" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                      <TextBlock Text="{Binding SizeSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
+                    </StackPanel>
                   </Button>
                 </Grid>
               </Border>
