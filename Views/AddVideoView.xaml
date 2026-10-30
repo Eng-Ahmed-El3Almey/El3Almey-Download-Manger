@@ -91,7 +91,7 @@
 
   <Border Background="{StaticResource SidebarBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="14">
     <Grid Margin="22">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="22"/><ColumnDefinition Width="320"/></Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="390"/></Grid.ColumnDefinitions>
 
       <!-- ===================== main column ===================== -->
       <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" IsDeferredScrollingEnabled="False" PanningMode="VerticalOnly">
@@ -318,10 +318,10 @@
       <!-- ===================== quality preview ===================== -->
       <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" IsDeferredScrollingEnabled="False" PanningMode="VerticalOnly">
         <StackPanel>
-          <Border Padding="16,16,16,12" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12">
+          <Border Padding="20,20,18,16" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12">
             <StackPanel>
-              <TextBlock Text="{DynamicResource S.QualityPreview}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
-              <Border Padding="8" Background="#0B1630" CornerRadius="10" BorderBrush="{StaticResource CardBorder}" BorderThickness="1">
+              <TextBlock Text="{DynamicResource S.QualityPreview}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,16"/>
+              <Border Padding="12" Background="#0B1630" CornerRadius="10" BorderBrush="{StaticResource CardBorder}" BorderThickness="1">
                 <StackPanel>
                   <!-- video qualities -->
                   <StackPanel>
@@ -331,7 +331,7 @@
                         <Style.Triggers><DataTrigger Binding="{Binding IsVideo}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
                       </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="{DynamicResource S.VideoQualities}" FontSize="14" FontWeight="SemiBold" Margin="8,6,0,6"/>
+                    <TextBlock Text="{DynamicResource S.VideoQualities}" FontSize="16" FontWeight="SemiBold" Margin="8,8,0,8"/>
                     <ItemsControl ItemsSource="{Binding VideoQualities}" ItemTemplate="{StaticResource QualityRow}"/>
                   </StackPanel>
                   <!-- audio qualities -->
@@ -342,7 +342,7 @@
                         <Style.Triggers><DataTrigger Binding="{Binding IsAudio}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
                       </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="{DynamicResource S.AudioQualities}" FontSize="14" FontWeight="SemiBold" Margin="8,6,0,6"/>
+                    <TextBlock Text="{DynamicResource S.AudioQualities}" FontSize="16" FontWeight="SemiBold" Margin="8,8,0,8"/>
                     <ItemsControl ItemsSource="{Binding AudioQualities}" ItemTemplate="{StaticResource QualityRow}"/>
                   </StackPanel>
                 </StackPanel>
