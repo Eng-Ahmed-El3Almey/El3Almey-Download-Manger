@@ -165,6 +165,18 @@ public partial class AddVideoViewModel : ObservableObject
         SettingsStore.Changed += () => { if (!HasContent) ApplyDefaults(); else SaveFolder = IsAudio ? SettingsStore.Current.AudioDownloadFolder : SettingsStore.Current.DownloadFolder; };
     }
 
+    public void ChangeSelectedQuality(int direction)
+    {
+        var options = IsAudio ? AudioQualities : VideoQualities;
+        if (options.Count == 0 || direction == 0) return;
+
+        var selected = IsAudio ? SelectedAudioQuality : SelectedVideoQuality;
+        int index = selected == null ? -1 : options.IndexOf(selected);
+        int next = Math.Clamp(index + direction, 0, options.Count - 1);
+        if (IsAudio) SelectedAudioQuality = options[next];
+        else SelectedVideoQuality = options[next];
+    }
+
     [RelayCommand]
     void SortByColumn(string propertyName)
     {
