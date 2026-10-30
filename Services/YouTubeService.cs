@@ -161,9 +161,12 @@ public static class YouTubeService
         if (res.Entries.Count == 0) throw new InvalidOperationException("yt-dlp returned no available playlist entries.");
 
         res.Duration = total;
-        // Resolve format metadata with bounded parallelism. Running one full
-        // playlist extraction serially makes large playlists noticeably slower.
-        // A small worker limit avoids overwhelming YouTube while keeping fetches responsive.
+        // Use YoutubeExplode manifests to inspect each playlist entry. This avoids
+        // launching a separate yt-dlp process for every video, which is expensive
+        // for large playlists. Keep concurrency bounded to avoid request bursts.
+        Exception? lastError = null;
+        StreamManifest? representativeManifest = null;
+        EntryInfo? representativeEntry = null;
         using (var semaphore = new SemaphoreSlim(6, 6))
         {
             var formatTasks = res.Entries.Select(async entry =>
@@ -171,40 +174,39 @@ public static class YouTubeService
                 await semaphore.WaitAsync(ct);
                 try
                 {
-                    entry.VideoFormats = await YtDlpService.GetVideoFormatEstimatesAsync(
-                        "https://www.youtube.com/watch?v=" + entry.Id, ct);
+                    var manifest = await Yt.Videos.Streams.GetManifestAsync(VideoId.Parse(entry.Id), ct);
+                    entry.VideoFormats = EstimateFromManifest(manifest, entry.Duration);
+                    if (representativeManifest == null && entry.VideoFormats.Count > 0)
+                    {
+                        lock (res)
+                        {
+                            if (representativeManifest == null)
+                            {
+                                representativeManifest = manifest;
+                                representativeEntry = entry;
+                            }
+                        }
+                    }
                 }
                 catch (OperationCanceledException) { throw; }
-                catch
+                catch (Exception ex)
                 {
-                    // One unavailable/private/blocked entry must not invalidate the other videos.
+                    lock (res) lastError = ex;
                 }
                 finally { semaphore.Release(); }
             });
             await Task.WhenAll(formatTasks);
         }
 
-        Exception? lastError = null;
-        foreach (var entry in res.Entries)
-        {
-            try
-            {
-                var id = VideoId.Parse(entry.Id);
-                var manifest = await Yt.Videos.Streams.GetManifestAsync(id, ct);
-                var tracks = await YtDlpService.GetTracksAsync("https://www.youtube.com/watch?v=" + entry.Id, ct);
-                if (entry.VideoFormats.Count == 0)
-                    entry.VideoFormats = EstimateFromManifest(manifest, entry.Duration);
-                res.VideoId = entry.Id;
-                res.Thumb = entry.Thumb;
-                res.Manifest = manifest;
-                res.Tracks = tracks;
-                return res;
-            }
-            catch (OperationCanceledException) { throw; }
-            catch (Exception ex) { lastError = ex; }
-        }
+        if (representativeManifest == null || representativeEntry == null)
+            throw new InvalidOperationException("Playlist entries were found, but no available video manifest could be loaded. " + lastError?.Message);
 
-        throw new InvalidOperationException("Playlist entries were found, but no available video could be used to load quality and track information. " + lastError?.Message);
+        res.VideoId = representativeEntry.Id;
+        res.Thumb = representativeEntry.Thumb;
+        res.Manifest = representativeManifest;
+        res.Tracks = await YtDlpService.GetTracksAsync(
+            "https://www.youtube.com/watch?v=" + representativeEntry.Id, ct);
+        return res;
     }
 
     static List<YtDlpService.VideoFormatEstimate> EstimateFromManifest(StreamManifest manifest, TimeSpan? duration)
