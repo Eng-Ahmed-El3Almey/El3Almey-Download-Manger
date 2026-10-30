@@ -274,8 +274,8 @@
                     </Grid>
                   </Button>
                   <Button Grid.Column="4" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Duration"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Left">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0">
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                       <TextBlock Text="Duration" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                       <TextBlock Text="{Binding DurationSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
                     </StackPanel>
@@ -288,8 +288,8 @@
                     </StackPanel>
                   </Button>
                   <Button Grid.Column="6" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Right">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0,8,0">
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                       <TextBlock Text="Est. size" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                       <TextBlock Text="{Binding SizeSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
                     </StackPanel>
