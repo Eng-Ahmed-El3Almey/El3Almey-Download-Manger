@@ -186,7 +186,7 @@ public partial class MainWindow : Window
 
         if (e.Key == Key.Escape && modifiers == ModifierKeys.None)
         {
-            if (SearchInput.IsKeyboardFocusWithin) { SearchInput.Clear(); Keyboard.ClearFocus(); e.Handled = true; }
+            if (SearchInput.IsKeyboardFocusWithin) { SearchInput.Clear(); Keyboard.ClearFocus(SearchInput); e.Handled = true; }
             else if (_addView.IsKeyboardFocusWithin) { _add.CancelCommand.Execute(null); e.Handled = true; }
             return;
         }
