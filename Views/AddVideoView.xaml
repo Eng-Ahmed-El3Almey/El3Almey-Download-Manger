@@ -248,7 +248,7 @@
                 <TextBlock Text="{Binding SelectedCountText}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Right" Margin="0,0,10,0"/>
               </Grid>
               <Border Margin="0,4,0,6" Height="42" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
-                <Grid Margin="8,0,8,0" FlowDirection="LeftToRight">
+                <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/><ColumnDefinition Width="84"/><ColumnDefinition Width="88"/><ColumnDefinition Width="100"/>
                   </Grid.ColumnDefinitions>
