@@ -175,18 +175,18 @@ public static class YtDlpService
             // then progressive best<=height, and finally yt-dlp's unrestricted best fallback.
             var selectedVideo = videoOnly.LastOrDefault(f => Number(f, "height") <= targetHeight);
             bool includesAudio = false;
-            if (selectedVideo == default)
+            if (selectedVideo.ValueKind == JsonValueKind.Undefined)
             {
                 selectedVideo = progressive.LastOrDefault(f => Number(f, "height") <= targetHeight);
                 includesAudio = selectedVideo != default;
             }
-            if (selectedVideo == default)
+            if (selectedVideo.ValueKind == JsonValueKind.Undefined)
             {
                 selectedVideo = formats.LastOrDefault(f =>
                     Str(f, "vcodec") is not ("" or "none") && Number(f, "height") > 0);
                 includesAudio = selectedVideo != default && Str(selectedVideo, "acodec") != "none";
             }
-            if (selectedVideo == default) continue;
+            if (selectedVideo.ValueKind == JsonValueKind.Undefined) continue;
 
             long totalBytes = EstimateFormatBytes(selectedVideo, duration);
             if (!includesAudio)
