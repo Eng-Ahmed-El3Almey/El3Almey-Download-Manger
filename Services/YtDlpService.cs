@@ -178,13 +178,13 @@ public static class YtDlpService
             if (selectedVideo.ValueKind == JsonValueKind.Undefined)
             {
                 selectedVideo = progressive.LastOrDefault(f => Number(f, "height") <= targetHeight);
-                includesAudio = selectedVideo != default;
+                includesAudio = selectedVideo.ValueKind != JsonValueKind.Undefined;
             }
             if (selectedVideo.ValueKind == JsonValueKind.Undefined)
             {
                 selectedVideo = formats.LastOrDefault(f =>
-                    Str(f, "vcodec") is not ("" or "none") && Number(f, "height") > 0);
-                includesAudio = selectedVideo != default && Str(selectedVideo, "acodec") != "none";
+                    Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") is not ("" or "none") && Number(f, "height") > 0);
+                includesAudio = selectedVideo.ValueKind != JsonValueKind.Undefined && Str(selectedVideo, "acodec") != "none";
             }
             if (selectedVideo.ValueKind == JsonValueKind.Undefined) continue;
 
