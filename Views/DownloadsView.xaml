@@ -272,40 +272,23 @@
           <TextBlock Text="{Binding PlaylistDetailSummary}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
         </StackPanel>
       </StackPanel>
-      <Border Grid.Row="1" Margin="0,0,0,10" Padding="8,0,8,10" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1">
-        <Grid MinHeight="36">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="130"/>
-            <ColumnDefinition Width="160"/>
-            <ColumnDefinition Width="88"/>
-            <ColumnDefinition Width="48"/>
-          </Grid.ColumnDefinitions>
-          <TextBlock Text="Video" FontWeight="SemiBold" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center"/>
-          <TextBlock Grid.Column="1" Text="Status" FontWeight="SemiBold" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="10,0,0,0"/>
-          <TextBlock Grid.Column="2" Text="Progress" FontWeight="SemiBold" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="10,0,0,0"/>
-          <TextBlock Grid.Column="3" Grid.ColumnSpan="2" Text="Actions" FontWeight="SemiBold" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        </Grid>
-      </Border>
+      <Grid Grid.Row="1" Margin="0,0,0,10">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
+        <TextBlock Text="Playlist videos" FontWeight="SemiBold" FontSize="14"/>
+        <TextBlock Grid.Column="1" Text="Status" FontWeight="SemiBold"/>
+        <TextBlock Grid.Column="2" Text="Progress" FontWeight="SemiBold"/>
+      </Grid>
       <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding PlaylistItems}">
           <ItemsControl.ItemTemplate><DataTemplate>
             <Border BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1" Padding="8">
-              <Grid Margin="8,0,8,0" MinHeight="64">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="130"/>
-                  <ColumnDefinition Width="160"/>
-                  <ColumnDefinition Width="88"/>
-                  <ColumnDefinition Width="48"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                  <TextBlock Text="{Binding PlaylistIndex}" Foreground="{StaticResource TextMuted}" FontSize="11"/>
-                  <TextBlock Text="{Binding PlaylistVideoDisplayTitle}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis"/>
-                  <TextBlock Text="{Binding Details}" Foreground="{StaticResource TextMuted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
-                </StackPanel>
-                <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{Binding StatusFg}" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="13"/>
-                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="10,0,12,0"><TextBlock Text="{Binding ProgressText}" Margin="0,0,0,5" FontSize="12"/><ProgressBar Value="{Binding Progress}"/></StackPanel>
+              <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="120"/><ColumnDefinition Width="88"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
+                <StackPanel><TextBlock Text="{Binding PlaylistIndex}" Foreground="{StaticResource TextMuted}"/>
+                  <TextBlock Text="{Binding PlaylistVideoDisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Text="{Binding Details}" Foreground="{StaticResource TextMuted}" FontSize="12"/></StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{Binding StatusFg}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center"><TextBlock Text="{Binding ProgressText}" Margin="0,0,0,5"/><ProgressBar Value="{Binding Progress}"/></StackPanel>
                 <Button Grid.Column="3" Style="{StaticResource IconBtn}" Width="38" Height="34" Padding="0" Margin="0,0,6,0"
                         Visibility="{Binding CanRetry, Converter={StaticResource B2V}}"
                         ToolTip="Retry this failed video"
