@@ -29,6 +29,7 @@ public partial class PlaylistEntryVm : ObservableObject
     public string DurationText { get; init; } = "";
     public string Thumb { get; init; } = "";
     public TimeSpan? Duration { get; init; }
+    public Dictionary<int, long> QualitySizes { get; init; } = new();
     [ObservableProperty] private bool _isSelected = true;
     [ObservableProperty] private string _sizeText = "—";
 }
@@ -127,7 +128,7 @@ public partial class AddVideoViewModel : ObservableObject
             {
                 if (IsPlaylistMode)
                 {
-                    long selectedTotal = Entries.Where(e => e.IsSelected).Sum(e => EstimateVideoBytes(e.Duration, SelectedVideoQuality.Height));
+                    long selectedTotal = EstimateVideoBytes(null, SelectedVideoQuality.Height);
                     return selectedTotal > 0 ? "~ " + Fmt.Bytes(selectedTotal) : "—";
                 }
                 return SelectedVideoQuality.SizeText;
@@ -256,7 +257,8 @@ public partial class AddVideoViewModel : ObservableObject
                 var vm = new PlaylistEntryVm
                 {
                     Index = e.Index, Id = e.Id, Title = e.Title, Channel = e.Channel, Thumb = e.Thumb,
-                    Duration = e.Duration, DurationText = Fmt.Duration(e.Duration)
+                    Duration = e.Duration, DurationText = Fmt.Duration(e.Duration),
+                    QualitySizes = e.VideoFormats.ToDictionary(f => f.Height, f => f.EstimatedBytes)
                 };
                 vm.PropertyChanged += (_, ev) => { if (ev.PropertyName == nameof(PlaylistEntryVm.IsSelected)) RecountEntries(); };
                 // Existing downloads should be visible in the playlist preview but excluded by default.
@@ -331,25 +333,32 @@ public partial class AddVideoViewModel : ObservableObject
 
         foreach (var (h, tag) in Heights)
         {
-            var v = StreamPicker.Exact(m, h);
             long size = 0;
-            if (v != null)
+            bool available;
+            int supportedCount = 0;
+            if (r.IsPlaylist)
             {
-                var a = StreamPicker.Audio(m, v.Container.Name == "mp4");
-                long oneVideoBytes = v.Size.Bytes + (a?.Size.Bytes ?? 0);
-                if (!r.IsPlaylist) size = oneVideoBytes;
-                else
+                var supported = Entries.Where(e => e.QualitySizes.ContainsKey(h)).ToList();
+                supportedCount = supported.Count;
+                available = supportedCount > 0;
+                size = Entries.Where(e => e.IsSelected).Sum(e => EstimateEntrySize(e, h));
+            }
+            else
+            {
+                var v = StreamPicker.Exact(m, h);
+                available = v != null;
+                if (v != null)
                 {
-                    var firstDuration = r.Entries.FirstOrDefault()?.Duration?.TotalSeconds ?? 0;
-                    var selectedSeconds = Entries.Where(e => e.IsSelected).Sum(e => e.Duration?.TotalSeconds ?? 0);
-                    if (firstDuration > 0 && selectedSeconds > 0)
-                        size = (long)(oneVideoBytes / firstDuration * selectedSeconds);
+                    var a = StreamPicker.Audio(m, v.Container.Name == "mp4");
+                    size = v.Size.Bytes + (a?.Size.Bytes ?? 0);
                 }
             }
+            string label = tag == "" ? $"{h}p" : $"{h}p ({tag})";
+            if (r.IsPlaylist) label += $" — {supportedCount}/{Entries.Count}";
             var opt = new QualityOption
             {
-                Label = tag == "" ? $"{h}p" : $"{h}p ({tag})",
-                Height = h, SizeBytes = size, IsAvailable = v != null, ShowAvailability = true
+                Label = label, Height = h, SizeBytes = size,
+                IsAvailable = available, ShowAvailability = true
             };
             opt.PropertyChanged += (_, e) => OnQualityPicked(VideoQualities, opt, e.PropertyName, o => SelectedVideoQuality = o);
             VideoQualities.Add(opt);
@@ -402,8 +411,11 @@ public partial class AddVideoViewModel : ObservableObject
     partial void OnSelectedVideoFormatChanged(string value) { OnPropertyChanged(nameof(TotalSizeFor)); }
     partial void OnSelectedAudioFormatChanged(string value) { OnPropertyChanged(nameof(TotalSizeFor)); }
 
-    long EstimateVideoBytes(TimeSpan? duration, int height)
+    long EstimateVideoBytes(TimeSpan? duration, int height, PlaylistEntryVm? entry = null)
     {
+        if (_res?.IsPlaylist == true)
+            return entry != null ? EstimateEntrySize(entry, height) :
+                Entries.Where(e => e.IsSelected).Sum(e => EstimateEntrySize(e, height));
         if (duration is not TimeSpan d || d.TotalSeconds <= 0 || _res?.Manifest == null) return 0;
         var video = StreamPicker.Exact(_res.Manifest, height);
         if (video == null) return 0;
@@ -419,34 +431,24 @@ public partial class AddVideoViewModel : ObservableObject
         return bitsPerSecond > 0 ? (long)(bitsPerSecond / 8d * d.TotalSeconds) : 0;
     }
 
+    static long EstimateEntrySize(PlaylistEntryVm entry, int targetHeight)
+    {
+        if (entry.QualitySizes.Count == 0) return 0;
+        int selectedHeight = entry.QualitySizes.Keys.Where(h => h <= targetHeight)
+            .DefaultIfEmpty(entry.QualitySizes.Keys.Min()).Max();
+        return entry.QualitySizes.TryGetValue(selectedHeight, out long bytes) ? bytes : 0;
+    }
+
     void Totals()
     {
         // Refresh playlist quality-size estimates when the selection changes.
-        if (_res?.IsPlaylist == true && _res.Manifest != null)
+        if (_res?.IsPlaylist == true)
         {
-            var firstDuration = _res.Entries.FirstOrDefault()?.Duration?.TotalSeconds ?? 0;
+            foreach (var q in VideoQualities)
+                q.SizeBytes = Entries.Where(e => e.IsSelected).Sum(e => EstimateEntrySize(e, q.Height));
             var selectedSeconds = Entries.Where(e => e.IsSelected).Sum(e => e.Duration?.TotalSeconds ?? 0);
-            if (firstDuration > 0)
-            {
-                foreach (var q in VideoQualities)
-                {
-                    var stream = StreamPicker.Exact(_res.Manifest, q.Height);
-                    if (stream == null) continue;
-                    var audio = StreamPicker.Audio(_res.Manifest, stream.Container.Name == "mp4");
-                    long firstBytes = stream.Size.Bytes + (audio?.Size.Bytes ?? 0);
-                    if (firstBytes > 0 && firstDuration > 0)
-                        q.SizeBytes = (long)(firstBytes / firstDuration * selectedSeconds);
-                    else
-                    {
-                        long bitsPerSecond = stream.Bitrate.BitsPerSecond + (audio?.Bitrate.BitsPerSecond ?? 0);
-                        q.SizeBytes = bitsPerSecond > 0 ? (long)(bitsPerSecond / 8d * selectedSeconds) : 0;
-                    }
-                }
-            }
             foreach (var q in AudioQualities)
-            {
                 q.SizeBytes = (long)(selectedSeconds * q.Kbps * 125);
-            }
         }
         UpdateEntrySizeEstimates();
         OnPropertyChanged(nameof(TotalSizeText));
@@ -465,25 +467,16 @@ public partial class AddVideoViewModel : ObservableObject
                     : "—";
             return;
         }
-        if (SelectedVideoQuality == null || _res?.Manifest == null)
+        if (SelectedVideoQuality == null)
         {
             foreach (var e in Entries) e.SizeText = "—";
             return;
         }
-        var stream = StreamPicker.Exact(_res.Manifest, SelectedVideoQuality.Height);
-        if (stream == null)
-        {
-            foreach (var e in Entries) e.SizeText = "Unavailable";
-            return;
-        }
-        var audio = StreamPicker.Audio(_res.Manifest, stream.Container.Name == "mp4");
-        double firstSeconds = _res.Entries.FirstOrDefault()?.Duration?.TotalSeconds ?? 0;
-        long firstBytes = stream.Size.Bytes + (audio?.Size.Bytes ?? 0);
-        double bytesPerSecond = firstSeconds > 0 ? firstBytes / firstSeconds : 0;
         foreach (var e in Entries)
-            e.SizeText = e.Duration is TimeSpan d && bytesPerSecond > 0
-                ? "~ " + Fmt.Bytes((long)(d.TotalSeconds * bytesPerSecond))
-                : "—";
+        {
+            long bytes = EstimateEntrySize(e, SelectedVideoQuality.Height);
+            e.SizeText = bytes > 0 ? "~ " + Fmt.Bytes(bytes) : "Unavailable";
+        }
     }
 
     bool _allSelectedUpdating;
@@ -669,7 +662,7 @@ public partial class AddVideoViewModel : ObservableObject
             if (downloadAgain && (alreadyCompleted || fileExists))
                 proposedName = NextAvailableBaseName(folder, proposedName, IsAudio ? SelectedAudioFormat : SelectedVideoFormat);
             playlistIndex++;
-            long total = IsAudio ? (long)((e.Duration?.TotalSeconds ?? 0) * k * 125) : EstimateVideoBytes(e.Duration, h);
+            long total = IsAudio ? (long)((e.Duration?.TotalSeconds ?? 0) * k * 125) : EstimateVideoBytes(e.Duration, h, e);
             var item = Make(e.Id, e.Title, folder, proposedName, total);
             item.PlaylistIndex = playlistIndex;
             item.PlaylistCount = Entries.Count(e => e.IsSelected);
