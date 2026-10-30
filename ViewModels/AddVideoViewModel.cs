@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text;
@@ -61,6 +63,8 @@ public partial class AddVideoViewModel : ObservableObject
     public ObservableCollection<QualityOption> VideoQualities { get; } = new();
     public ObservableCollection<QualityOption> AudioQualities { get; } = new();
     public ObservableCollection<PlaylistEntryVm> Entries { get; } = new();
+    public ICollectionView EntriesView { get; }
+    bool _titleSortDescending;
     public ObservableCollection<MediaTrackOption> AudioTracks { get; } = new();
     public ObservableCollection<MediaTrackOption> OriginalSubtitleTracks { get; } = new();
     public ObservableCollection<MediaTrackOption> AutoTranslatedSubtitleTracks { get; } = new();
@@ -152,10 +156,25 @@ public partial class AddVideoViewModel : ObservableObject
     public AddVideoViewModel(DownloadManager mgr)
     {
         _mgr = mgr;
+        EntriesView = CollectionViewSource.GetDefaultView(Entries);
         ApplyDefaults();
         Loc.Changed += () => { OnPropertyChanged(nameof(SelectedCountText)); OnPropertyChanged(nameof(TotalSizeFor)); };
         SettingsStore.Changed += () => { if (!HasContent) ApplyDefaults(); else SaveFolder = IsAudio ? SettingsStore.Current.AudioDownloadFolder : SettingsStore.Current.DownloadFolder; };
     }
+
+    [RelayCommand]
+    void SortByTitle()
+    {
+        _titleSortDescending = !_titleSortDescending;
+        EntriesView.SortDescriptions.Clear();
+        EntriesView.SortDescriptions.Add(new SortDescription(
+            nameof(PlaylistEntryVm.Title),
+            _titleSortDescending ? ListSortDirection.Descending : ListSortDirection.Ascending));
+        EntriesView.Refresh();
+        OnPropertyChanged(nameof(TitleSortIndicator));
+    }
+
+    public string TitleSortIndicator => _titleSortDescending ? " ↓" : " ↑";
 
     void ApplyDefaults()
     {
