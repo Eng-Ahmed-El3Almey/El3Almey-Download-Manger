@@ -242,74 +242,92 @@
               </Grid>
 
               <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,14,0,8"/>
-              <Grid Margin="0,0,0,6">
-                <CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding AllSelected}" HorizontalAlignment="Left" Margin="10,0,0,0">
-                  <TextBlock Text="{DynamicResource S.SelectAll}" FontSize="13"/></CheckBox>
-                <TextBlock Text="{Binding SelectedCountText}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Right" Margin="0,0,10,0"/>
-              </Grid>
-              <!-- Playlist table header reserves the ListBox scrollbar gutter so every column matches the rows below. -->
-              <Grid Margin="0,4,0,6">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="{x:Static SystemParameters.VerticalScrollBarWidth}"/>
-                </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Height="42" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
-                <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
+              <!-- The select-all controls, table header, and playlist items occupy separate grid rows. -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Row 0: selection controls only. -->
+                <Grid Grid.Row="0" Margin="0,0,0,6">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="30"/>
-                    <ColumnDefinition Width="30"/>
-                    <ColumnDefinition Width="88"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="84"/>
-                    <ColumnDefinition Width="88"/>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="Auto"/>
                   </Grid.ColumnDefinitions>
-                  <Button Grid.Column="3" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Title"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" FlowDirection="LeftToRight" Padding="0">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" FlowDirection="LeftToRight">
-                      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" FlowDirection="LeftToRight">
-                        <TextBlock Text="Video title" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Left" TextAlignment="Left" FlowDirection="LeftToRight" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                        <TextBlock Text="{Binding TitleSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="6,0,0,0"/>
-                      </StackPanel>
-                    </Grid>
-                  </Button>
-                  <Button Grid.Column="4" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Duration"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                      <TextBlock Text="Duration" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                      <TextBlock Text="{Binding DurationSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
-                    </StackPanel>
-                  </Button>
-                  <Button Grid.Column="5" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortQualityHeight"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                      <TextBlock Text="Quality" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                      <TextBlock Text="{Binding QualitySortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
-                    </StackPanel>
-                  </Button>
-                  <Button Grid.Column="6" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                      <TextBlock Text="Est. size" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                      <TextBlock Text="{Binding SizeSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
-                    </StackPanel>
-                  </Button>
+                  <CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding AllSelected}" HorizontalAlignment="Left" Margin="10,0,0,0">
+                    <TextBlock Text="{DynamicResource S.SelectAll}" FontSize="13"/>
+                  </CheckBox>
+                  <TextBlock Grid.Column="1" Text="{Binding SelectedCountText}" Style="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 </Grid>
-                </Border>
+
+                <!-- Row 1: table column headers only; keep the scrollbar gutter aligned with the ListBox. -->
+                <Grid Grid.Row="1" Margin="0,4,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{x:Static SystemParameters.VerticalScrollBarWidth}"/>
+                  </Grid.ColumnDefinitions>
+                  <Border Grid.Column="0" Height="42" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
+                    <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="88"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="84"/>
+                        <ColumnDefinition Width="88"/>
+                        <ColumnDefinition Width="100"/>
+                      </Grid.ColumnDefinitions>
+                      <Button Grid.Column="3" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Title"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" FlowDirection="LeftToRight" Padding="0">
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" FlowDirection="LeftToRight">
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" FlowDirection="LeftToRight">
+                            <TextBlock Text="Video title" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Left" TextAlignment="Left" FlowDirection="LeftToRight" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                            <TextBlock Text="{Binding TitleSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="6,0,0,0"/>
+                          </StackPanel>
+                        </Grid>
+                      </Button>
+                      <Button Grid.Column="4" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Duration"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <TextBlock Text="Duration" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                          <TextBlock Text="{Binding DurationSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
+                        </StackPanel>
+                      </Button>
+                      <Button Grid.Column="5" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortQualityHeight"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <TextBlock Text="Quality" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                          <TextBlock Text="{Binding QualitySortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
+                        </StackPanel>
+                      </Button>
+                      <Button Grid.Column="6" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <TextBlock Text="Est. size" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                          <TextBlock Text="{Binding SizeSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
+                        </StackPanel>
+                      </Button>
+                    </Grid>
+                  </Border>
+                </Grid>
+
+                <!-- Row 2: playlist entries only. -->
+                <ListBox Grid.Row="2" ItemsSource="{Binding EntriesView}" ItemTemplate="{StaticResource EntryRow}" SelectionMode="Multiple" MaxHeight="330"
+                         Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                         ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True">
+                  <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                      <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                      <Setter Property="Template">
+                        <Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter/></ControlTemplate></Setter.Value>
+                      </Setter>
+                    </Style>
+                  </ListBox.ItemContainerStyle>
+                </ListBox>
               </Grid>
-              <ListBox ItemsSource="{Binding EntriesView}" ItemTemplate="{StaticResource EntryRow}" SelectionMode="Multiple" MaxHeight="330"
-                       Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
-                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible"
-                       ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True">
-                <ListBox.ItemContainerStyle>
-                  <Style TargetType="ListBoxItem">
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                    <Setter Property="Template">
-                      <Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter/></ControlTemplate></Setter.Value>
-                    </Setter>
-                  </Style>
-                </ListBox.ItemContainerStyle>
-              </ListBox>
             </StackPanel>
           </Border>
 
