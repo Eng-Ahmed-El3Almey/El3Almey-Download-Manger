@@ -178,10 +178,18 @@ public partial class AddVideoViewModel : ObservableObject
         EntriesView.Refresh();
         OnPropertyChanged(nameof(CurrentSortProperty));
         OnPropertyChanged(nameof(SortIndicator));
+        OnPropertyChanged(nameof(TitleSortIndicator));
+        OnPropertyChanged(nameof(DurationSortIndicator));
+        OnPropertyChanged(nameof(QualitySortIndicator));
+        OnPropertyChanged(nameof(SizeSortIndicator));
     }
 
     public string? CurrentSortProperty => _currentSortProperty;
     public string SortIndicator => _currentSortDescending ? " ↓" : " ↑";
+    public string TitleSortIndicator => _currentSortProperty == nameof(PlaylistEntryVm.Title) ? SortIndicator : "";
+    public string DurationSortIndicator => _currentSortProperty == nameof(PlaylistEntryVm.Duration) ? SortIndicator : "";
+    public string QualitySortIndicator => _currentSortProperty == nameof(PlaylistEntryVm.SortQualityHeight) ? SortIndicator : "";
+    public string SizeSortIndicator => _currentSortProperty == nameof(PlaylistEntryVm.SortSizeBytes) ? SortIndicator : "";
 
     void ApplyDefaults()
     {
