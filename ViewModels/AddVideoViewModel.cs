@@ -338,12 +338,13 @@ public partial class AddVideoViewModel : ObservableObject
             int supportedCount = 0;
             if (r.IsPlaylist)
             {
-                var supported = Entries.Where(e => e.QualitySizes.ContainsKey(h)).ToList();
-                supportedCount = supported.Count;
+                var selectedEntries = Entries.Where(e => e.IsSelected).ToList();
+                supportedCount = selectedEntries.Count(e => e.QualitySizes.ContainsKey(h));
                 available = supportedCount > 0;
-                // Never show a fallback/lower-resolution estimate for a quality the playlist does not contain.
+                // Count only selected videos that have this exact resolution.
+                // The estimated size still includes lower-resolution fallbacks for the selected target.
                 size = available
-                    ? Entries.Where(e => e.IsSelected).Sum(e => EstimateEntrySize(e, h))
+                    ? selectedEntries.Sum(e => EstimateEntrySize(e, h))
                     : 0;
             }
             else
@@ -357,7 +358,7 @@ public partial class AddVideoViewModel : ObservableObject
                 }
             }
             string label = tag == "" ? $"{h}p" : $"{h}p ({tag})";
-            if (r.IsPlaylist) label += $" — {supportedCount}/{Entries.Count}";
+            if (r.IsPlaylist) label += $" — {supportedCount}/{Entries.Count(e => e.IsSelected)}";
             var opt = new QualityOption
             {
                 Label = label, Height = h, SizeBytes = size,
