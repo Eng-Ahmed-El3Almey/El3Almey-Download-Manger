@@ -72,7 +72,7 @@
     <DataTemplate x:Key="EntryRow">
       <Grid Height="58" Margin="0,0,0,2">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="72"/><ColumnDefinition Width="88"/>
+          <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="68"/><ColumnDefinition Width="76"/><ColumnDefinition Width="88"/>
         </Grid.ColumnDefinitions>
         <CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected}" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="1" Text="{Binding Index}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -83,15 +83,16 @@
           <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
           <TextBlock Text="{Binding Channel}" FontSize="12" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
         </StackPanel>
-        <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="8,0"/>
-        <TextBlock Grid.Column="5" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,8,0"/>
+        <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="4,0"/>
+        <TextBlock Grid.Column="5" Text="{Binding QualityText}" FontSize="12" Foreground="#8FC2FF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Column="6" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,8,0"/>
       </Grid>
     </DataTemplate>
   </UserControl.Resources>
 
   <Border Background="{StaticResource SidebarBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="14">
     <Grid Margin="22">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="430"/></Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="350"/></Grid.ColumnDefinitions>
 
       <!-- ===================== main column ===================== -->
       <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" IsDeferredScrollingEnabled="False" PanningMode="VerticalOnly">
@@ -207,11 +208,12 @@
               </Grid>
               <Grid Margin="0,4,0,4">
                 <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="72"/><ColumnDefinition Width="88"/>
+                  <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="68"/><ColumnDefinition Width="76"/><ColumnDefinition Width="88"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="3" Text="Video title" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD"/>
                 <TextBlock Grid.Column="4" Text="Duration" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="5" Text="Est. size" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD" HorizontalAlignment="Right" Margin="0,0,8,0"/>
+                <TextBlock Grid.Column="5" Text="Quality" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="6" Text="Est. size" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD" HorizontalAlignment="Right" Margin="0,0,8,0"/>
               </Grid>
               <ListBox ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource EntryRow}" MaxHeight="330"
                        Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
