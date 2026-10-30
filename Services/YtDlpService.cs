@@ -196,8 +196,7 @@ public static class YtDlpService
                     totalBytes += EstimateFormatBytes(selectedAudio, duration);
             }
 
-            if (totalBytes > 0)
-                estimates.Add(new VideoFormatEstimate { Height = targetHeight, EstimatedBytes = totalBytes });
+            estimates.Add(new VideoFormatEstimate { Height = targetHeight, EstimatedBytes = totalBytes });
         }
 
         return estimates;
