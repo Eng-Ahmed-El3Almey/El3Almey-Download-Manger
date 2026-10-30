@@ -36,7 +36,7 @@
           <Grid Margin="10,0">
             <Grid.ColumnDefinitions><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
             <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="13" Foreground="{StaticResource TextMuted}"/>
-            <TextBox Grid.Column="1" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMain}"
+            <TextBox x:Name="SearchInput" Grid.Column="1" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMain}"
                      CaretBrush="White" FontSize="13" VerticalContentAlignment="Center"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
             <TextBlock Grid.Column="1" Text="{DynamicResource S.SearchDownloads}" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False">
