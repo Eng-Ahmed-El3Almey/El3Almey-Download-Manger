@@ -42,6 +42,7 @@
       <Setter Property="Foreground" Value="#D6E5FF"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="OverridesDefaultStyle" Value="True"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
@@ -55,7 +56,7 @@
                 <Setter Property="Foreground" Value="#78B8FF"/>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="HeaderSurface" Property="Background" Value="#172B49"/>
+                <Setter Property="Foreground" Value="#A9D4FF"/>
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Opacity" Value="0.5"/>
@@ -268,7 +269,7 @@
                       <TextBlock Text="{Binding QualitySortIndicator}" FontSize="12" FontWeight="Bold" Foreground="#4A9BFF" Margin="3,0,0,0"/>
                     </StackPanel>
                   </Button>
-                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="6" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes" Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Cursor="Hand">
+                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="6" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes" Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Cursor="Hand" Margin="0,0,8,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                       <TextBlock Text="Est. size" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                       <TextBlock Text="{Binding SizeSortIndicator}" FontSize="12" FontWeight="Bold" Foreground="#4A9BFF" Margin="3,0,0,0"/>
