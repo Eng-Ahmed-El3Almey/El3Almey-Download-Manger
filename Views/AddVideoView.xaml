@@ -252,8 +252,8 @@
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/><ColumnDefinition Width="68"/><ColumnDefinition Width="76"/><ColumnDefinition Width="88"/>
                   </Grid.ColumnDefinitions>
-                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="3" Command="{Binding SortByColumnCommand}" CommandParameter="Title" HorizontalAlignment="Left" VerticalAlignment="Stretch">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="3" Command="{Binding SortByColumnCommand}" CommandParameter="Title" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,0">
                       <TextBlock Text="Video title" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                       <TextBlock Text="{Binding TitleSortIndicator}" FontSize="12" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
                     </StackPanel>
