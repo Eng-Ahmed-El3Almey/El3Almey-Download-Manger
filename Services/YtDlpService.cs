@@ -192,7 +192,7 @@ public static class YtDlpService
             if (!includesAudio)
             {
                 var selectedAudio = audioOnly.LastOrDefault();
-                if (selectedAudio != default)
+                if (selectedAudio.ValueKind != JsonValueKind.Undefined)
                     totalBytes += EstimateFormatBytes(selectedAudio, duration);
             }
 
