@@ -13,6 +13,7 @@ public class EntryInfo
     public string Channel = "";
     public TimeSpan? Duration;
     public string Thumb = "";
+    public List<YtDlpService.VideoFormatEstimate> VideoFormats = new();
 }
 
 public class ResolveResult
@@ -161,6 +162,23 @@ public static class YouTubeService
 
         res.Duration = total;
         // A deleted/private first entry should not make the entire playlist unusable.
+        // Collect per-video formats instead of assuming the first playlist item represents
+        // every other item. A bounded worker count avoids launching hundreds of yt-dlp processes.
+        using var formatGate = new SemaphoreSlim(4, 4);
+        var formatTasks = res.Entries.Select(async entry =>
+        {
+            await formatGate.WaitAsync(ct);
+            try
+            {
+                entry.VideoFormats = await YtDlpService.GetVideoFormatEstimatesAsync(
+                    "https://www.youtube.com/watch?v=" + entry.Id, ct);
+            }
+            catch (OperationCanceledException) { throw; }
+            catch { /* One unavailable item must not invalidate the whole playlist. */ }
+            finally { formatGate.Release(); }
+        }).ToArray();
+        await Task.WhenAll(formatTasks);
+
         Exception? lastError = null;
         foreach (var entry in res.Entries)
         {
@@ -169,6 +187,8 @@ public static class YouTubeService
                 var id = VideoId.Parse(entry.Id);
                 var manifest = await Yt.Videos.Streams.GetManifestAsync(id, ct);
                 var tracks = await YtDlpService.GetTracksAsync("https://www.youtube.com/watch?v=" + entry.Id, ct);
+                if (entry.VideoFormats.Count == 0)
+                    entry.VideoFormats = EstimateFromManifest(manifest, entry.Duration);
                 res.VideoId = entry.Id;
                 res.Thumb = entry.Thumb;
                 res.Manifest = manifest;
@@ -180,6 +200,32 @@ public static class YouTubeService
         }
 
         throw new InvalidOperationException("Playlist entries were found, but no available video could be used to load quality and track information. " + lastError?.Message);
+    }
+
+    static List<YtDlpService.VideoFormatEstimate> EstimateFromManifest(StreamManifest manifest, TimeSpan? duration)
+    {
+        double seconds = duration?.TotalSeconds ?? 0;
+        var audio = StreamPicker.Audio(manifest, preferMp4: true);
+        long audioBytes = audio?.Size.Bytes ?? 0;
+        if (audioBytes <= 0 && seconds > 0 && audio != null)
+            audioBytes = (long)(audio.Bitrate.BitsPerSecond / 8d * seconds);
+
+        return manifest.GetVideoOnlyStreams()
+            .GroupBy(stream => stream.VideoQuality.MaxHeight)
+            .Select(group =>
+            {
+                var stream = group.OrderByDescending(item => item.Bitrate.BitsPerSecond).First();
+                long videoBytes = stream.Size.Bytes;
+                if (videoBytes <= 0 && seconds > 0)
+                    videoBytes = (long)(stream.Bitrate.BitsPerSecond / 8d * seconds);
+                return new YtDlpService.VideoFormatEstimate
+                {
+                    Height = group.Key,
+                    EstimatedBytes = videoBytes + audioBytes
+                };
+            })
+            .Where(item => item.Height > 0 && item.EstimatedBytes > 0)
+            .ToList();
     }
 
 }
