@@ -117,7 +117,7 @@
             <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextAlignment="Left"/>
             <TextBlock Text="{Binding Channel}" FontSize="12" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextAlignment="Left" Margin="0,3,0,0"/>
           </StackPanel>
-          <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+          <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" Margin="8,0,0,0"/>
           <TextBlock Grid.Column="5" Text="{Binding QualityText}" FontSize="12" Foreground="#8FC2FF" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
           <TextBlock Grid.Column="6" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" TextAlignment="Right" Margin="4,0,8,0"/>
         </Grid>
@@ -247,8 +247,13 @@
                   <TextBlock Text="{DynamicResource S.SelectAll}" FontSize="13"/></CheckBox>
                 <TextBlock Text="{Binding SelectedCountText}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Right" Margin="0,0,10,0"/>
               </Grid>
-              <!-- Playlist table header: each label and sort marker share the same alignment group as its data column. -->
-              <Border Margin="0,4,0,6" Height="42" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
+              <!-- Playlist table header reserves the ListBox scrollbar gutter so every column matches the rows below. -->
+              <Grid Margin="0,4,0,6">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="{x:Static SystemParameters.VerticalScrollBarWidth}"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Height="42" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
                 <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
@@ -269,8 +274,8 @@
                     </Grid>
                   </Button>
                   <Button Grid.Column="4" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Duration"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0">
                       <TextBlock Text="Duration" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                       <TextBlock Text="{Binding DurationSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF" Margin="5,0,0,0"/>
                     </StackPanel>
@@ -290,10 +295,12 @@
                     </StackPanel>
                   </Button>
                 </Grid>
-              </Border>
+                </Border>
+              </Grid>
               <ListBox ItemsSource="{Binding EntriesView}" ItemTemplate="{StaticResource EntryRow}" SelectionMode="Multiple" MaxHeight="330"
                        Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
-                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True">
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                       ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True">
                 <ListBox.ItemContainerStyle>
                   <Style TargetType="ListBoxItem">
                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
