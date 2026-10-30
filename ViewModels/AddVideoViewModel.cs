@@ -508,9 +508,11 @@ public partial class AddVideoViewModel : ObservableObject
         if (IsAudio && SelectedAudioQuality != null)
         {
             foreach (var e in Entries)
+            {
                 e.SortQualityHeight = SelectedAudioQuality.Height;
                 e.SortSizeBytes = e.Duration is TimeSpan d ? (long)(d.TotalSeconds * SelectedAudioQuality.Kbps * 125) : 0;
                 e.SizeText = e.SortSizeBytes > 0 ? "~ " + Fmt.Bytes(e.SortSizeBytes) : "—";
+            }
             return;
         }
         if (SelectedVideoQuality == null)
