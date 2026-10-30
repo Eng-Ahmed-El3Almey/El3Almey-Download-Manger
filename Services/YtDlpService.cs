@@ -146,15 +146,47 @@ public static class YtDlpService
         var exe = await EnsureAsync(ct);
         var output = await RunCaptureAsync(exe, new[] { "--dump-single-json", "--no-warnings", "--no-playlist", "--skip-download", url }, ct);
         using var doc = JsonDocument.Parse(output);
-        var root = doc.RootElement;
-        double duration = root.TryGetProperty("duration", out var durationElement) && durationElement.ValueKind == JsonValueKind.Number
-            ? Math.Max(0, durationElement.GetDouble()) : 0;
+        return ParseVideoFormatEstimates(doc.RootElement);
+    }
+
+    public static async Task<Dictionary<string, List<VideoFormatEstimate>>> GetPlaylistFormatEstimatesAsync(
+        string playlistUrl, int maxItems, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        // --dump-json emits one complete metadata JSON object per playlist video.
+        // A single yt-dlp process replaces one process per playlist entry.
+        var output = await RunCaptureAsync(exe, new[]
+        {
+            "--dump-json", "--no-warnings", "--skip-download",
+            "--playlist-end", Math.Max(1, maxItems).ToString(CultureInfo.InvariantCulture),
+            playlistUrl
+        }, ct);
+
+        var result = new Dictionary<string, List<VideoFormatEstimate>>(StringComparer.OrdinalIgnoreCase);
+        using var reader = new StringReader(output);
+        string? line;
+        while ((line = await reader.ReadLineAsync(ct)) != null)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            try
+            {
+                using var doc = JsonDocument.Parse(line);
+                string id = Str(doc.RootElement, "id");
+                if (id.Length == 0) continue;
+                result[id] = ParseVideoFormatEstimates(doc.RootElement);
+            }
+            catch (JsonException) { /* Ignore non-JSON diagnostic lines. */ }
+        }
+        return result;
+    }
+
+    static List<VideoFormatEstimate> ParseVideoFormatEstimates(JsonElement root)
+    {
+        double duration = Number(root, "duration");
         var formats = root.TryGetProperty("formats", out var formatsElement) && formatsElement.ValueKind == JsonValueKind.Array
             ? formatsElement.EnumerateArray().ToList() : new List<JsonElement>();
 
-        // yt-dlp returns formats in its quality-sort order (worst to best).
-        // Its "bestvideo" selector chooses the last eligible video-only format,
-        // while "bestaudio" chooses the last eligible audio-only format.
         var videoOnly = formats.Where(f =>
             Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") == "none"
             && Number(f, "height") > 0).ToList();
@@ -171,8 +203,6 @@ public static class YtDlpService
 
         foreach (int targetHeight in availableHeights)
         {
-            // Mirror the download selector: bestvideo<=height + bestaudio,
-            // then progressive best<=height, and finally yt-dlp's unrestricted best fallback.
             var selectedVideo = videoOnly.LastOrDefault(f => Number(f, "height") <= targetHeight);
             bool includesAudio = false;
             if (selectedVideo.ValueKind == JsonValueKind.Undefined)
@@ -184,7 +214,7 @@ public static class YtDlpService
             {
                 selectedVideo = formats.LastOrDefault(f =>
                     Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") is not ("" or "none") && Number(f, "height") > 0);
-                includesAudio = selectedVideo.ValueKind != JsonValueKind.Undefined && Str(selectedVideo, "acodec") != "none";
+                includesAudio = selectedVideo.ValueKind != JsonValueKind.Undefined;
             }
             if (selectedVideo.ValueKind == JsonValueKind.Undefined) continue;
 
@@ -195,10 +225,8 @@ public static class YtDlpService
                 if (selectedAudio.ValueKind != JsonValueKind.Undefined)
                     totalBytes += EstimateFormatBytes(selectedAudio, duration);
             }
-
             estimates.Add(new VideoFormatEstimate { Height = targetHeight, EstimatedBytes = totalBytes });
         }
-
         return estimates;
     }
 
