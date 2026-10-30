@@ -271,8 +271,7 @@
                     </StackPanel>
                   </Button>
                   <Button Style="{StaticResource PlaylistHeaderButton}" Grid.Column="6" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch">
-                      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0,8,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="Est. size" FontSize="12" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                         <TextBlock Text="{Binding SizeSortIndicator}" FontSize="12" FontWeight="Bold" Foreground="#4A9BFF" Margin="3,0,0,0"/>
                       </StackPanel>
