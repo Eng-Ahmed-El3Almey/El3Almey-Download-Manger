@@ -148,18 +148,62 @@ public partial class MainWindow : Window
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         var modifiers = Keyboard.Modifiers;
-        if (e.Key != Key.Tab || !modifiers.HasFlag(ModifierKeys.Control)
-            || (modifiers & ~(ModifierKeys.Control | ModifierKeys.Shift)) != ModifierKeys.None)
+
+        // Ctrl+Tab / Ctrl+Shift+Tab: cycle through the main pages.
+        if (e.Key == Key.Tab && modifiers.HasFlag(ModifierKeys.Control)
+            && (modifiers & ~(ModifierKeys.Control | ModifierKeys.Shift)) == ModifierKeys.None)
+        {
+            e.Handled = true;
+            bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
+            var pages = new Action[] { ShowAdd, ShowDownloads, ShowHistory, ShowSettings };
+            int current = NavAdd.IsChecked == true ? 0
+                : NavDownloads.IsChecked == true ? 1
+                : NavHistory.IsChecked == true ? 2 : 3;
+            int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
+            pages[next]();
+            return;
+        }
+
+        if (modifiers != ModifierKeys.Control || CloseConfirmOverlay.Visibility == Visibility.Visible)
             return;
 
-        e.Handled = true;
-        bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
-        var pages = new Action[] { ShowAdd, ShowDownloads, ShowHistory, ShowSettings };
-        int current = NavAdd.IsChecked == true ? 0
-            : NavDownloads.IsChecked == true ? 1
-            : NavHistory.IsChecked == true ? 2 : 3;
-        int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
-        pages[next]();
+        switch (e.Key)
+        {
+            case Key.D1:
+            case Key.NumPad1:
+                ShowAdd();
+                e.Handled = true;
+                break;
+            case Key.D2:
+            case Key.NumPad2:
+                ShowDownloads();
+                e.Handled = true;
+                break;
+            case Key.D3:
+            case Key.NumPad3:
+                ShowHistory();
+                e.Handled = true;
+                break;
+            case Key.D4:
+            case Key.NumPad4:
+                ShowSettings();
+                e.Handled = true;
+                break;
+            case Key.P:
+                _downloads.PauseAllCommand.Execute(null);
+                e.Handled = true;
+                break;
+            case Key.R:
+                _downloads.ResumeAllCommand.Execute(null);
+                e.Handled = true;
+                break;
+            case Key.F:
+                ShowDownloads();
+                SearchInput.Focus();
+                SearchInput.SelectAll();
+                e.Handled = true;
+                break;
+        }
     }
 
     void TitleBar_MouseDown(object s, MouseButtonEventArgs e)
