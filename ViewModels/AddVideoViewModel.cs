@@ -64,7 +64,7 @@ public partial class AddVideoViewModel : ObservableObject
     public ObservableCollection<QualityOption> AudioQualities { get; } = new();
     public ObservableCollection<PlaylistEntryVm> Entries { get; } = new();
     public ICollectionView EntriesView { get; }
-    bool _titleSortDescending;
+    bool _titleSortDescending = true;
     public ObservableCollection<MediaTrackOption> AudioTracks { get; } = new();
     public ObservableCollection<MediaTrackOption> OriginalSubtitleTracks { get; } = new();
     public ObservableCollection<MediaTrackOption> AutoTranslatedSubtitleTracks { get; } = new();
