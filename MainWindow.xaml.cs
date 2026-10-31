@@ -24,6 +24,9 @@ public partial class MainWindow : Window
     readonly HistoryView _historyView;
     readonly SettingsView _settingsView;
     readonly ShortcutsView _shortcutsView;
+    readonly YouTubeBrowserView _youtubeView;
+    readonly VideoPlayerView _videoPlayerView;
+    readonly AudioPlayerView _audioPlayerView;
 
     public MainWindow()
     {
@@ -66,8 +69,12 @@ public partial class MainWindow : Window
         _historyView = new HistoryView { DataContext = _history };
         _settingsView = new SettingsView { DataContext = _settings };
         _shortcutsView = new ShortcutsView();
+        _youtubeView = new YouTubeBrowserView();
+        _youtubeView.DownloadRequested += YouTubeDownloadRequested;
+        _videoPlayerView = new VideoPlayerView();
+        _audioPlayerView = new AudioPlayerView();
 
-        ShowAdd();                         // the app opens on "Add Video"
+        ShowYouTube();                     // open the built-in YouTube browser first
         Closing += MainWindow_Closing;
         _manager.DownloadCompleted += Manager_DownloadCompleted;
         _manager.AllDownloadsFinished += Manager_AllDownloadsFinished;
@@ -132,7 +139,17 @@ public partial class MainWindow : Window
         });
     }
 
+    void ShowYouTube() => Navigate(_youtubeView, NavYouTube, false);
+    void ShowVideoPlayer() => Navigate(_videoPlayerView, NavVideoPlayer, false);
+    void ShowAudioPlayer() => Navigate(_audioPlayerView, NavAudioPlayer, false);
     void ShowAdd() => Navigate(_addView, NavAdd, false);
+
+    private void YouTubeDownloadRequested(string url)
+    {
+        _add.Url = url;
+        ShowAdd();
+        _add.GetVideoCommand.Execute(null);
+    }
     void ShowDownloads() { _downloads.Refresh(); Navigate(_downloadsView, NavDownloads, true); }
     void ShowHistory() { _history.Refresh(); Navigate(_historyView, NavHistory, false); }
     void ShowSettings() => Navigate(_settingsView, NavSettings, false);
@@ -184,6 +201,9 @@ public partial class MainWindow : Window
     [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
 
+    void NavYouTube_Click(object s, RoutedEventArgs e) => ShowYouTube();
+    void NavVideoPlayer_Click(object s, RoutedEventArgs e) => ShowVideoPlayer();
+    void NavAudioPlayer_Click(object s, RoutedEventArgs e) => ShowAudioPlayer();
     void NavAdd_Click(object s, RoutedEventArgs e) => ShowAdd();
     void NavDownloads_Click(object s, RoutedEventArgs e) => ShowDownloads();
     void NavHistory_Click(object s, RoutedEventArgs e) => ShowHistory();
@@ -200,11 +220,14 @@ public partial class MainWindow : Window
         {
             e.Handled = true;
             bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
-            var pages = new Action[] { ShowAdd, ShowDownloads, ShowHistory, ShowSettings, ShowShortcuts };
-            int current = NavAdd.IsChecked == true ? 0
-                : NavDownloads.IsChecked == true ? 1
-                : NavHistory.IsChecked == true ? 2
-                : NavSettings.IsChecked == true ? 3 : 4;
+            var pages = new Action[] { ShowYouTube, ShowVideoPlayer, ShowAudioPlayer, ShowAdd, ShowDownloads, ShowHistory, ShowSettings, ShowShortcuts };
+            int current = NavYouTube.IsChecked == true ? 0
+                : NavVideoPlayer.IsChecked == true ? 1
+                : NavAudioPlayer.IsChecked == true ? 2
+                : NavAdd.IsChecked == true ? 3
+                : NavDownloads.IsChecked == true ? 4
+                : NavHistory.IsChecked == true ? 5
+                : NavSettings.IsChecked == true ? 6 : 7;
             int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
             pages[next]();
             return;
@@ -280,11 +303,14 @@ public partial class MainWindow : Window
         if (!control) return;
         switch (e.Key)
         {
-            case Key.D1: case Key.NumPad1: ShowAdd(); e.Handled = true; break;
-            case Key.D2: case Key.NumPad2: ShowDownloads(); e.Handled = true; break;
-            case Key.D3: case Key.NumPad3: ShowHistory(); e.Handled = true; break;
-            case Key.D4: case Key.NumPad4: ShowSettings(); e.Handled = true; break;
-            case Key.D5: case Key.NumPad5: ShowShortcuts(); e.Handled = true; break;
+            case Key.D1: case Key.NumPad1: ShowYouTube(); e.Handled = true; break;
+            case Key.D2: case Key.NumPad2: ShowVideoPlayer(); e.Handled = true; break;
+            case Key.D3: case Key.NumPad3: ShowAudioPlayer(); e.Handled = true; break;
+            case Key.D4: case Key.NumPad4: ShowAdd(); e.Handled = true; break;
+            case Key.D5: case Key.NumPad5: ShowDownloads(); e.Handled = true; break;
+            case Key.D6: case Key.NumPad6: ShowHistory(); e.Handled = true; break;
+            case Key.D7: case Key.NumPad7: ShowSettings(); e.Handled = true; break;
+            case Key.D8: case Key.NumPad8: ShowShortcuts(); e.Handled = true; break;
             case Key.P: _downloads.PauseAllCommand.Execute(null); e.Handled = true; break;
             case Key.R: _downloads.ResumeAllCommand.Execute(null); e.Handled = true; break;
             case Key.F: ShowDownloads(); SearchInput.Focus(); SearchInput.SelectAll(); e.Handled = true; break;
