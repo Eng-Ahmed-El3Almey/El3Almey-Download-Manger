@@ -77,7 +77,7 @@ public partial class VideoPlayerView : UserControl
 
         try
         {
-            using var media = new Media(_libVLC, uri, FromType.FromLocation);
+            using var media = new Media(_libVLC, uri.ToString(), FromType.FromLocation);
             _mediaPlayer.Play(media);
             NowPlayingTitle.Text = uri.Host;
             NowPlayingSource.Text = uri.ToString();
