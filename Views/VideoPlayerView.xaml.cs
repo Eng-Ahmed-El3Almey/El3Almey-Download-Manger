@@ -172,6 +172,96 @@ public partial class VideoPlayerView : UserControl
             PlayNetworkUrl(urlBox.Text);
     }
 
+
+    private void FullScreen_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_engineReady)
+            return;
+
+        var fullScreenWindow = new Window
+        {
+            Title = "El3Almey Download Manager - Video Player",
+            WindowStyle = WindowStyle.None,
+            ResizeMode = ResizeMode.NoResize,
+            WindowState = WindowState.Maximized,
+            Background = System.Windows.Media.Brushes.Black,
+            ShowInTaskbar = false
+        };
+
+        var fullScreenVideo = new LibVLCSharp.WPF.VideoView
+        {
+            Background = System.Windows.Media.Brushes.Black,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch
+        };
+
+        var root = new Grid { Background = System.Windows.Media.Brushes.Black };
+        root.Children.Add(fullScreenVideo);
+
+        var controls = new Border
+        {
+            Background = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromArgb(220, 8, 15, 32)),
+            Padding = new Thickness(18, 12, 18, 12),
+            VerticalAlignment = VerticalAlignment.Bottom,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        var controlRow = new DockPanel();
+        var exitButton = new Button
+        {
+            Content = "Exit Full Screen  (Esc)",
+            Height = 38,
+            Padding = new Thickness(16, 0, 16, 0),
+            Foreground = System.Windows.Media.Brushes.White,
+            Background = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(31, 123, 255)),
+            BorderBrush = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(31, 123, 255)),
+            FontWeight = FontWeights.SemiBold,
+            Cursor = Cursors.Hand
+        };
+        exitButton.Click += (_, _) => fullScreenWindow.Close();
+        DockPanel.SetDock(exitButton, Dock.Right);
+        controlRow.Children.Add(exitButton);
+
+        var title = new TextBlock
+        {
+            Text = NowPlayingTitle.Text,
+            Foreground = System.Windows.Media.Brushes.White,
+            FontSize = 14,
+            FontWeight = FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextTrimming = TextTrimming.CharacterEllipsis
+        };
+        controlRow.Children.Add(title);
+        controls.Child = controlRow;
+        root.Children.Add(controls);
+
+        fullScreenWindow.Content = root;
+        fullScreenWindow.KeyDown += (_, keyEvent) =>
+        {
+            if (keyEvent.Key == Key.Escape)
+                fullScreenWindow.Close();
+            else if (keyEvent.Key == Key.Space)
+            {
+                if (_mediaPlayer.IsPlaying) _mediaPlayer.Pause();
+                else _mediaPlayer.Play();
+                keyEvent.Handled = true;
+            }
+        };
+        fullScreenWindow.Closed += (_, _) =>
+        {
+            fullScreenVideo.MediaPlayer = null;
+            VideoSurface.MediaPlayer = _mediaPlayer;
+        };
+
+        VideoSurface.MediaPlayer = null;
+        fullScreenVideo.MediaPlayer = _mediaPlayer;
+        fullScreenWindow.Show();
+        fullScreenWindow.Activate();
+    }
+
     private void PlayPause_Click(object sender, RoutedEventArgs e)
     {
         if (_mediaPlayer.Media == null)
