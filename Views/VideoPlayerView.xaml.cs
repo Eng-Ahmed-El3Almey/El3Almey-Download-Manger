@@ -191,6 +191,7 @@ public partial class VideoPlayerView : UserControl
         var previousWindowStyle = appWindow.WindowStyle;
         var previousResizeMode = appWindow.ResizeMode;
         var originalIndex = originalVideoHost.Children.IndexOf(VideoSurface);
+        DispatcherTimer? timer = null;
         originalVideoHost.Children.Remove(VideoSurface);
 
         var accent = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(43, 132, 255));
@@ -329,7 +330,7 @@ public partial class VideoPlayerView : UserControl
         appWindow.WindowStyle = WindowStyle.None;
         appWindow.ResizeMode = ResizeMode.NoResize;
         appWindow.WindowState = WindowState.Maximized;
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+        timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
         overlay.PreviewKeyDown += (_, args) =>
         {
             if (args.Key == Key.Escape) { ExitFullScreen(); args.Handled = true; }
@@ -350,14 +351,14 @@ public partial class VideoPlayerView : UserControl
             duration.Text = FormatTime(_mediaPlayer.Length);
             play.Content = _mediaPlayer.IsPlaying ? "Pause" : "Play";
         };
-        overlay.Unloaded += (_, _) => timer.Stop();
+        overlay.Unloaded += (_, _) => timer?.Stop();
 
         void ExitFullScreen()
         {
             if (!appRoot.Children.Contains(overlay))
                 return;
 
-            timer.Stop();
+            timer?.Stop();
             overlay.Children.Remove(VideoSurface);
             appRoot.Children.Remove(overlay);
             Grid.SetRow(VideoSurface, 0);
