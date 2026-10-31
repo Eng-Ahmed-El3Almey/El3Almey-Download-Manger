@@ -37,6 +37,15 @@ public partial class YouTubeBrowserView : UserControl
                 _currentUrl = args.Uri;
                 Dispatcher.Invoke(UpdateDownloadButton);
             };
+            Browser.CoreWebView2.SourceChanged += (_, _) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    _currentUrl = Browser.Source?.ToString() ?? _currentUrl;
+                    AddressBox.Text = _currentUrl;
+                    UpdateDownloadButton();
+                });
+            };
             Browser.CoreWebView2.NavigationCompleted += (_, _) =>
             {
                 Dispatcher.Invoke(() =>
