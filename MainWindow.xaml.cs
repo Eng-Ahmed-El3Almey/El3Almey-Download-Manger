@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using El3Almey.Services;
 using El3Almey.ViewModels;
 using El3Almey.Wpf.Views;
@@ -67,6 +68,7 @@ public partial class MainWindow : Window
         ShowAdd();                         // the app opens on "Add Video"
         Closing += MainWindow_Closing;
         _manager.DownloadCompleted += Manager_DownloadCompleted;
+        _manager.AllDownloadsFinished += Manager_AllDownloadsFinished;
         _manager.Pump();
     }
 
@@ -136,12 +138,35 @@ public partial class MainWindow : Window
 
     void Manager_DownloadCompleted(DownloadItem item)
     {
+        if (!SettingsStore.Current.ShowDownloadCompletedNotification) return;
         Dispatcher.BeginInvoke(new Action(() =>
         {
             var toast = new DownloadCompleteToast(item, Loc.Language == "ar");
             toast.Show();
         }));
     }
+
+    void Manager_AllDownloadsFinished()
+    {
+        if (!SettingsStore.Current.SleepWhenDownloadsFinish) return;
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            // Give the completion toast time to be seen before Windows enters Sleep.
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(7) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (SettingsStore.Current.SleepWhenDownloadsFinish && _manager.AreAllDownloadsFinished)
+                    SetSuspendState(false, false, false);
+            };
+            timer.Start();
+        }));
+    }
+
+    [DllImport("PowrProf.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
 
     void NavAdd_Click(object s, RoutedEventArgs e) => ShowAdd();
     void NavDownloads_Click(object s, RoutedEventArgs e) => ShowDownloads();
