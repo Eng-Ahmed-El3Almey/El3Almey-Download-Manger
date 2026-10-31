@@ -29,11 +29,11 @@ public partial class VideoPlayerView : UserControl
         _mediaPlayer.Playing += (_, _) => Dispatcher.Invoke(() =>
         {
             EmptyPlayerPanel.Visibility = Visibility.Collapsed;
-            PlayPauseButton.Content = "\uE769";
+            PlayPauseButton.Content = "Pause";
             PositionSlider.IsEnabled = true;
         });
-        _mediaPlayer.Paused += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "\uE768");
-        _mediaPlayer.Stopped += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "\uE768");
+        _mediaPlayer.Paused += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "Play");
+        _mediaPlayer.Stopped += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "Play");
         _mediaPlayer.EncounteredError += (_, _) => Dispatcher.Invoke(() =>
             MessageBox.Show(Window.GetWindow(this),
                 "The media could not be played. Check the URL or file format and try again.",
