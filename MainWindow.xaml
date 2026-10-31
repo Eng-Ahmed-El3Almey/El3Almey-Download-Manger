@@ -68,7 +68,26 @@
         <Grid Margin="16,18,16,16">
           <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
           <StackPanel>
-            <RadioButton x:Name="NavAdd" GroupName="nav" IsChecked="True" Style="{StaticResource NavItem}" Click="NavAdd_Click">
+            <RadioButton x:Name="NavYouTube" GroupName="nav" IsChecked="True" Style="{StaticResource NavItem}" Click="NavYouTube_Click">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource Icon}" Text="&#xE714;" Width="26" FontSize="18"/>
+                <TextBlock Text="YouTube Browser" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+              </StackPanel>
+            </RadioButton>
+            <RadioButton x:Name="NavVideoPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavVideoPlayer_Click">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource Icon}" Text="&#xE714;" Width="26" FontSize="18"/>
+                <TextBlock Text="Video Player" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+              </StackPanel>
+            </RadioButton>
+            <RadioButton x:Name="NavAudioPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAudioPlayer_Click">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;" Width="26" FontSize="18"/>
+                <TextBlock Text="Audio Player" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+              </StackPanel>
+            </RadioButton>
+            <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,8,0,10"/>
+            <RadioButton x:Name="NavAdd" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAdd_Click">
               <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" Width="26" FontSize="18"/>
                 <TextBlock Text="{DynamicResource S.AddVideo}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
