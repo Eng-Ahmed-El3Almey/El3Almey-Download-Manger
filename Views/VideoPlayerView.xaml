@@ -35,7 +35,7 @@
         <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <Border Grid.Row="0" Background="#030711" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="14" ClipToBounds="True">
           <Grid>
-            <vlc:VideoView x:Name="VideoSurface" />
+            <vlc:VideoView x:Name="VideoSurface" Background="#030711" />
             <StackPanel x:Name="EmptyPlayerPanel" HorizontalAlignment="Center" VerticalAlignment="Center">
               <Border Width="86" Height="86" CornerRadius="24" Background="#142B53" HorizontalAlignment="Center">
                 <TextBlock Text="&#xE714;" FontFamily="Segoe MDL2 Assets" FontSize="38" Foreground="#75B5FF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -89,6 +89,7 @@
               <StackPanel Orientation="Horizontal">
                 <Button Style="{StaticResource GhostBtn}" Height="30" Padding="10,0" Margin="0,0,7,0" Click="OpenSubtitle_Click" Content="Load Subtitle"/>
                 <Button Style="{StaticResource GhostBtn}" Height="30" Padding="10,0" IsEnabled="False" Content="Audio Track"/>
+                <Button Style="{StaticResource GhostBtn}" Height="30" Padding="12,0" Margin="6,0,0,0" Click="FullScreen_Click" Content="Full Screen"/>
               </StackPanel>
               <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <ComboBox x:Name="SpeedCombo" Width="76" Height="28" SelectedIndex="2" SelectionChanged="SpeedCombo_SelectionChanged" Margin="0,0,12,0"><ComboBoxItem Content="0.5x"/><ComboBoxItem Content="0.75x"/><ComboBoxItem Content="1.0x"/><ComboBoxItem Content="1.25x"/><ComboBoxItem Content="1.5x"/><ComboBoxItem Content="2.0x"/></ComboBox>
