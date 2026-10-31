@@ -8,9 +8,15 @@
     <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,12">
       <Grid>
         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-        <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource IconBtn}" Content="&#xE72B;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0" Click="Back_Click"/>
-        <Button x:Name="ForwardButton" Grid.Column="1" Style="{StaticResource IconBtn}" Content="&#xE72A;" FontFamily="Segoe MDL2 Assets" Margin="0,0,6,0" Click="Forward_Click"/>
-        <Button Grid.Column="2" Style="{StaticResource IconBtn}" Content="&#xE72C;" FontFamily="Segoe MDL2 Assets" Margin="0,0,10,0" Click="Refresh_Click"/>
+        <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource IconBtn}" Margin="0,0,6,0" Click="Back_Click" ToolTip="Back">
+          <TextBlock Text="‹" FontFamily="Segoe UI Symbol" FontSize="30" FontWeight="Normal" Foreground="#EAF0FB" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-5,0,0"/>
+        </Button>
+        <Button x:Name="ForwardButton" Grid.Column="1" Style="{StaticResource IconBtn}" Margin="0,0,6,0" Click="Forward_Click" ToolTip="Forward">
+          <TextBlock Text="›" FontFamily="Segoe UI Symbol" FontSize="30" FontWeight="Normal" Foreground="#EAF0FB" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-5,0,0"/>
+        </Button>
+        <Button Grid.Column="2" Style="{StaticResource IconBtn}" Margin="0,0,10,0" Click="Refresh_Click" ToolTip="Refresh">
+          <TextBlock Text="↻" FontFamily="Segoe UI Symbol" FontSize="21" Foreground="#EAF0FB" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
         <Border Grid.Column="3" Background="{StaticResource InputBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="8" Padding="10,0">
           <TextBox x:Name="AddressBox" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMain}" CaretBrush="White" FontSize="13" VerticalContentAlignment="Center" KeyDown="AddressBox_KeyDown"/>
         </Border>
