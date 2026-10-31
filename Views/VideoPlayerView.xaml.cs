@@ -1,4 +1,5 @@
 using LibVLCSharp.Shared;
+using El3Almey.Services;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
@@ -10,7 +11,8 @@ namespace El3Almey.Wpf.Views;
 
 public partial class VideoPlayerView : UserControl
 {
-    private readonly List<string> _libraryFolders = new();
+    private readonly VideoLibraryService _library = new();
+    private List<string> _visibleLibraryVideos = new();
     private readonly LibVLC _libVLC;
     private readonly MediaPlayer _mediaPlayer;
     private readonly DispatcherTimer _positionTimer;
@@ -44,6 +46,7 @@ public partial class VideoPlayerView : UserControl
         _positionTimer.Start();
         _engineReady = true;
         VolumeSlider.Value = 80;
+        RefreshLibrary();
     }
 
     private void PlayLocalFile(string filePath)
@@ -482,9 +485,83 @@ public partial class VideoPlayerView : UserControl
         if (dialog.ShowDialog(Window.GetWindow(this)) != true)
             return;
 
-        if (!_libraryFolders.Contains(dialog.FolderName, StringComparer.OrdinalIgnoreCase))
-            _libraryFolders.Add(dialog.FolderName);
+        if (_library.AddFolder(dialog.FolderName))
+            RefreshLibrary();
+        else
+            MessageBox.Show(Window.GetWindow(this),
+                "This folder is already in the library or cannot be accessed.",
+                "Video Library", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
 
-        FolderSummary.Text = string.Join(Environment.NewLine, _libraryFolders);
+    private void RefreshLibrary_Click(object sender, RoutedEventArgs e) => RefreshLibrary();
+
+    private void ToggleLibrary_Click(object sender, RoutedEventArgs e)
+    {
+        bool hide = LibraryPanel.Visibility == Visibility.Visible;
+        LibraryPanel.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+        LibraryColumn.Width = hide ? new GridLength(0) : new GridLength(330);
+        ToggleLibraryButton.Content = hide ? "Show Library" : "Hide Library";
+    }
+
+    private void RefreshLibrary()
+    {
+        _visibleLibraryVideos = _library.GetVideos().ToList();
+        ApplyLibraryFilter();
+    }
+
+    private void LibrarySearchBox_TextChanged(object sender, TextChangedEventArgs e) =>
+        ApplyLibraryFilter();
+
+    private void ApplyLibraryFilter()
+    {
+        if (LibraryList == null)
+            return;
+
+        string query = LibrarySearchBox.Text?.Trim() ?? string.Empty;
+        var videos = _visibleLibraryVideos
+            .Where(path => string.IsNullOrWhiteSpace(query) ||
+                Path.GetFileName(path).Contains(query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        LibraryList.Items.Clear();
+        foreach (string path in videos)
+        {
+            var content = new StackPanel();
+            content.Children.Add(new TextBlock
+            {
+                Text = Path.GetFileNameWithoutExtension(path),
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = (System.Windows.Media.Brush)Application.Current.Resources["TextMain"],
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            content.Children.Add(new TextBlock
+            {
+                Text = path,
+                FontSize = 10,
+                Margin = new Thickness(0, 4, 0, 0),
+                Foreground = (System.Windows.Media.Brush)Application.Current.Resources["TextMuted"],
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            LibraryList.Items.Add(new ListBoxItem { Content = content, Tag = path });
+        }
+
+        if (LibraryList.Items.Count == 0)
+        {
+            var empty = new TextBlock
+            {
+                Text = "No videos found. Add a folder or refresh the library.",
+                TextWrapping = TextWrapping.Wrap,
+                Foreground = (System.Windows.Media.Brush)Application.Current.Resources["TextMuted"],
+                Margin = new Thickness(8, 16, 8, 8)
+            };
+            LibraryList.Items.Add(new ListBoxItem { Content = empty, IsHitTestVisible = false });
+        }
+    }
+
+    private void LibraryList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (LibraryList.SelectedItem is ListBoxItem { Tag: string path } && File.Exists(path))
+            PlayLocalFile(path);
     }
 }
