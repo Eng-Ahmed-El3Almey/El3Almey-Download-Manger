@@ -265,6 +265,26 @@ public partial class DownloadsViewModel : ObservableObject
     }
     [RelayCommand] void CancelDelete() { _pendingDelete.Clear(); IsDeleteDialogOpen = false; }
 
+    public void OpenSelectedFile()
+    {
+        var item = Selected.FirstOrDefault(i => !i.IsPlaylistRepresentative && !string.IsNullOrWhiteSpace(i.FilePath) && File.Exists(i.FilePath))
+            ?? Selected.FirstOrDefault(i => !string.IsNullOrWhiteSpace(i.FilePath) && File.Exists(i.FilePath));
+        if (item != null) FileActions.OpenFile(item.FilePath);
+    }
+
+    public void OpenSelectedFolder()
+    {
+        var item = Selected.FirstOrDefault(i => !string.IsNullOrWhiteSpace(i.FilePath))
+            ?? Selected.FirstOrDefault();
+        if (item != null) FileActions.ShowInFolder(item.FilePath, item.OutputFolder);
+    }
+
+    public void CopySelectedUrl()
+    {
+        var item = Selected.FirstOrDefault();
+        if (item != null && !string.IsNullOrWhiteSpace(item.Url)) CopyText?.Invoke(item.Url);
+    }
+
     [RelayCommand] void PauseAll() => _mgr.PauseAll();
     [RelayCommand] void ResumeAll() => _mgr.ResumeAll();
 

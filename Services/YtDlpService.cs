@@ -74,6 +74,12 @@ public static class YtDlpService
         public List<PlaylistEntryMetadata> Entries { get; init; } = new();
     }
 
+    public sealed class VideoFormatEstimate
+    {
+        public int Height { get; init; }
+        public long EstimatedBytes { get; init; }
+    }
+
     public static async Task<VideoMetadata> GetVideoMetadataAsync(string url, CancellationToken ct)
     {
         var exe = await EnsureAsync(ct);
@@ -134,6 +140,113 @@ public static class YtDlpService
     }
 
     static string FirstNonEmpty(params string[] values) => values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? "";
+
+    public static async Task<List<VideoFormatEstimate>> GetVideoFormatEstimatesAsync(string url, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        var output = await RunCaptureAsync(exe, new[] { "--dump-single-json", "--no-warnings", "--no-playlist", "--skip-download", url }, ct);
+        using var doc = JsonDocument.Parse(output);
+        return ParseVideoFormatEstimates(doc.RootElement);
+    }
+
+    public static async Task<Dictionary<string, List<VideoFormatEstimate>>> GetPlaylistFormatEstimatesAsync(
+        string playlistUrl, int maxItems, CancellationToken ct)
+    {
+        var exe = await EnsureAsync(ct);
+        // --dump-json emits one complete metadata JSON object per playlist video.
+        // A single yt-dlp process replaces one process per playlist entry.
+        var output = await RunCaptureAsync(exe, new[]
+        {
+            "--dump-json", "--no-warnings", "--skip-download",
+            "--playlist-end", Math.Max(1, maxItems).ToString(CultureInfo.InvariantCulture),
+            playlistUrl
+        }, ct);
+
+        var result = new Dictionary<string, List<VideoFormatEstimate>>(StringComparer.OrdinalIgnoreCase);
+        using var reader = new StringReader(output);
+        string? line;
+        while ((line = await reader.ReadLineAsync(ct)) != null)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            try
+            {
+                using var doc = JsonDocument.Parse(line);
+                string id = Str(doc.RootElement, "id");
+                if (id.Length == 0) continue;
+                result[id] = ParseVideoFormatEstimates(doc.RootElement);
+            }
+            catch (JsonException) { /* Ignore non-JSON diagnostic lines. */ }
+        }
+        return result;
+    }
+
+    static List<VideoFormatEstimate> ParseVideoFormatEstimates(JsonElement root)
+    {
+        double duration = Number(root, "duration");
+        var formats = root.TryGetProperty("formats", out var formatsElement) && formatsElement.ValueKind == JsonValueKind.Array
+            ? formatsElement.EnumerateArray().ToList() : new List<JsonElement>();
+
+        var videoOnly = formats.Where(f =>
+            Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") == "none"
+            && Number(f, "height") > 0).ToList();
+        var progressive = formats.Where(f =>
+            Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") is not ("" or "none")
+            && Number(f, "height") > 0).ToList();
+        var audioOnly = formats.Where(f =>
+            Str(f, "vcodec") == "none" && Str(f, "acodec") is not ("" or "none")).ToList();
+
+        var availableHeights = videoOnly.Concat(progressive)
+            .Select(f => (int)Number(f, "height"))
+            .Where(h => h > 0).Distinct().OrderBy(h => h).ToList();
+        var estimates = new List<VideoFormatEstimate>();
+
+        foreach (int targetHeight in availableHeights)
+        {
+            var selectedVideo = videoOnly.LastOrDefault(f => Number(f, "height") <= targetHeight);
+            bool includesAudio = false;
+            if (selectedVideo.ValueKind == JsonValueKind.Undefined)
+            {
+                selectedVideo = progressive.LastOrDefault(f => Number(f, "height") <= targetHeight);
+                includesAudio = selectedVideo.ValueKind != JsonValueKind.Undefined;
+            }
+            if (selectedVideo.ValueKind == JsonValueKind.Undefined)
+            {
+                selectedVideo = formats.LastOrDefault(f =>
+                    Str(f, "vcodec") is not ("" or "none") && Str(f, "acodec") is not ("" or "none") && Number(f, "height") > 0);
+                includesAudio = selectedVideo.ValueKind != JsonValueKind.Undefined;
+            }
+            if (selectedVideo.ValueKind == JsonValueKind.Undefined) continue;
+
+            long totalBytes = EstimateFormatBytes(selectedVideo, duration);
+            if (!includesAudio)
+            {
+                var selectedAudio = audioOnly.LastOrDefault();
+                if (selectedAudio.ValueKind != JsonValueKind.Undefined)
+                    totalBytes += EstimateFormatBytes(selectedAudio, duration);
+            }
+            estimates.Add(new VideoFormatEstimate { Height = targetHeight, EstimatedBytes = totalBytes });
+        }
+        return estimates;
+    }
+
+    static long EstimateFormatBytes(JsonElement format, double duration)
+    {
+        long bytes = FileSize(format);
+        if (bytes > 0) return bytes;
+        double bitrate = Number(format, "tbr") * 1000d;
+        return duration > 0 && bitrate > 0 ? (long)(bitrate / 8d * duration) : 0;
+    }
+
+    static double Number(JsonElement element, string name) =>
+        element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Number ? value.GetDouble() : 0;
+
+    static long FileSize(JsonElement format)
+    {
+        double size = Number(format, "filesize");
+        if (size <= 0) size = Number(format, "filesize_approx");
+        return size > 0 && size < long.MaxValue ? (long)size : 0;
+    }
 
     public static async Task<MediaTrackInfo> GetTracksAsync(string url, CancellationToken ct)
     {

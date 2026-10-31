@@ -53,6 +53,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _includeChaptersByDefault;
     [ObservableProperty] private int _maxConcurrent;
     [ObservableProperty] private bool _autoStart;
+    [ObservableProperty] private bool _sleepWhenDownloadsFinish;
+    [ObservableProperty] private bool _showDownloadCompletedNotification;
+    [ObservableProperty] private bool _playSoundNotification;
     [ObservableProperty] private string _ffmpegPath;
 
     public Func<string?>? PickFolder { get; set; }
@@ -82,6 +85,9 @@ public partial class SettingsViewModel : ObservableObject
         _includeChaptersByDefault = S.IncludeChaptersByDefault;
         _maxConcurrent = S.MaxConcurrent;
         _autoStart = S.AutoStartQueue;
+        _sleepWhenDownloadsFinish = S.SleepWhenDownloadsFinish;
+        _showDownloadCompletedNotification = S.ShowDownloadCompletedNotification;
+        _playSoundNotification = S.PlaySoundNotification;
         _ffmpegPath = S.FfmpegPath;
         _loading = false;
         Loc.Changed += () => { OnPropertyChanged(nameof(FfmpegStatus)); };
@@ -100,6 +106,9 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnIncludeChaptersByDefaultChanged(bool value) => Commit(() => S.IncludeChaptersByDefault = value);
     partial void OnMaxConcurrentChanged(int value) => Commit(() => S.MaxConcurrent = value);
     partial void OnAutoStartChanged(bool value) => Commit(() => S.AutoStartQueue = value);
+    partial void OnSleepWhenDownloadsFinishChanged(bool value) => Commit(() => S.SleepWhenDownloadsFinish = value);
+    partial void OnShowDownloadCompletedNotificationChanged(bool value) => Commit(() => S.ShowDownloadCompletedNotification = value);
+    partial void OnPlaySoundNotificationChanged(bool value) => Commit(() => S.PlaySoundNotification = value);
     partial void OnFfmpegPathChanged(string value)
     {
         Commit(() => S.FfmpegPath = value);

@@ -41,15 +41,19 @@ public class DownloadManager
     public ObservableCollection<DownloadItem> Items { get; } = new();
     public event Action? Changed;                                  // list or a status changed
     public event Action<DownloadItem>? DownloadCompleted;
+    public event Action? AllDownloadsFinished;
     public event Action<DownloadItem, string>? ItemChanged;        // any property of any item
 
     readonly HashSet<string> _notifiedPlaylistGroups = new(StringComparer.Ordinal);
     readonly Dictionary<Guid, CancellationTokenSource> _running = new();
     static string StorePath => Path.Combine(SettingsStore.DataDir, "downloads.json");
     static AppSettings S => SettingsStore.Current;
+    public bool AreAllDownloadsFinished => Items.Count > 0 && _running.Count == 0
+        && Items.All(i => i.Status is DownloadStatus.Completed or DownloadStatus.Failed);
     readonly DispatcherTimer _saveTimer;
     int _saveWriting;
     bool _saveAgain;
+    bool _allDownloadsFinishedRaised;
     long _saveVersion;
     long _lastWrittenVersion;
     static readonly object SaveFileLock = new();
@@ -212,6 +216,7 @@ public class DownloadManager
     // ------------------------------------------------------------ commands
     public void Add(IEnumerable<DownloadItem> items, bool startNow, bool respectAutoStart = true)
     {
+        _allDownloadsFinishedRaised = false;
         foreach (var it in items)
         {
             it.Status = DownloadStatus.Queued;
@@ -291,21 +296,10 @@ public class DownloadManager
             it.Progress = 100;
             it.FinishedAt = DateTime.Now;
             it.Status = DownloadStatus.Completed;
+            // Individual videos notify immediately. Playlist entries are summarized once
+            // after every item in the same playlist has reached a terminal state.
             if (!it.IsPlaylist)
-            {
                 DownloadCompleted?.Invoke(it);
-            }
-            else
-            {
-                var group = Items.Where(x => x.IsPlaylist && x.PlaylistGroupId == it.PlaylistGroupId).ToList();
-                if (group.Count > 0 && group.All(x => x.Status == DownloadStatus.Completed)
-                    && !string.IsNullOrWhiteSpace(it.PlaylistGroupId)
-                    && _notifiedPlaylistGroups.Add(it.PlaylistGroupId))
-                {
-                    var representative = group.FirstOrDefault(x => x.IsPlaylistRepresentative) ?? it;
-                    DownloadCompleted?.Invoke(representative);
-                }
-            }
         }
         catch (OperationCanceledException)
         {
@@ -328,10 +322,27 @@ public class DownloadManager
         finally
         {
             _running.Remove(it.Id);
+
+            if (it.IsPlaylist)
+            {
+                var playlistItems = Items.Where(x => x.IsPlaylist && x.PlaylistGroupId == it.PlaylistGroupId).ToList();
+                bool playlistFinished = playlistItems.Count > 0
+                    && playlistItems.All(x => x.Status is DownloadStatus.Completed or DownloadStatus.Failed);
+                if (playlistFinished && _notifiedPlaylistGroups.Add(it.PlaylistGroupId))
+                {
+                    var representative = playlistItems.FirstOrDefault(x => x.IsPlaylistRepresentative) ?? it;
+                    DownloadCompleted?.Invoke(representative);
+                }
+            }
             DownloadEngine.ClearProgressState(it.Id);
             cts.Dispose();
             ScheduleSave();
             Pump();
+            if (!_allDownloadsFinishedRaised && AreAllDownloadsFinished)
+            {
+                _allDownloadsFinishedRaised = true;
+                AllDownloadsFinished?.Invoke();
+            }
         }
     }
 
@@ -360,6 +371,8 @@ public class DownloadManager
 
     public void Resume(DownloadItem it)   // Paused / Queued / Failed → schedule within concurrency limit
     {
+        _allDownloadsFinishedRaised = false;
+        if (it.IsPlaylist) _notifiedPlaylistGroups.Remove(it.PlaylistGroupId);
         if (it.Status == DownloadStatus.Completed) return;
         it.WantsStart = true;
         it.Error = "";
@@ -381,6 +394,8 @@ public class DownloadManager
 
     public void Retry(DownloadItem it)
     {
+        _allDownloadsFinishedRaised = false;
+        if (it.IsPlaylist) _notifiedPlaylistGroups.Remove(it.PlaylistGroupId);
         if (_running.ContainsKey(it.Id)) return;
         // Keep the last visible progress when retrying so the UI does not jump backwards.
         it.Error = "";

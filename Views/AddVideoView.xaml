@@ -23,9 +23,11 @@
       <Setter Property="Foreground" Value="White"/><Setter Property="Cursor" Value="Hand"/>
       <Setter Property="VerticalAlignment" Value="Center"/><Setter Property="HorizontalAlignment" Value="Center"/>
       <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox">
-        <Grid Width="18" Height="18" Background="Transparent">
+        <Grid MinHeight="20" Background="Transparent">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
           <Border x:Name="Box" Width="16" Height="16" CornerRadius="4" Background="#14243F" BorderBrush="#A9BEDB" BorderThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           <TextBlock x:Name="CheckMark" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+          <ContentPresenter Grid.Column="1" VerticalAlignment="Center" Margin="8,0,0,0" RecognizesAccessKey="True"/>
         </Grid>
         <ControlTemplate.Triggers>
           <Trigger Property="IsChecked" Value="True"><Setter TargetName="Box" Property="Background" Value="#2D84FF"/><Setter TargetName="Box" Property="BorderBrush" Value="#65ADFF"/><Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/></Trigger>
@@ -33,6 +35,39 @@
           <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger>
         </ControlTemplate.Triggers>
       </ControlTemplate></Setter.Value></Setter>
+    </Style>
+
+    <Style x:Key="PlaylistHeaderButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Foreground" Value="#D6E5FF"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="OverridesDefaultStyle" Value="True"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="HeaderSurface" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="#78B8FF"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Foreground" Value="#A9D4FF"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.5"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
 
     <!-- quality row: radio + label + size + (✓ / ✗) -->
@@ -70,31 +105,40 @@
 
     <!-- playlist entry row -->
     <DataTemplate x:Key="EntryRow">
-      <Grid Height="58" Margin="0,0,0,2">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="72"/><ColumnDefinition Width="88"/>
-        </Grid.ColumnDefinitions>
-        <CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected}" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Column="1" Text="{Binding Index}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Grid.Column="2" Width="82" Height="46" CornerRadius="5" Background="#1D3358" Margin="0,0,12,0" VerticalAlignment="Center" ClipToBounds="True">
-          <Image Source="{Binding Thumb, Mode=OneWay}" Stretch="UniformToFill" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="HighQuality"/>
-        </Border>
-        <StackPanel Grid.Column="3" VerticalAlignment="Center">
-          <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-          <TextBlock Text="{Binding Channel}" FontSize="12" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"/>
-        </StackPanel>
-        <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="8,0"/>
-        <TextBlock Grid.Column="5" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,8,0"/>
-      </Grid>
+      <Border x:Name="PlaylistEntryRow" Height="70" BorderThickness="0,0,0,1" BorderBrush="#263957" Background="Transparent">
+        <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/><ColumnDefinition Width="84"/><ColumnDefinition Width="88"/><ColumnDefinition Width="100"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" Text="{Binding Index}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <Border Grid.Column="2" Width="76" Height="44" CornerRadius="6" Background="#1D3358" Margin="0,0,12,0" VerticalAlignment="Center" ClipToBounds="True">
+            <Image Source="{Binding Thumb, Mode=OneWay}" Stretch="UniformToFill" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="HighQuality"/>
+          </Border>
+          <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextAlignment="Left"/>
+            <TextBlock Text="{Binding Channel}" FontSize="12" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextAlignment="Left" Margin="0,3,0,0"/>
+          </StackPanel>
+          <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" Margin="8,0,0,0"/>
+          <TextBlock Grid.Column="5" Text="{Binding QualityText}" FontSize="12" Foreground="#8FC2FF" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+          <TextBlock Grid.Column="6" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" TextAlignment="Right" Margin="4,0,8,0"/>
+        </Grid>
+      </Border>
+      <DataTemplate.Triggers>
+        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+          <Setter TargetName="PlaylistEntryRow" Property="Background" Value="#142B4D"/>
+          <Setter TargetName="PlaylistEntryRow" Property="BorderBrush" Value="#315D91"/>
+        </DataTrigger>
+      </DataTemplate.Triggers>
     </DataTemplate>
   </UserControl.Resources>
 
   <Border Background="{StaticResource SidebarBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="14">
     <Grid Margin="22">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="22"/><ColumnDefinition Width="320"/></Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="350"/></Grid.ColumnDefinitions>
 
       <!-- ===================== main column ===================== -->
-      <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" IsDeferredScrollingEnabled="False" PanningMode="VerticalOnly">
         <StackPanel Margin="0,0,10,0">
 
           <TextBlock Text="{DynamicResource S.AddVideo}" FontSize="28" FontWeight="SemiBold"/>
@@ -200,30 +244,90 @@
               </Grid>
 
               <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,14,0,8"/>
-              <Grid Margin="0,0,0,6">
-                <CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding AllSelected}" HorizontalAlignment="Left" Margin="10,0,0,0">
-                  <TextBlock Text="{DynamicResource S.SelectAll}" FontSize="13"/></CheckBox>
-                <TextBlock Text="{Binding SelectedCountText}" Style="{StaticResource Muted}" FontSize="13" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+              <!-- The select-all controls, table header, and playlist items occupy separate grid rows. -->
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Row 0: selection controls only. -->
+                <Grid Grid.Row="0" Margin="0,0,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding AllSelected}" HorizontalAlignment="Left" Margin="10,0,0,0">
+                    <TextBlock Text="{DynamicResource S.SelectAll}" FontSize="13"/>
+                  </CheckBox>
+                  <TextBlock Grid.Column="1" Text="{Binding SelectedCountText}" Style="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                </Grid>
+
+                <!-- Row 1: table column headers only; keep the scrollbar gutter aligned with the ListBox. -->
+                <Grid Grid.Row="1" Margin="0,4,0,6">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{x:Static SystemParameters.VerticalScrollBarWidth}"/>
+                  </Grid.ColumnDefinitions>
+                  <Border Grid.Column="0" Margin="2,0,2,0" Height="42" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
+                    <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="88"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="84"/>
+                        <ColumnDefinition Width="88"/>
+                        <ColumnDefinition Width="100"/>
+                      </Grid.ColumnDefinitions>
+                      <Button Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Title"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" FlowDirection="LeftToRight"
+                                   FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
+                          <Run Text="Video title"/><Run Text="{Binding TitleSortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                        </TextBlock>
+                      </Button>
+                      <Button Grid.Column="4" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Duration"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
+                                   FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
+                          <Run Text="Duration"/><Run Text="{Binding DurationSortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                        </TextBlock>
+                      </Button>
+                      <Button Grid.Column="5" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortQualityHeight"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
+                                   FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
+                          <Run Text="Quality"/><Run Text="{Binding QualitySortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                        </TextBlock>
+                      </Button>
+                      <Button Grid.Column="6" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
+                                   FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
+                          <Run Text="Est. size"/><Run Text="{Binding SizeSortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                        </TextBlock>
+                      </Button>
+                    </Grid>
+                  </Border>
+                </Grid>
+
+                <!-- Row 2: playlist entries only. -->
+                <ListBox Grid.Row="2" ItemsSource="{Binding EntriesView}" ItemTemplate="{StaticResource EntryRow}" SelectionMode="Multiple" MaxHeight="330"
+                         Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                         ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True">
+                  <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                      <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                      <Setter Property="Template">
+                        <Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter/></ControlTemplate></Setter.Value>
+                      </Setter>
+                    </Style>
+                  </ListBox.ItemContainerStyle>
+                </ListBox>
               </Grid>
-              <Grid Margin="0,4,0,4">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="72"/><ColumnDefinition Width="88"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="3" Text="Video title" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD"/>
-                <TextBlock Grid.Column="4" Text="Duration" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD" HorizontalAlignment="Center"/>
-                <TextBlock Grid.Column="5" Text="Est. size" FontSize="11" FontWeight="SemiBold" Foreground="#7F97BD" HorizontalAlignment="Right" Margin="0,0,8,0"/>
-              </Grid>
-              <ListBox ItemsSource="{Binding Entries}" ItemTemplate="{StaticResource EntryRow}" MaxHeight="330"
-                       Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
-                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True">
-                <ListBox.ItemContainerStyle>
-                  <Style TargetType="ListBoxItem">
-                    <Setter Property="Template">
-                      <Setter.Value><ControlTemplate TargetType="ListBoxItem"><ContentPresenter/></ControlTemplate></Setter.Value>
-                    </Setter>
-                  </Style>
-                </ListBox.ItemContainerStyle>
-              </ListBox>
             </StackPanel>
           </Border>
 
@@ -316,7 +420,7 @@
       </ScrollViewer>
 
       <!-- ===================== quality preview ===================== -->
-      <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+      <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" IsDeferredScrollingEnabled="False" PanningMode="VerticalOnly">
         <StackPanel>
           <Border Padding="16,16,16,12" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12">
             <StackPanel>

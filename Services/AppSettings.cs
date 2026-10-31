@@ -16,6 +16,9 @@ public class AppSettings
     public bool IncludeChaptersByDefault { get; set; } = false;
     public int MaxConcurrent { get; set; } = 3;
     public bool AutoStartQueue { get; set; } = true;
+    public bool SleepWhenDownloadsFinish { get; set; } = false;
+    public bool ShowDownloadCompletedNotification { get; set; } = true;
+    public bool PlaySoundNotification { get; set; } = false;
     public string FfmpegPath { get; set; } = "";
     // One-time migration marker: move the default destinations into Windows Videos/Music libraries.
     public bool WindowsLibrariesDefaultsApplied { get; set; }

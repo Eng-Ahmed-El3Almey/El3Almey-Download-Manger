@@ -1,8 +1,10 @@
 using System.Runtime.InteropServices;
+using System.Media;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using El3Almey.Services;
 using El3Almey.ViewModels;
 using El3Almey.Wpf.Views;
@@ -21,10 +23,15 @@ public partial class MainWindow : Window
     readonly DownloadsView _downloadsView;
     readonly HistoryView _historyView;
     readonly SettingsView _settingsView;
+    readonly ShortcutsView _shortcutsView;
+    readonly YouTubeBrowserView _youtubeView;
+    readonly VideoPlayerView _videoPlayerView;
+    readonly AudioPlayerView _audioPlayerView;
 
     public MainWindow()
     {
         InitializeComponent();
+        WindowsToastNotifications.Initialize();
         FlowDirection = Loc.Language == "ar" ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
         _downloads = new DownloadsViewModel(_manager) { CopyText = t => { try { Clipboard.SetText(t); } catch { } } };
@@ -61,10 +68,16 @@ public partial class MainWindow : Window
         _downloadsView = new DownloadsView { DataContext = _downloads };
         _historyView = new HistoryView { DataContext = _history };
         _settingsView = new SettingsView { DataContext = _settings };
+        _shortcutsView = new ShortcutsView();
+        _youtubeView = new YouTubeBrowserView();
+        _youtubeView.DownloadRequested += YouTubeDownloadRequested;
+        _videoPlayerView = new VideoPlayerView();
+        _audioPlayerView = new AudioPlayerView();
 
-        ShowAdd();                         // the app opens on "Add Video"
+        ShowYouTube();                     // open the built-in YouTube browser first
         Closing += MainWindow_Closing;
         _manager.DownloadCompleted += Manager_DownloadCompleted;
+        _manager.AllDownloadsFinished += Manager_AllDownloadsFinished;
         _manager.Pump();
     }
 
@@ -126,40 +139,191 @@ public partial class MainWindow : Window
         });
     }
 
+    void ShowYouTube() => Navigate(_youtubeView, NavYouTube, false);
+    void ShowVideoPlayer() => Navigate(_videoPlayerView, NavVideoPlayer, false);
+    void ShowAudioPlayer() => Navigate(_audioPlayerView, NavAudioPlayer, false);
     void ShowAdd() => Navigate(_addView, NavAdd, false);
+
+    private void YouTubeDownloadRequested(string url)
+    {
+        _add.Url = url;
+        ShowAdd();
+        _add.GetVideoCommand.Execute(null);
+    }
     void ShowDownloads() { _downloads.Refresh(); Navigate(_downloadsView, NavDownloads, true); }
     void ShowHistory() { _history.Refresh(); Navigate(_historyView, NavHistory, false); }
     void ShowSettings() => Navigate(_settingsView, NavSettings, false);
+    void ShowShortcuts() => Navigate(_shortcutsView, NavShortcuts, false);
 
     void Manager_DownloadCompleted(DownloadItem item)
     {
+        var settings = SettingsStore.Current;
+        string title = item.IsPlaylist
+            ? (Loc.Language == "ar" ? "اكتمل تحميل قائمة التشغيل" : "Playlist download finished")
+            : (Loc.Language == "ar" ? "اكتمل التنزيل" : "Download completed");
+        string message = item.IsPlaylist
+            ? (Loc.Language == "ar"
+                ? $"اكتمل {item.PlaylistCompletedCount} من {item.PlaylistCount} فيديو. فشل {item.PlaylistFailedCount}."
+                : $"{item.PlaylistCompletedCount} of {item.PlaylistCount} videos completed. {item.PlaylistFailedCount} failed.")
+            : item.Title;
+
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            var toast = new DownloadCompleteToast(item, Loc.Language == "ar");
-            toast.Show();
+            if (settings.PlaySoundNotification)
+            {
+                try { System.Media.SystemSounds.Asterisk.Play(); } catch { }
+            }
+
+            if (settings.ShowDownloadCompletedNotification)
+                WindowsToastNotifications.Show(title, message, item.FilePath, item.OutputFolder);
         }));
     }
 
+    void Manager_AllDownloadsFinished()
+    {
+        if (!SettingsStore.Current.SleepWhenDownloadsFinish) return;
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            // Give the completion toast time to be seen before Windows enters Sleep.
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(7) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (SettingsStore.Current.SleepWhenDownloadsFinish && _manager.AreAllDownloadsFinished)
+                    SetSuspendState(false, false, false);
+            };
+            timer.Start();
+        }));
+    }
+
+    [DllImport("PowrProf.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
+
+    void NavYouTube_Click(object s, RoutedEventArgs e) => ShowYouTube();
+    void NavVideoPlayer_Click(object s, RoutedEventArgs e) => ShowVideoPlayer();
+    void NavAudioPlayer_Click(object s, RoutedEventArgs e) => ShowAudioPlayer();
     void NavAdd_Click(object s, RoutedEventArgs e) => ShowAdd();
     void NavDownloads_Click(object s, RoutedEventArgs e) => ShowDownloads();
     void NavHistory_Click(object s, RoutedEventArgs e) => ShowHistory();
     void NavSettings_Click(object s, RoutedEventArgs e) => ShowSettings();
+    void NavShortcuts_Click(object s, RoutedEventArgs e) => ShowShortcuts();
     
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         var modifiers = Keyboard.Modifiers;
-        if (e.Key != Key.Tab || !modifiers.HasFlag(ModifierKeys.Control)
-            || (modifiers & ~(ModifierKeys.Control | ModifierKeys.Shift)) != ModifierKeys.None)
-            return;
 
-        e.Handled = true;
-        bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
-        var pages = new Action[] { ShowAdd, ShowDownloads, ShowHistory, ShowSettings };
-        int current = NavAdd.IsChecked == true ? 0
-            : NavDownloads.IsChecked == true ? 1
-            : NavHistory.IsChecked == true ? 2 : 3;
-        int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
-        pages[next]();
+        // Ctrl+Tab / Ctrl+Shift+Tab: cycle through the main pages.
+        if (e.Key == Key.Tab && modifiers.HasFlag(ModifierKeys.Control)
+            && (modifiers & ~(ModifierKeys.Control | ModifierKeys.Shift)) == ModifierKeys.None)
+        {
+            e.Handled = true;
+            bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
+            var pages = new Action[] { ShowYouTube, ShowVideoPlayer, ShowAudioPlayer, ShowAdd, ShowDownloads, ShowHistory, ShowSettings, ShowShortcuts };
+            int current = NavYouTube.IsChecked == true ? 0
+                : NavVideoPlayer.IsChecked == true ? 1
+                : NavAudioPlayer.IsChecked == true ? 2
+                : NavAdd.IsChecked == true ? 3
+                : NavDownloads.IsChecked == true ? 4
+                : NavHistory.IsChecked == true ? 5
+                : NavSettings.IsChecked == true ? 6 : 7;
+            int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
+            pages[next]();
+            return;
+        }
+
+        if (CloseConfirmOverlay.Visibility == Visibility.Visible)
+        {
+            if (e.Key == Key.Escape) { CloseConfirmCancel_Click(this, new RoutedEventArgs()); e.Handled = true; }
+            return;
+        }
+
+        bool control = modifiers.HasFlag(ModifierKeys.Control);
+        bool shift = modifiers.HasFlag(ModifierKeys.Shift);
+        bool typing = Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase
+            || Keyboard.FocusedElement is System.Windows.Controls.PasswordBox;
+
+        if (e.Key == Key.F1 && modifiers == ModifierKeys.None)
+        {
+            ShowShortcuts();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Escape && modifiers == ModifierKeys.None)
+        {
+            if (SearchInput.IsKeyboardFocusWithin) { SearchInput.Clear(); Keyboard.ClearFocus(); e.Handled = true; }
+            else if (_addView.IsKeyboardFocusWithin) { _add.CancelCommand.Execute(null); e.Handled = true; }
+            return;
+        }
+
+        if (e.Key == Key.F5 && modifiers == ModifierKeys.None)
+        {
+            if (NavDownloads.IsChecked == true) ShowDownloads();
+            else if (NavHistory.IsChecked == true) ShowHistory();
+            e.Handled = true;
+            return;
+        }
+
+        if (control && e.Key == Key.L)
+        {
+            if (NavYouTube.IsChecked == true)
+            {
+                if (_youtubeView.FindName("AddressBox") is System.Windows.Controls.TextBox addressBox)
+                { addressBox.Focus(); addressBox.SelectAll(); }
+            }
+            else
+            {
+                ShowAdd();
+                if (_addView.FindName("UrlBox") is System.Windows.Controls.TextBox urlBox) { urlBox.Focus(); urlBox.SelectAll(); }
+            }
+            e.Handled = true; return;
+        }
+        if (control && e.Key == Key.O && !typing) { _downloads.OpenSelectedFolder(); e.Handled = true; return; }
+        if (control && e.Key == Key.C && !typing) { _downloads.CopySelectedUrl(); e.Handled = true; return; }
+        if (control && e.Key == Key.S) { SettingsStore.Save(); e.Handled = true; return; }
+        if (control && e.Key == Key.Up) { _add.ChangeSelectedQuality(-1); e.Handled = true; return; }
+        if (control && e.Key == Key.Down) { _add.ChangeSelectedQuality(1); e.Handled = true; return; }
+
+        if (control && e.Key == Key.A && !typing)
+        {
+            if (NavAdd.IsChecked == true && _add.IsPlaylistMode) _add.AllSelected = !shift;
+            else if (NavDownloads.IsChecked == true) _downloads.AllSelected = !shift;
+            e.Handled = true; return;
+        }
+        if (e.Key == Key.Delete && !typing && modifiers == ModifierKeys.Control)
+        { _downloads.DeleteSelectedCommand.Execute(null); e.Handled = true; return; }
+        if (e.Key == Key.Delete && !typing && modifiers == ModifierKeys.None)
+        { _downloads.RemoveSelectedCommand.Execute(null); e.Handled = true; return; }
+
+        if (control && e.Key == Key.Enter && NavAdd.IsChecked == true)
+        { _add.DownloadNowCommand.Execute(null); e.Handled = true; return; }
+        if (e.Key == Key.Enter && modifiers == ModifierKeys.None && NavAdd.IsChecked == true && !typing)
+        {
+            if (_add.HasContent) _add.DownloadNowCommand.Execute(null);
+            else _add.GetVideoCommand.Execute(null);
+            e.Handled = true; return;
+        }
+        if (e.Key == Key.Enter && modifiers == ModifierKeys.None && !typing && NavDownloads.IsChecked == true)
+        { _downloads.OpenSelectedFile(); e.Handled = true; return; }
+
+        if (!control) return;
+        switch (e.Key)
+        {
+            case Key.D1: case Key.NumPad1: ShowYouTube(); e.Handled = true; break;
+            case Key.D2: case Key.NumPad2: ShowVideoPlayer(); e.Handled = true; break;
+            case Key.D3: case Key.NumPad3: ShowAudioPlayer(); e.Handled = true; break;
+            case Key.D4: case Key.NumPad4: ShowAdd(); e.Handled = true; break;
+            case Key.D5: case Key.NumPad5: ShowDownloads(); e.Handled = true; break;
+            case Key.D6: case Key.NumPad6: ShowHistory(); e.Handled = true; break;
+            case Key.D7: case Key.NumPad7: ShowSettings(); e.Handled = true; break;
+            case Key.D8: case Key.NumPad8: ShowShortcuts(); e.Handled = true; break;
+            case Key.P: _downloads.PauseAllCommand.Execute(null); e.Handled = true; break;
+            case Key.R: _downloads.ResumeAllCommand.Execute(null); e.Handled = true; break;
+            case Key.F: ShowDownloads(); SearchInput.Focus(); SearchInput.SelectAll(); e.Handled = true; break;
+            case Key.OemComma: ShowSettings(); e.Handled = true; break;
+        }
     }
 
     void TitleBar_MouseDown(object s, MouseButtonEventArgs e)

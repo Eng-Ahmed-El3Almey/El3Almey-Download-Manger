@@ -106,6 +106,12 @@
   <sys:String x:Key="S.DownloadsSection">التحميلات</sys:String>
   <sys:String x:Key="S.MaxConcurrent">عدد التحميلات المتزامنة</sys:String>
   <sys:String x:Key="S.AutoStart">بدء التحميلات المنتظرة تلقائياً</sys:String>
+  <sys:String x:Key="S.DownloadCompletedNotification">إظهار إشعار عند اكتمال التحميل</sys:String>
+  <sys:String x:Key="S.DownloadCompletedNotificationDesc">إظهار إشعار مستقل عند اكتمال كل ملف يتم تحميله.</sys:String>
+  <sys:String x:Key="S.PlaySoundNotification">تشغيل صوت عند اكتمال التنزيل</sys:String>
+  <sys:String x:Key="S.PlaySoundNotificationDesc">تشغيل صوت مع كل ملف مكتمل دون إظهار إشعار مرئي.</sys:String>
+  <sys:String x:Key="S.SleepWhenDownloadsFinish">وضع الجهاز في وضع السكون بعد انتهاء كل التحميلات</sys:String>
+  <sys:String x:Key="S.SleepWhenDownloadsFinishDesc">يدخل Windows وضع السكون بعد اكتمال أو فشل كل التحميلات. التحميلات المتوقفة مؤقتاً أو المنتظرة تمنع السكون.</sys:String>
   <sys:String x:Key="S.Conversion">التحويل (FFmpeg)</sys:String>
   <sys:String x:Key="S.FfmpegPath">مكان FFmpeg (ملف ffmpeg.exe أو مجلده)</sys:String>
   <sys:String x:Key="S.FfmpegFound">تم العثور على FFmpeg</sys:String>

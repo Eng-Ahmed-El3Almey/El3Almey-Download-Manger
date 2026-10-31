@@ -13,6 +13,7 @@ public class EntryInfo
     public string Channel = "";
     public TimeSpan? Duration;
     public string Thumb = "";
+    public List<YtDlpService.VideoFormatEstimate> VideoFormats = new();
 }
 
 public class ResolveResult
@@ -160,26 +161,78 @@ public static class YouTubeService
         if (res.Entries.Count == 0) throw new InvalidOperationException("yt-dlp returned no available playlist entries.");
 
         res.Duration = total;
-        // A deleted/private first entry should not make the entire playlist unusable.
+        // Use YoutubeExplode manifests to inspect each playlist entry. This avoids
+        // launching a separate yt-dlp process for every video, which is expensive
+        // for large playlists. Keep concurrency bounded to avoid request bursts.
         Exception? lastError = null;
-        foreach (var entry in res.Entries)
+        StreamManifest? representativeManifest = null;
+        EntryInfo? representativeEntry = null;
+        using (var semaphore = new SemaphoreSlim(6, 6))
         {
-            try
+            var formatTasks = res.Entries.Select(async entry =>
             {
-                var id = VideoId.Parse(entry.Id);
-                var manifest = await Yt.Videos.Streams.GetManifestAsync(id, ct);
-                var tracks = await YtDlpService.GetTracksAsync("https://www.youtube.com/watch?v=" + entry.Id, ct);
-                res.VideoId = entry.Id;
-                res.Thumb = entry.Thumb;
-                res.Manifest = manifest;
-                res.Tracks = tracks;
-                return res;
-            }
-            catch (OperationCanceledException) { throw; }
-            catch (Exception ex) { lastError = ex; }
+                await semaphore.WaitAsync(ct);
+                try
+                {
+                    var manifest = await Yt.Videos.Streams.GetManifestAsync(VideoId.Parse(entry.Id), ct);
+                    entry.VideoFormats = EstimateFromManifest(manifest, entry.Duration);
+                    if (representativeManifest == null && entry.VideoFormats.Count > 0)
+                    {
+                        lock (res)
+                        {
+                            if (representativeManifest == null)
+                            {
+                                representativeManifest = manifest;
+                                representativeEntry = entry;
+                            }
+                        }
+                    }
+                }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex)
+                {
+                    lock (res) lastError = ex;
+                }
+                finally { semaphore.Release(); }
+            });
+            await Task.WhenAll(formatTasks);
         }
 
-        throw new InvalidOperationException("Playlist entries were found, but no available video could be used to load quality and track information. " + lastError?.Message);
+        if (representativeManifest == null || representativeEntry == null)
+            throw new InvalidOperationException("Playlist entries were found, but no available video manifest could be loaded. " + lastError?.Message);
+
+        res.VideoId = representativeEntry.Id;
+        res.Thumb = representativeEntry.Thumb;
+        res.Manifest = representativeManifest;
+        res.Tracks = await YtDlpService.GetTracksAsync(
+            "https://www.youtube.com/watch?v=" + representativeEntry.Id, ct);
+        return res;
+    }
+
+    static List<YtDlpService.VideoFormatEstimate> EstimateFromManifest(StreamManifest manifest, TimeSpan? duration)
+    {
+        double seconds = duration?.TotalSeconds ?? 0;
+        var audio = StreamPicker.Audio(manifest, preferMp4: true);
+        long audioBytes = audio?.Size.Bytes ?? 0;
+        if (audioBytes <= 0 && seconds > 0 && audio != null)
+            audioBytes = (long)(audio.Bitrate.BitsPerSecond / 8d * seconds);
+
+        return manifest.GetVideoOnlyStreams()
+            .GroupBy(stream => stream.VideoQuality.MaxHeight)
+            .Select(group =>
+            {
+                var stream = group.OrderByDescending(item => item.Bitrate.BitsPerSecond).First();
+                long videoBytes = stream.Size.Bytes;
+                if (videoBytes <= 0 && seconds > 0)
+                    videoBytes = (long)(stream.Bitrate.BitsPerSecond / 8d * seconds);
+                return new YtDlpService.VideoFormatEstimate
+                {
+                    Height = group.Key,
+                    EstimatedBytes = videoBytes + audioBytes
+                };
+            })
+            .Where(item => item.Height > 0 && item.EstimatedBytes > 0)
+            .ToList();
     }
 
 }
