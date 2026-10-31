@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Toolkit.Uwp.Notifications;
 
@@ -60,7 +60,8 @@ public static class WindowsToastNotifications
 
             var builder = new ToastContentBuilder()
                 .AddText(title)
-                .AddText(message);
+                .AddText(message)
+                .AddAudio(new ToastAudio { Silent = true });
 
             var logoPath = CreateAppLogo();
             if (!string.IsNullOrWhiteSpace(logoPath) && File.Exists(logoPath))
@@ -92,37 +93,27 @@ public static class WindowsToastNotifications
     {
         try
         {
-            var exePath = Process.GetCurrentProcess().MainModule?.FileName;
-            if (string.IsNullOrWhiteSpace(exePath)) return null;
-
-            var largeIcons = new IntPtr[1];
-            if (ExtractIconEx(exePath, 0, largeIcons, null, 1) == 0 || largeIcons[0] == IntPtr.Zero)
+            if (Application.Current?.Resources["AppIcon"] is not DrawingImage drawingImage)
                 return null;
 
-            try
-            {
-                var bitmap = Imaging.CreateBitmapSourceFromHIcon(
-                    largeIcons[0], Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(64, 64));
-                bitmap.Freeze();
+            var visual = new DrawingVisual();
+            using (var context = visual.RenderOpen())
+                context.DrawImage(drawingImage, new Rect(0, 0, 64, 64));
 
-                var logoPath = Path.Combine(SettingsStore.DataDir, "notification-app-logo.png");
-                Directory.CreateDirectory(Path.GetDirectoryName(logoPath)!);
-                using var stream = File.Create(logoPath);
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bitmap));
-                encoder.Save(stream);
-                return logoPath;
-            }
-            finally { DestroyIcon(largeIcons[0]); }
+            var bitmap = new RenderTargetBitmap(64, 64, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(visual);
+            bitmap.Freeze();
+
+            var logoPath = Path.Combine(SettingsStore.DataDir, "notification-app-logo.png");
+            Directory.CreateDirectory(Path.GetDirectoryName(logoPath)!);
+            using var stream = File.Create(logoPath);
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            encoder.Save(stream);
+            return logoPath;
         }
         catch (Exception ex) { LogFailure("App logo creation failed", ex); return null; }
     }
-
-    [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-    private static extern uint ExtractIconEx(string file, int index, IntPtr[] largeIcons, IntPtr[]? smallIcons, uint count);
-
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern bool DestroyIcon(IntPtr icon);
 
     private static void LogFailure(string message, Exception ex)
     {
