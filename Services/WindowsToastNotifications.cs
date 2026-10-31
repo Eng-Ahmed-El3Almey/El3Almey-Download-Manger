@@ -74,7 +74,7 @@ public static class WindowsToastNotifications
                     .AddArgument("path", filePath));
             }
 
-            var folderTarget = !string.IsNullOrWhiteSpace(outputFolder) ? outputFolder : filePath;
+            var folderTarget = !string.IsNullOrWhiteSpace(filePath) ? filePath : outputFolder;
             if (!string.IsNullOrWhiteSpace(folderTarget))
             {
                 builder.AddButton(new ToastButton()
