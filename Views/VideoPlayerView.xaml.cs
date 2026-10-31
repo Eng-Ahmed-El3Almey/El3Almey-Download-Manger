@@ -329,6 +329,7 @@ public partial class VideoPlayerView : UserControl
         appWindow.WindowStyle = WindowStyle.None;
         appWindow.ResizeMode = ResizeMode.NoResize;
         appWindow.WindowState = WindowState.Maximized;
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
         overlay.PreviewKeyDown += (_, args) =>
         {
             if (args.Key == Key.Escape) { ExitFullScreen(); args.Handled = true; }
@@ -341,7 +342,6 @@ public partial class VideoPlayerView : UserControl
             else if (args.Key == Key.Right) { SeekTo(Math.Min(_mediaPlayer.Length, _mediaPlayer.Time + 10_000)); args.Handled = true; }
         };
 
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
         timer.Tick += (_, _) =>
         {
             if (!seeking && _mediaPlayer.Length > 0)
