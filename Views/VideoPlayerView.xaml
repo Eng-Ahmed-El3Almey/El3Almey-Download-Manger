@@ -53,6 +53,14 @@
                 <TextBlock Text="VIDEO PLAYER" FontSize="10" FontWeight="Bold" Foreground="#D8E8FF"/>
               </StackPanel>
             </Border>
+            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="16"
+                    Style="{StaticResource GhostBtn}" Height="34" Padding="12,0"
+                    Click="FullScreen_Click" ToolTip="Enter full screen (Esc to exit)">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE740;" Style="{StaticResource Icon}" FontSize="14" Margin="0,0,7,0"/>
+                <TextBlock Text="Full Screen" FontSize="12"/>
+              </StackPanel>
+            </Button>
             <Border VerticalAlignment="Bottom" Background="#CC080F20" Padding="16,12">
               <StackPanel>
                 <TextBlock x:Name="NowPlayingTitle" Text="No video selected" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
@@ -70,9 +78,9 @@
               <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBlock x:Name="CurrentTimeText" Text="00:00" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center"/>
               <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Style="{StaticResource IconBtn}" Width="36" Height="34" Margin="3,0" Content="−10 sec" FontFamily="Segoe UI" FontWeight="SemiBold" Click="Back10_Click" ToolTip="Back 10 seconds"/>
-                <Button x:Name="PlayPauseButton" Style="{StaticResource IconBtn}" Width="64" Height="38" Margin="3,0" Content="Play" FontFamily="Segoe UI" FontWeight="SemiBold" Click="PlayPause_Click" ToolTip="Play / Pause"/>
-                <Button Style="{StaticResource IconBtn}" Width="36" Height="34" Margin="3,0" Content="+10 sec" FontFamily="Segoe UI" FontWeight="SemiBold" Click="Forward10_Click" ToolTip="Forward 10 seconds"/>
+                <Button Style="{StaticResource IconBtn}" Width="76" Height="36" Margin="4,0" Content="−10 sec" FontFamily="Segoe UI" FontWeight="SemiBold" Click="Back10_Click" ToolTip="Back 10 seconds"/>
+                <Button x:Name="PlayPauseButton" Style="{StaticResource IconBtn}" Width="76" Height="40" Margin="4,0" Content="Play" FontFamily="Segoe UI" FontWeight="SemiBold" Click="PlayPause_Click" ToolTip="Play / Pause"/>
+                <Button Style="{StaticResource IconBtn}" Width="76" Height="36" Margin="4,0" Content="+10 sec" FontFamily="Segoe UI" FontWeight="SemiBold" Click="Forward10_Click" ToolTip="Forward 10 seconds"/>
               </StackPanel>
               <TextBlock x:Name="DurationText" Grid.Column="2" Text="00:00" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center"/>
             </Grid>
@@ -84,8 +92,8 @@
               </StackPanel>
               <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <ComboBox x:Name="SpeedCombo" Width="76" Height="28" SelectedIndex="2" SelectionChanged="SpeedCombo_SelectionChanged" Margin="0,0,12,0"><ComboBoxItem Content="0.5x"/><ComboBoxItem Content="0.75x"/><ComboBoxItem Content="1.0x"/><ComboBoxItem Content="1.25x"/><ComboBoxItem Content="1.5x"/><ComboBoxItem Content="2.0x"/></ComboBox>
-                <TextBlock Text="Volume" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" Margin="0,0,7,0"/>
-                <Slider x:Name="VolumeSlider" Width="90" Minimum="0" Maximum="100" Value="80" ValueChanged="VolumeSlider_ValueChanged" VerticalAlignment="Center"/>
+                <TextBlock Text="Volume" Foreground="{StaticResource TextMuted}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <Slider x:Name="VolumeSlider" Width="118" Height="24" Minimum="0" Maximum="100" Value="80" Foreground="{StaticResource Primary}" Background="{StaticResource CardBorder}" ValueChanged="VolumeSlider_ValueChanged" VerticalAlignment="Center" ToolTip="Volume"/>
               </StackPanel>
             </Grid>
           </StackPanel>
