@@ -35,26 +35,18 @@ public partial class YouTubeBrowserView : UserControl
             Browser.CoreWebView2.NavigationStarting += (_, args) =>
             {
                 _currentUrl = args.Uri;
-                Dispatcher.Invoke(UpdateDownloadButton);
+                Dispatcher.Invoke(UpdateBrowserToolbar);
             };
             Browser.CoreWebView2.SourceChanged += (_, _) =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    _currentUrl = Browser.Source?.ToString() ?? _currentUrl;
-                    AddressBox.Text = _currentUrl;
-                    UpdateDownloadButton();
-                });
-            };
+                Dispatcher.Invoke(UpdateBrowserToolbar);
+            Browser.CoreWebView2.HistoryChanged += (_, _) =>
+                Dispatcher.Invoke(UpdateBrowserToolbar);
             Browser.CoreWebView2.NavigationCompleted += (_, _) =>
             {
                 Dispatcher.Invoke(() =>
                 {
                     LoadingPanel.Visibility = Visibility.Collapsed;
-                    AddressBox.Text = Browser.Source?.ToString() ?? _currentUrl;
-                    UpdateDownloadButton();
-                    BackButton.IsEnabled = Browser.CoreWebView2.CanGoBack;
-                    ForwardButton.IsEnabled = Browser.CoreWebView2.CanGoForward;
+                    UpdateBrowserToolbar();
                 });
             };
             Browser.CoreWebView2.Navigate(_currentUrl);
@@ -68,9 +60,14 @@ public partial class YouTubeBrowserView : UserControl
         }
     }
 
-    private void UpdateDownloadButton()
+    private void UpdateBrowserToolbar()
     {
-        DownloadButton.Visibility = IsSupportedYouTubeContent(_currentUrl)
+        string activeUrl = Browser.Source?.ToString() ?? _currentUrl;
+        _currentUrl = activeUrl;
+        AddressBox.Text = activeUrl;
+        BackButton.IsEnabled = Browser.CoreWebView2?.CanGoBack == true;
+        ForwardButton.IsEnabled = Browser.CoreWebView2?.CanGoForward == true;
+        DownloadButton.Visibility = IsSupportedYouTubeContent(activeUrl)
             ? Visibility.Visible : Visibility.Collapsed;
     }
 
