@@ -285,28 +285,28 @@
                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" TextAlignment="Left" FlowDirection="LeftToRight"
                                    FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
-                          <Run Text="Video title"/><Run Text="{Binding TitleSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                          <Run Text="Video title"/><Run Text="{Binding TitleSortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
                         </TextBlock>
                       </Button>
                       <Button Grid.Column="4" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="Duration"
                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
                                    FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
-                          <Run Text="Duration"/><Run Text="{Binding DurationSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                          <Run Text="Duration"/><Run Text="{Binding DurationSortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
                         </TextBlock>
                       </Button>
                       <Button Grid.Column="5" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortQualityHeight"
                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
                                    FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
-                          <Run Text="Quality"/><Run Text="{Binding QualitySortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                          <Run Text="Quality"/><Run Text="{Binding QualitySortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
                         </TextBlock>
                       </Button>
                       <Button Grid.Column="6" Style="{StaticResource PlaylistHeaderButton}" Command="{Binding SortByColumnCommand}" CommandParameter="SortSizeBytes"
                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"
                                    FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
-                          <Run Text="Est. size"/><Run Text="{Binding SizeSortIndicator}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
+                          <Run Text="Est. size"/><Run Text="{Binding SizeSortIndicator, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#4A9BFF"/>
                         </TextBlock>
                       </Button>
                     </Grid>
