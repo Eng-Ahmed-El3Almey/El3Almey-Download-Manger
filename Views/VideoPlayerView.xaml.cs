@@ -31,11 +31,11 @@ public partial class VideoPlayerView : UserControl
         _mediaPlayer.Playing += (_, _) => Dispatcher.Invoke(() =>
         {
             EmptyPlayerPanel.Visibility = Visibility.Collapsed;
-            PlayPauseButton.Content = "Pause";
+            PlayPauseButton.Content = "Ⅱ  Pause";
             PositionSlider.IsEnabled = true;
         });
-        _mediaPlayer.Paused += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "Play");
-        _mediaPlayer.Stopped += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "Play");
+        _mediaPlayer.Paused += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "▶  Play");
+        _mediaPlayer.Stopped += (_, _) => Dispatcher.Invoke(() => PlayPauseButton.Content = "▶  Play");
         _mediaPlayer.EncounteredError += (_, _) => Dispatcher.Invoke(() =>
             MessageBox.Show(Window.GetWindow(this),
                 "The media could not be played. Check the URL or file format and try again.",
@@ -440,8 +440,24 @@ public partial class VideoPlayerView : UserControl
 
     private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
+        if (VolumeValueText != null)
+            VolumeValueText.Text = $"{(int)e.NewValue}%";
+
         if (_mediaPlayer != null)
+        {
             _mediaPlayer.Volume = (int)e.NewValue;
+            if (e.NewValue > 0 && _mediaPlayer.Mute)
+                _mediaPlayer.Mute = false;
+            if (MuteButton != null)
+                MuteButton.Content = _mediaPlayer.Mute ? "\uE74F" : "\uE767";
+        }
+    }
+
+    private void Mute_Click(object sender, RoutedEventArgs e)
+    {
+        _mediaPlayer.Mute = !_mediaPlayer.Mute;
+        MuteButton.Content = _mediaPlayer.Mute ? "\uE74F" : "\uE767";
+        MuteButton.ToolTip = _mediaPlayer.Mute ? "Unmute" : "Mute";
     }
 
     private void SpeedCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
