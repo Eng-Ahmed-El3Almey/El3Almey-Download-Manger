@@ -268,8 +268,16 @@ public partial class MainWindow : Window
 
         if (control && e.Key == Key.L)
         {
-            ShowAdd();
-            if (_addView.FindName("UrlBox") is System.Windows.Controls.TextBox urlBox) { urlBox.Focus(); urlBox.SelectAll(); }
+            if (NavYouTube.IsChecked == true)
+            {
+                if (_youtubeView.FindName("AddressBox") is System.Windows.Controls.TextBox addressBox)
+                { addressBox.Focus(); addressBox.SelectAll(); }
+            }
+            else
+            {
+                ShowAdd();
+                if (_addView.FindName("UrlBox") is System.Windows.Controls.TextBox urlBox) { urlBox.Focus(); urlBox.SelectAll(); }
+            }
             e.Handled = true; return;
         }
         if (control && e.Key == Key.O && !typing) { _downloads.OpenSelectedFolder(); e.Handled = true; return; }
