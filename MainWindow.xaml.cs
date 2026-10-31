@@ -158,7 +158,7 @@ public partial class MainWindow : Window
             }
 
             if (settings.ShowDownloadCompletedNotification)
-                WindowsToastNotifications.Show(title, message);
+                WindowsToastNotifications.Show(title, message, item.FilePath, item.OutputFolder);
         }));
     }
 
