@@ -18,7 +18,7 @@
           <TextBlock Text="↻" FontFamily="Segoe UI Symbol" FontSize="21" Foreground="#EAF0FB" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Button>
         <Border Grid.Column="3" Background="{StaticResource InputBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="8" Padding="10,0">
-          <TextBox x:Name="AddressBox" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMain}" CaretBrush="White" FontSize="13" VerticalContentAlignment="Center" KeyDown="AddressBox_KeyDown"/>
+          <TextBox x:Name="AddressBox" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMain}" CaretBrush="White" FontSize="13" VerticalContentAlignment="Center" KeyDown="AddressBox_KeyDown" ToolTip="Search YouTube or enter a video URL"/>
         </Border>
         <Button x:Name="DownloadButton" Grid.Column="4" Style="{StaticResource PrimaryBtn}" Height="38" MinWidth="112" Padding="16,0" Margin="10,0,0,0" Visibility="Collapsed" Click="Download_Click">
           <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0"/><TextBlock Text="Download"/></StackPanel>
