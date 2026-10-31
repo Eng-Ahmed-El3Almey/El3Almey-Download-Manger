@@ -296,8 +296,10 @@ public class DownloadManager
             it.Progress = 100;
             it.FinishedAt = DateTime.Now;
             it.Status = DownloadStatus.Completed;
-            // Notify independently for every completed file, including playlist entries.
-            DownloadCompleted?.Invoke(it);
+            // Individual videos notify immediately. Playlist entries are summarized once
+            // after every item in the same playlist has reached a terminal state.
+            if (!it.IsPlaylist)
+                DownloadCompleted?.Invoke(it);
         }
         catch (OperationCanceledException)
         {
@@ -320,6 +322,18 @@ public class DownloadManager
         finally
         {
             _running.Remove(it.Id);
+
+            if (it.IsPlaylist)
+            {
+                var playlistItems = Items.Where(x => x.IsPlaylist && x.PlaylistGroupId == it.PlaylistGroupId).ToList();
+                bool playlistFinished = playlistItems.Count > 0
+                    && playlistItems.All(x => x.Status is DownloadStatus.Completed or DownloadStatus.Failed);
+                if (playlistFinished && _notifiedPlaylistGroups.Add(it.PlaylistGroupId))
+                {
+                    var representative = playlistItems.FirstOrDefault(x => x.IsPlaylistRepresentative) ?? it;
+                    DownloadCompleted?.Invoke(representative);
+                }
+            }
             DownloadEngine.ClearProgressState(it.Id);
             cts.Dispose();
             ScheduleSave();

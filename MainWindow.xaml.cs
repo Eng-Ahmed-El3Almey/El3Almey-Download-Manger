@@ -27,7 +27,7 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
-        InitializeComponent();
+        InitializeComponent();\n        WindowsToastNotifications.Initialize();
         FlowDirection = Loc.Language == "ar" ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
         _downloads = new DownloadsViewModel(_manager) { CopyText = t => { try { Clipboard.SetText(t); } catch { } } };
@@ -140,19 +140,24 @@ public partial class MainWindow : Window
     void Manager_DownloadCompleted(DownloadItem item)
     {
         var settings = SettingsStore.Current;
-        if (settings.PlaySoundNotification)
-        {
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                try { SystemSounds.Asterisk.Play(); } catch { }
-            }));
-        }
+        string title = item.IsPlaylist
+            ? (Loc.Language == "ar" ? "اكتمل تحميل قائمة التشغيل" : "Playlist download finished")
+            : (Loc.Language == "ar" ? "اكتمل التنزيل" : "Download completed");
+        string message = item.IsPlaylist
+            ? (Loc.Language == "ar"
+                ? $"اكتمل {item.PlaylistCompletedCount} من {item.PlaylistCount} فيديو. فشل {item.PlaylistFailedCount}."
+                : $"{item.PlaylistCompletedCount} of {item.PlaylistCount} videos completed. {item.PlaylistFailedCount} failed.")
+            : item.Title;
 
-        if (!settings.ShowDownloadCompletedNotification) return;
         Dispatcher.BeginInvoke(new Action(() =>
         {
-            var toast = new DownloadCompleteToast(item, Loc.Language == "ar");
-            toast.Show();
+            if (settings.PlaySoundNotification)
+            {
+                try { System.Media.SystemSounds.Asterisk.Play(); } catch { }
+            }
+
+            if (settings.ShowDownloadCompletedNotification)
+                WindowsToastNotifications.Show(title, message);
         }));
     }
 
