@@ -349,7 +349,7 @@
               <StackPanel><TextBlock Text="Playlists, channels &amp; search" Style="{StaticResource SectionTitle}"/><TextBlock Text="Keep multi-video downloads consistently named and organized." Style="{StaticResource SectionSubtitle}"/></StackPanel>
               <Border Background="#26344D" CornerRadius="8" Padding="9,5" VerticalAlignment="Top"><TextBlock Text="COMING LATER" FontSize="9" FontWeight="Bold" Foreground="#B8C8E2"/></Border>
             </DockPanel>
-            <CheckBox Style="{StaticResource SettingToggle}" IsEnabled="False"><StackPanel><TextBlock Text="Number files in playlists, channels and search results" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="Prefix filenames with their original item order." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/></StackPanel></CheckBox>
+            <TextBlock Text="The existing numbering option above will also cover channel and search-result downloads when those download types are enabled." Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,10"/>
             <CheckBox Style="{StaticResource SettingToggle}" IsEnabled="False"><StackPanel><TextBlock Text="Skip duplicate videos automatically" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="Avoid adding the same video more than once to the queue or results." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/></StackPanel></CheckBox>
             <CheckBox Style="{StaticResource SettingToggle}" IsEnabled="False"><StackPanel><TextBlock Text="Create an M3U playlist file" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="Generate a media playlist alongside downloaded playlist files." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/></StackPanel></CheckBox>
           </StackPanel>
@@ -368,11 +368,7 @@
               <StackPanel><TextBlock Text="Notifications" Style="{StaticResource SectionTitle}"/><TextBlock Text="Decide when the app should alert you." Style="{StaticResource SectionSubtitle}"/></StackPanel>
               <Border Background="#26344D" CornerRadius="8" Padding="9,5" VerticalAlignment="Top"><TextBlock Text="MORE OPTIONS LATER" FontSize="9" FontWeight="Bold" Foreground="#B8C8E2"/></Border>
             </DockPanel>
-            <Grid>
-              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-              <StackPanel><TextBlock Text="Notification sound" Style="{StaticResource Label}"/><ComboBox IsEnabled="False" Style="{StaticResource SettingCombo}" SelectedIndex="0"><ComboBoxItem Content="Windows default"/><ComboBoxItem Content="Chime"/><ComboBoxItem Content="Asterisk"/><ComboBoxItem Content="No sound"/></ComboBox></StackPanel>
-              <StackPanel Grid.Column="2"><TextBlock Text="Playlist notification" Style="{StaticResource Label}"/><ComboBox IsEnabled="False" Style="{StaticResource SettingCombo}" SelectedIndex="0"><ComboBoxItem Content="When the whole playlist finishes"/><ComboBoxItem Content="For every completed video"/></ComboBox></StackPanel>
-            </Grid>
+            <TextBlock Text="Completion notifications and sound are controlled by the existing options in the Downloads section." Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,10"/>
             <CheckBox Style="{StaticResource SettingToggle}" IsEnabled="False" Margin="0,12,0,0"><StackPanel><TextBlock Text="Notify me when a download fails" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="Show a Windows notification when an item cannot be downloaded." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/></StackPanel></CheckBox>
           </StackPanel>
         </Grid>
@@ -411,7 +407,7 @@
               <Border Background="#26344D" CornerRadius="8" Padding="9,5" VerticalAlignment="Top"><TextBlock Text="COMING LATER" FontSize="9" FontWeight="Bold" Foreground="#B8C8E2"/></Border>
             </DockPanel>
             <CheckBox Style="{StaticResource SettingToggle}" IsEnabled="False"><StackPanel><TextBlock Text="Schedule download speed limits" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="Use different bandwidth limits at selected times of day." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/></StackPanel></CheckBox>
-            <CheckBox Style="{StaticResource SettingToggle}" IsEnabled="False"><StackPanel><TextBlock Text="Shut down Windows when all downloads finish" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="Power off the computer after the queue is fully completed." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/></StackPanel></CheckBox>
+            <TextBlock Text="Power behavior after downloads finish is controlled by the existing option in the Downloads section." Foreground="{StaticResource TextMuted}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,10"/>
             <CheckBox Style="{StaticResource SettingToggle}" IsEnabled="False"><StackPanel><TextBlock Text="Monitor clipboard for YouTube links" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="Offer to add a copied YouTube link to the download queue." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/></StackPanel></CheckBox>
             <Grid Margin="0,12,0,0">
               <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
