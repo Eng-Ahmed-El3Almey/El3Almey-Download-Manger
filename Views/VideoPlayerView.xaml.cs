@@ -178,88 +178,201 @@ public partial class VideoPlayerView : UserControl
         if (!_engineReady)
             return;
 
+        var accent = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(35, 126, 255));
+        var panelBrush = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(10, 20, 42));
+        var cardBrush = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(17, 33, 63));
+        var borderBrush = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(35, 58, 94));
+        var mutedBrush = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(151, 174, 207));
+
         var fullScreenWindow = new Window
         {
-            Title = "El3Almey Download Manager - Video Player",
+            Title = "El3Almey Download Manager",
             WindowStyle = WindowStyle.None,
             ResizeMode = ResizeMode.NoResize,
             WindowState = WindowState.Maximized,
             Background = System.Windows.Media.Brushes.Black,
-            ShowInTaskbar = false
+            ShowInTaskbar = false,
+            Cursor = Cursors.Arrow
         };
 
-        var fullScreenVideo = new LibVLCSharp.WPF.VideoView
+        var video = new LibVLCSharp.WPF.VideoView
         {
             Background = System.Windows.Media.Brushes.Black,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch
         };
 
-        var root = new Grid { Background = System.Windows.Media.Brushes.Black };
-        root.Children.Add(fullScreenVideo);
-
-        var controls = new Border
+        Button MakeButton(string caption, double width = 76, bool primary = false)
         {
-            Background = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromArgb(220, 8, 15, 32)),
-            Padding = new Thickness(18, 12, 18, 12),
+            var button = new Button
+            {
+                Content = caption,
+                Width = width,
+                Height = 36,
+                Margin = new Thickness(4, 0, 4, 0),
+                Padding = new Thickness(8, 0, 8, 0),
+                Background = primary ? accent : cardBrush,
+                Foreground = System.Windows.Media.Brushes.White,
+                BorderBrush = primary ? accent : borderBrush,
+                BorderThickness = new Thickness(1),
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                Cursor = Cursors.Hand
+            };
+            return button;
+        }
+
+        var root = new Grid { Background = System.Windows.Media.Brushes.Black };
+        root.Children.Add(video);
+
+        var bottomPanel = new Border
+        {
+            Background = panelBrush,
+            BorderBrush = borderBrush,
+            BorderThickness = new Thickness(0, 1, 0, 0),
+            Padding = new Thickness(22, 12, 22, 14),
             VerticalAlignment = VerticalAlignment.Bottom,
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        var controlRow = new DockPanel();
-        var exitButton = new Button
-        {
-            Content = "Exit Full Screen  (Esc)",
-            Height = 38,
-            Padding = new Thickness(16, 0, 16, 0),
-            Foreground = System.Windows.Media.Brushes.White,
-            Background = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(31, 123, 255)),
-            BorderBrush = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(31, 123, 255)),
-            FontWeight = FontWeights.SemiBold,
-            Cursor = Cursors.Hand
-        };
-        exitButton.Click += (_, _) => fullScreenWindow.Close();
-        DockPanel.SetDock(exitButton, Dock.Right);
-        controlRow.Children.Add(exitButton);
+        var layout = new Grid();
+        layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        var title = new TextBlock
+        var titleRow = new DockPanel { LastChildFill = true, Margin = new Thickness(0, 0, 0, 7) };
+        var exit = MakeButton("Exit Full Screen  ×", 142, true);
+        exit.Height = 30;
+        exit.Click += (_, _) => fullScreenWindow.Close();
+        DockPanel.SetDock(exit, Dock.Right);
+        titleRow.Children.Add(exit);
+        var titleText = new TextBlock
         {
             Text = NowPlayingTitle.Text,
             Foreground = System.Windows.Media.Brushes.White,
-            FontSize = 14,
+            FontSize = 13,
             FontWeight = FontWeights.SemiBold,
             VerticalAlignment = VerticalAlignment.Center,
             TextTrimming = TextTrimming.CharacterEllipsis
         };
-        controlRow.Children.Add(title);
-        controls.Child = controlRow;
-        root.Children.Add(controls);
+        titleRow.Children.Add(titleText);
+        layout.Children.Add(titleRow);
 
-        fullScreenWindow.Content = root;
-        fullScreenWindow.KeyDown += (_, keyEvent) =>
+        var seekGrid = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+        seekGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        seekGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        seekGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var currentLabel = new TextBlock { Text = "00:00", Foreground = mutedBrush, FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 14, 0) };
+        seekGrid.Children.Add(currentLabel);
+        var seek = new Slider { Minimum = 0, Maximum = 1000, IsEnabled = _mediaPlayer.Length > 0, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 14, 0), Foreground = accent };
+        Grid.SetColumn(seek, 1);
+        seekGrid.Children.Add(seek);
+        var durationLabel = new TextBlock { Text = FormatTime(_mediaPlayer.Length), Foreground = mutedBrush, FontSize = 11, VerticalAlignment = VerticalAlignment.Center };
+        Grid.SetColumn(durationLabel, 2);
+        seekGrid.Children.Add(durationLabel);
+        var fullSeeking = false;
+        seek.PreviewMouseLeftButtonDown += (_, _) => fullSeeking = true;
+        seek.PreviewMouseLeftButtonUp += (_, _) =>
         {
-            if (keyEvent.Key == Key.Escape)
+            if (_mediaPlayer.Length > 0)
+                _mediaPlayer.Time = (long)(seek.Value / 1000d * _mediaPlayer.Length);
+            fullSeeking = false;
+        };
+        layout.Children.Add(seekGrid);
+        Grid.SetRow(seekGrid, 1);
+
+        var actionRow = new Grid();
+        actionRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        actionRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        actionRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var playbackButtons = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        var back = MakeButton("−10 sec");
+        back.Click += (_, _) => SeekTo(Math.Max(0, _mediaPlayer.Time - 10_000));
+        playbackButtons.Children.Add(back);
+        var playPause = MakeButton(_mediaPlayer.IsPlaying ? "Pause" : "Play", 84, true);
+        playPause.Click += (_, _) =>
+        {
+            if (_mediaPlayer.IsPlaying) _mediaPlayer.Pause();
+            else _mediaPlayer.Play();
+            playPause.Content = _mediaPlayer.IsPlaying ? "Pause" : "Play";
+        };
+        playbackButtons.Children.Add(playPause);
+        var forward = MakeButton("+10 sec");
+        forward.Click += (_, _) => SeekTo(Math.Min(_mediaPlayer.Length, _mediaPlayer.Time + 10_000));
+        playbackButtons.Children.Add(forward);
+        actionRow.Children.Add(playbackButtons);
+
+        var rightControls = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        rightControls.Children.Add(new TextBlock { Text = "Speed", Foreground = mutedBrush, FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 7, 0) });
+        var speed = new ComboBox { Width = 78, Height = 30, SelectedIndex = 2, Margin = new Thickness(0, 0, 18, 0), Background = cardBrush, Foreground = System.Windows.Media.Brushes.White };
+        foreach (var rate in new[] { "0.5x", "0.75x", "1.0x", "1.25x", "1.5x", "2.0x" })
+            speed.Items.Add(new ComboBoxItem { Content = rate });
+        speed.SelectionChanged += (_, _) =>
+        {
+            if (speed.SelectedItem is ComboBoxItem item &&
+                float.TryParse(item.Content?.ToString()?.Replace("x", ""),
+                    System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var value))
+                _mediaPlayer.SetRate(value);
+        };
+        rightControls.Children.Add(speed);
+        rightControls.Children.Add(new TextBlock { Text = "Volume", Foreground = mutedBrush, FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) });
+        var volume = new Slider { Width = 116, Minimum = 0, Maximum = 100, Value = _mediaPlayer.Volume, VerticalAlignment = VerticalAlignment.Center, Foreground = accent };
+        volume.ValueChanged += (_, args) => _mediaPlayer.Volume = (int)args.NewValue;
+        rightControls.Children.Add(volume);
+        Grid.SetColumn(rightControls, 2);
+        actionRow.Children.Add(rightControls);
+        layout.Children.Add(actionRow);
+        Grid.SetRow(actionRow, 2);
+
+        bottomPanel.Child = layout;
+        root.Children.Add(bottomPanel);
+        fullScreenWindow.Content = root;
+
+        var uiTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+        uiTimer.Tick += (_, _) =>
+        {
+            if (!fullSeeking && _mediaPlayer.Length > 0)
+                seek.Value = Math.Clamp((double)_mediaPlayer.Time / _mediaPlayer.Length * 1000, 0, 1000);
+            currentLabel.Text = FormatTime(_mediaPlayer.Time);
+            durationLabel.Text = FormatTime(_mediaPlayer.Length);
+            playPause.Content = _mediaPlayer.IsPlaying ? "Pause" : "Play";
+        };
+
+        fullScreenWindow.KeyDown += (_, args) =>
+        {
+            if (args.Key == Key.Escape)
                 fullScreenWindow.Close();
-            else if (keyEvent.Key == Key.Space)
+            else if (args.Key == Key.Space)
             {
                 if (_mediaPlayer.IsPlaying) _mediaPlayer.Pause();
                 else _mediaPlayer.Play();
-                keyEvent.Handled = true;
+                args.Handled = true;
             }
+            else if (args.Key == Key.Left)
+                SeekTo(Math.Max(0, _mediaPlayer.Time - 10_000));
+            else if (args.Key == Key.Right)
+                SeekTo(Math.Min(_mediaPlayer.Length, _mediaPlayer.Time + 10_000));
         };
         fullScreenWindow.Closed += (_, _) =>
         {
-            fullScreenVideo.MediaPlayer = null;
+            uiTimer.Stop();
+            video.MediaPlayer = null;
             VideoSurface.MediaPlayer = _mediaPlayer;
         };
 
         VideoSurface.MediaPlayer = null;
-        fullScreenVideo.MediaPlayer = _mediaPlayer;
+        video.MediaPlayer = _mediaPlayer;
         fullScreenWindow.Show();
         fullScreenWindow.Activate();
+        uiTimer.Start();
     }
 
     private void PlayPause_Click(object sender, RoutedEventArgs e)
