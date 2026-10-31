@@ -242,6 +242,20 @@
                 <TextBlock Text="Start the next queued item when a slot becomes available." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0"/>
               </StackPanel>
             </CheckBox>
+            <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,8,0,10"/>
+            <CheckBox Style="{StaticResource SettingToggle}" IsChecked="{Binding ShowDownloadCompletedNotification}">
+              <StackPanel>
+                <TextBlock Text="{DynamicResource S.DownloadCompletedNotification}" FontSize="13" FontWeight="SemiBold"/>
+                <TextBlock Text="{DynamicResource S.DownloadCompletedNotificationDesc}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+              </StackPanel>
+            </CheckBox>
+            <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,4,0,10"/>
+            <CheckBox Style="{StaticResource SettingToggle}" IsChecked="{Binding SleepWhenDownloadsFinish}">
+              <StackPanel>
+                <TextBlock Text="{DynamicResource S.SleepWhenDownloadsFinish}" FontSize="13" FontWeight="SemiBold"/>
+                <TextBlock Text="{DynamicResource S.SleepWhenDownloadsFinishDesc}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+              </StackPanel>
+            </CheckBox>
           </StackPanel>
         </Grid>
       </Border>
