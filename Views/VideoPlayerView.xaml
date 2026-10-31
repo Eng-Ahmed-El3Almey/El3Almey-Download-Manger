@@ -113,7 +113,7 @@
                 <StackPanel>
                   <TextBlock Text="Downloaded Videos" FontSize="13" FontWeight="SemiBold"/>
                   <TextBlock Text="Videos saved by El3Almey Download Manager" FontSize="11" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                  <TextBlock Text="Auto-synced library" FontSize="10" Foreground="#70B6FF" Margin="0,8,0,0"/>
+                  <TextBlock Text="Automatic download sync — next stage" FontSize="10" Foreground="#70B6FF" Margin="0,8,0,0"/>
                 </StackPanel>
               </Border>
               <Border Background="{StaticResource InputBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="12">
