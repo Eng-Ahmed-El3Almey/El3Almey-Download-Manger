@@ -27,7 +27,8 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
-        InitializeComponent();\n        WindowsToastNotifications.Initialize();
+        InitializeComponent();
+        WindowsToastNotifications.Initialize();
         FlowDirection = Loc.Language == "ar" ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
         _downloads = new DownloadsViewModel(_manager) { CopyText = t => { try { Clipboard.SetText(t); } catch { } } };
