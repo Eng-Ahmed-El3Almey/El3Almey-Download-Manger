@@ -372,6 +372,7 @@ public class DownloadManager
     public void Resume(DownloadItem it)   // Paused / Queued / Failed → schedule within concurrency limit
     {
         _allDownloadsFinishedRaised = false;
+        if (it.IsPlaylist) _notifiedPlaylistGroups.Remove(it.PlaylistGroupId);
         if (it.Status == DownloadStatus.Completed) return;
         it.WantsStart = true;
         it.Error = "";
@@ -394,6 +395,7 @@ public class DownloadManager
     public void Retry(DownloadItem it)
     {
         _allDownloadsFinishedRaised = false;
+        if (it.IsPlaylist) _notifiedPlaylistGroups.Remove(it.PlaylistGroupId);
         if (_running.ContainsKey(it.Id)) return;
         // Keep the last visible progress when retrying so the UI does not jump backwards.
         it.Error = "";
