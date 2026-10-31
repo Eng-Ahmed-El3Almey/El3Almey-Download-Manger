@@ -4,8 +4,8 @@
              xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
              Background="{StaticResource WindowBg}">
   <Grid>
-    <Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-    <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,12">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10" Padding="6" Margin="0,0,0,10">
       <Grid>
         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
         <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource IconBtn}" Margin="0,0,6,0" Click="Back_Click" ToolTip="Back">
@@ -20,7 +20,7 @@
         <Border Grid.Column="3" Background="{StaticResource InputBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="8" Padding="10,0">
           <TextBox x:Name="AddressBox" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMain}" CaretBrush="White" FontSize="13" VerticalContentAlignment="Center" KeyDown="AddressBox_KeyDown"/>
         </Border>
-        <Button x:Name="DownloadButton" Grid.Column="4" Style="{StaticResource PrimaryBtn}" Height="40" Padding="18,0" Margin="10,0,0,0" Visibility="Collapsed" Click="Download_Click">
+        <Button x:Name="DownloadButton" Grid.Column="4" Style="{StaticResource PrimaryBtn}" Height="38" MinWidth="112" Padding="16,0" Margin="10,0,0,0" Visibility="Collapsed" Click="Download_Click">
           <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0"/><TextBlock Text="Download"/></StackPanel>
         </Button>
       </Grid>
