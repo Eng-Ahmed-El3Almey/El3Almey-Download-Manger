@@ -322,6 +322,8 @@ public partial class VideoPlayerView : UserControl
         controls.Child = content;
         overlay.Children.Add(controls);
 
+        Grid.SetRow(overlay, 0);
+        Grid.SetRowSpan(overlay, 2);
         appRoot.Children.Add(overlay);
         Panel.SetZIndex(overlay, 9999);
         appWindow.WindowStyle = WindowStyle.None;
