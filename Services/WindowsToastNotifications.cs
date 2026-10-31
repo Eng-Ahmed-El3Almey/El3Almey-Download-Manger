@@ -95,24 +95,34 @@ public static class WindowsToastNotifications
             var exePath = Process.GetCurrentProcess().MainModule?.FileName;
             if (string.IsNullOrWhiteSpace(exePath)) return null;
 
-            var icon = System.Drawing.Icon.ExtractAssociatedIcon(exePath);
-            if (icon is null) return null;
+            var largeIcons = new IntPtr[1];
+            if (ExtractIconEx(exePath, 0, largeIcons, null, 1) == 0 || largeIcons[0] == IntPtr.Zero)
+                return null;
 
-            var bitmap = Imaging.CreateBitmapSourceFromHIcon(
-                icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(64, 64));
-            bitmap.Freeze();
+            try
+            {
+                var bitmap = Imaging.CreateBitmapSourceFromHIcon(
+                    largeIcons[0], Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(64, 64));
+                bitmap.Freeze();
 
-            var logoPath = Path.Combine(SettingsStore.DataDir, "notification-app-logo.png");
-            Directory.CreateDirectory(Path.GetDirectoryName(logoPath)!);
-            using var stream = File.Create(logoPath);
-            var encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(bitmap));
-            encoder.Save(stream);
-            icon.Dispose();
-            return logoPath;
+                var logoPath = Path.Combine(SettingsStore.DataDir, "notification-app-logo.png");
+                Directory.CreateDirectory(Path.GetDirectoryName(logoPath)!);
+                using var stream = File.Create(logoPath);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                encoder.Save(stream);
+                return logoPath;
+            }
+            finally { DestroyIcon(largeIcons[0]); }
         }
         catch (Exception ex) { LogFailure("App logo creation failed", ex); return null; }
     }
+
+    [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern uint ExtractIconEx(string file, int index, IntPtr[] largeIcons, IntPtr[]? smallIcons, uint count);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool DestroyIcon(IntPtr icon);
 
     private static void LogFailure(string message, Exception ex)
     {
