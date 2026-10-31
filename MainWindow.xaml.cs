@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Media;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -138,7 +139,16 @@ public partial class MainWindow : Window
 
     void Manager_DownloadCompleted(DownloadItem item)
     {
-        if (!SettingsStore.Current.ShowDownloadCompletedNotification) return;
+        var settings = SettingsStore.Current;
+        if (settings.PlaySoundNotification)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try { SystemSounds.Asterisk.Play(); } catch { }
+            }));
+        }
+
+        if (!settings.ShowDownloadCompletedNotification) return;
         Dispatcher.BeginInvoke(new Action(() =>
         {
             var toast = new DownloadCompleteToast(item, Loc.Language == "ar");

@@ -107,7 +107,9 @@
   <sys:String x:Key="S.MaxConcurrent">Simultaneous downloads</sys:String>
   <sys:String x:Key="S.AutoStart">Start queued downloads automatically</sys:String>
   <sys:String x:Key="S.DownloadCompletedNotification">Show download completed notification</sys:String>
-  <sys:String x:Key="S.DownloadCompletedNotificationDesc">Display a notification when a video or an entire playlist has finished downloading.</sys:String>
+  <sys:String x:Key="S.DownloadCompletedNotificationDesc">Show a separate completion notification for every downloaded file.</sys:String>
+  <sys:String x:Key="S.PlaySoundNotification">Play sound when a download completes</sys:String>
+  <sys:String x:Key="S.PlaySoundNotificationDesc">Play a sound for each completed file without showing a visual notification.</sys:String>
   <sys:String x:Key="S.SleepWhenDownloadsFinish">Put the computer to sleep when all downloads finish</sys:String>
   <sys:String x:Key="S.SleepWhenDownloadsFinishDesc">Windows will enter Sleep after every queued download has completed or failed. Paused or waiting downloads will prevent Sleep.</sys:String>
   <sys:String x:Key="S.Conversion">Conversion (FFmpeg)</sys:String>

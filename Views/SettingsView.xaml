@@ -250,6 +250,13 @@
               </StackPanel>
             </CheckBox>
             <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,4,0,10"/>
+            <CheckBox Style="{StaticResource SettingToggle}" IsChecked="{Binding PlaySoundNotification}">
+              <StackPanel>
+                <TextBlock Text="{DynamicResource S.PlaySoundNotification}" FontSize="13" FontWeight="SemiBold"/>
+                <TextBlock Text="{DynamicResource S.PlaySoundNotificationDesc}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+              </StackPanel>
+            </CheckBox>
+            <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,4,0,10"/>
             <CheckBox Style="{StaticResource SettingToggle}" IsChecked="{Binding SleepWhenDownloadsFinish}">
               <StackPanel>
                 <TextBlock Text="{DynamicResource S.SleepWhenDownloadsFinish}" FontSize="13" FontWeight="SemiBold"/>

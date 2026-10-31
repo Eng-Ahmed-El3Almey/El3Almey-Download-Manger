@@ -296,21 +296,8 @@ public class DownloadManager
             it.Progress = 100;
             it.FinishedAt = DateTime.Now;
             it.Status = DownloadStatus.Completed;
-            if (!it.IsPlaylist)
-            {
-                DownloadCompleted?.Invoke(it);
-            }
-            else
-            {
-                var group = Items.Where(x => x.IsPlaylist && x.PlaylistGroupId == it.PlaylistGroupId).ToList();
-                if (group.Count > 0 && group.All(x => x.Status == DownloadStatus.Completed)
-                    && !string.IsNullOrWhiteSpace(it.PlaylistGroupId)
-                    && _notifiedPlaylistGroups.Add(it.PlaylistGroupId))
-                {
-                    var representative = group.FirstOrDefault(x => x.IsPlaylistRepresentative) ?? it;
-                    DownloadCompleted?.Invoke(representative);
-                }
-            }
+            // Notify independently for every completed file, including playlist entries.
+            DownloadCompleted?.Invoke(it);
         }
         catch (OperationCanceledException)
         {
