@@ -101,6 +101,58 @@
       <Setter Property="Width" Value="44"/><Setter Property="Height" Value="40"/>
       <Setter Property="Padding" Value="0"/><Setter Property="Background" Value="Transparent"/>
     </Style>
+    <Style x:Key="CloseWindowBtn" TargetType="Button">
+      <Setter Property="Background" Value="#14243F"/>
+      <Setter Property="Foreground" Value="#EAF0FB"/>
+      <Setter Property="BorderBrush" Value="#263A60"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontFamily" Value="Segoe UI"/>
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="CloseSurface" Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+              <TextBlock Text="×" FontFamily="Segoe UI" FontSize="{TemplateBinding FontSize}"
+                         Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center"
+                         VerticalAlignment="Center" TextAlignment="Center" Margin="0,-2,0,0"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="CloseSurface" Property="Background" Value="#B42335"/>
+                <Setter TargetName="CloseSurface" Property="BorderBrush" Value="#E5484D"/>
+                <Setter Property="Foreground" Value="#FFFFFF"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="CloseSurface" Property="Background" Value="#7F1D2D"/>
+                <Setter TargetName="CloseSurface" Property="BorderBrush" Value="#FF6670"/>
+                <Setter Property="Foreground" Value="#FFFFFF"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="CloseSurface" Property="Opacity" Value="0.45"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="CloseWinBtn" TargetType="Button" BasedOn="{StaticResource WinBtn}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="CloseSurface" Background="Transparent">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CloseSurface" Property="Background" Value="#C42B3A"/></Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="CloseSurface" Property="Background" Value="#8F1727"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="CloseSurface" Property="Opacity" Value="0.4"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
     <Style x:Key="MenuItemBtn" TargetType="Button">
       <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
       <Setter Property="Cursor" Value="Hand"/>
