@@ -40,7 +40,7 @@ public static class ToolBootstrapService
         Directory.CreateDirectory(ToolsDirectory);
 
         bool customFfmpeg = !string.IsNullOrWhiteSpace(SettingsStore.Current.FfmpegPath);
-        bool ffmpegReady = await IsRunnableAsync(configuredFfmpeg, "-version", cancellationToken);
+        bool ffmpegReady = await IsRunnableAsync(ResolveConfiguredFfmpeg(), "-version", cancellationToken);
 
         if (!ffmpegReady && customFfmpeg)
         {
