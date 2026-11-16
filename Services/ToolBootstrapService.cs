@@ -46,6 +46,7 @@ public static class ToolBootstrapService
         {
             SettingsStore.Current.FfmpegPath = "";
             SettingsStore.Save();
+            ffmpegReady = await IsRunnableAsync(BuiltInFfmpeg, "-version", cancellationToken);
         }
 
         if (!ffmpegReady)
