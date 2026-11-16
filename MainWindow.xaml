@@ -55,7 +55,7 @@
         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
           <Button Style="{StaticResource WinBtn}" Click="Min_Click"><TextBlock Style="{StaticResource Icon}" Text="&#xE921;" FontSize="11"/></Button>
           <Button Style="{StaticResource WinBtn}" Click="Max_Click"><TextBlock Style="{StaticResource Icon}" Text="&#xE922;" FontSize="11"/></Button>
-          <Button Style="{StaticResource WinBtn}" Click="Close_Click"><TextBlock Style="{StaticResource Icon}" Text="&#xE8BB;" FontSize="11"/></Button>
+          <Button Style="{StaticResource CloseWinBtn}" Click="Close_Click"><TextBlock Style="{StaticResource Icon}" Text="&#xE8BB;" FontSize="11"/></Button>
         </StackPanel>
       </Grid>
     </Grid>
