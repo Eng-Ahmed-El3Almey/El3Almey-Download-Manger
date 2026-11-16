@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Threading;
 using System.Text;
 using El3Almey.Services;
+using El3Almey.Wpf.Views;
 
 namespace El3Almey.Wpf;
 
@@ -17,22 +18,10 @@ public partial class App : Application
         Loc.Apply(SettingsStore.Current.Language);
         base.OnStartup(e);
 
-        // Warm up yt-dlp and FFmpeg away from the WPF UI thread. This removes most of the
-        // first-download delay while the user is navigating the app or choosing a video.
-        _ = Task.Run(async () =>
-        {
-            try { await DownloadEngine.PrepareToolsAsync(SettingsStore.Current.FfmpegPath, CancellationToken.None); }
-            catch (Exception ex)
-            {
-                try
-                {
-                    Directory.CreateDirectory(SettingsStore.DataDir);
-                    File.AppendAllText(Path.Combine(SettingsStore.DataDir, "tool-preparation.log"),
-                        $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Background tool preparation failed: {ex}{Environment.NewLine}");
-                }
-                catch { }
-            }
-        });
+        ShutdownMode = ShutdownMode.OnLastWindowClose;
+        var startupWindow = new StartupWindow();
+        MainWindow = startupWindow;
+        startupWindow.Show();
     }
 
     private static string CrashLogPath => Path.Combine(SettingsStore.DataDir, "crash.log");
