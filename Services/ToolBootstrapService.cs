@@ -206,7 +206,7 @@ public static class ToolBootstrapService
             }
 
             progress.Report(new StartupProgress("Extracting FFmpeg...", 58));
-            await Task.Run(() => ExtractFfmpeg(archive, directory, cancellationToken), cancellationToken);
+            await Task.Run(() => ExtractFfmpeg(archive, directory, progress, cancellationToken), cancellationToken);
             progress.Report(new StartupProgress("FFmpeg extraction completed", 64));
         }
         finally
@@ -215,13 +215,22 @@ public static class ToolBootstrapService
         }
     }
 
-    private static void ExtractFfmpeg(string archive, string toolDirectory, CancellationToken cancellationToken)
+    private static void ExtractFfmpeg(
+        string archive,
+        string toolDirectory,
+        IProgress<StartupProgress> progress,
+        CancellationToken cancellationToken)
     {
         using var zip = ZipFile.OpenRead(archive);
+        int totalEntries = Math.Max(1, zip.Entries.Count);
+        int processedEntries = 0;
 
         foreach (var entry in zip.Entries)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            processedEntries++;
+            double extractionPercent = 58 + processedEntries * 6d / totalEntries;
+            progress.Report(new StartupProgress("Extracting FFmpeg...", Math.Min(64, extractionPercent)));
             string normalized = entry.FullName.Replace('\\', '/');
             int marker = normalized.IndexOf("/bin/", StringComparison.OrdinalIgnoreCase);
             string relative;
