@@ -108,11 +108,38 @@
       <Setter Property="Width" Value="44"/><Setter Property="Height" Value="40"/>
       <Setter Property="Padding" Value="0"/><Setter Property="Background" Value="Transparent"/>
     </Style>
+    <Style x:Key="WindowControlBtn" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+      <Setter Property="Width" Value="44"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ControlSurface" Background="Transparent" CornerRadius="5">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ControlSurface" Property="Background" Value="#234675"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="ControlSurface" Property="Background" Value="#17345B"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="ControlSurface" Property="Opacity" Value="0.4"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
     <Style x:Key="CloseWindowBtn" TargetType="Button">
-      <Setter Property="Background" Value="#14243F"/>
+      <Setter Property="Background" Value="Transparent"/>
       <Setter Property="Foreground" Value="#EAF0FB"/>
-      <Setter Property="BorderBrush" Value="#263A60"/>
-      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Padding" Value="0"/>
       <Setter Property="FontFamily" Value="Segoe UI"/>
       <Setter Property="FontSize" Value="18"/>
@@ -121,24 +148,23 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="CloseSurface" Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+            <Border x:Name="CloseSurface" Background="Transparent" CornerRadius="6">
               <TextBlock Text="×" FontFamily="Segoe UI" FontSize="{TemplateBinding FontSize}"
                          Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center"
-                         VerticalAlignment="Center" TextAlignment="Center" Margin="0,-2,0,0"/>
+                         VerticalAlignment="Center" TextAlignment="Center" Margin="0,-1,0,0"/>
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
                 <Setter TargetName="CloseSurface" Property="Background" Value="#B42335"/>
-                <Setter TargetName="CloseSurface" Property="BorderBrush" Value="#E5484D"/>
                 <Setter Property="Foreground" Value="#FFFFFF"/>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
                 <Setter TargetName="CloseSurface" Property="Background" Value="#7F1D2D"/>
-                <Setter TargetName="CloseSurface" Property="BorderBrush" Value="#FF6670"/>
                 <Setter Property="Foreground" Value="#FFFFFF"/>
               </Trigger>
-              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="CloseSurface" Property="Opacity" Value="0.45"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="CloseSurface" Property="Opacity" Value="0.45"/>
+              </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
