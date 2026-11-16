@@ -148,21 +148,28 @@ public static class ToolBootstrapService
             response.EnsureSuccessStatusCode();
             long total = response.Content.Headers.ContentLength ?? -1;
             await using var input = await response.Content.ReadAsStreamAsync(cancellationToken);
-            await using var output = new FileStream(temporaryPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true);
             var buffer = new byte[81920];
             long received = 0;
             int read;
-            while ((read = await input.ReadAsync(buffer, cancellationToken)) > 0)
+
+            await using (var output = new FileStream(
+                temporaryPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true))
             {
-                await output.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
-                received += read;
-                double percent = total > 0 ? 66 + (received * 29d / total) : 66;
-                progress.Report(new StartupProgress(
-                    total > 0 ? $"Downloading yt-dlp... {received / 1048576d:0.0} / {total / 1048576d:0.0} MB"
-                              : $"Downloading yt-dlp... {received / 1048576d:0.0} MB",
-                    Math.Min(95, percent)));
+                while ((read = await input.ReadAsync(buffer, cancellationToken)) > 0)
+                {
+                    await output.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+                    received += read;
+                    double percent = total > 0 ? 66 + (received * 29d / total) : 66;
+                    progress.Report(new StartupProgress(
+                        total > 0 ? $"Downloading yt-dlp... {received / 1048576d:0.0} / {total / 1048576d:0.0} MB"
+                                  : $"Downloading yt-dlp... {received / 1048576d:0.0} MB",
+                        Math.Min(95, percent)));
+                }
+
+                await output.FlushAsync(cancellationToken);
             }
-            await output.FlushAsync(cancellationToken);
+
+            // The stream must be closed before replacing the executable.
             File.Move(temporaryPath, YtDlpPath, true);
         }
         finally
