@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using System.Windows;
 using El3Almey.Services;
 
@@ -160,8 +162,48 @@ public partial class StartupWindow : Window
         var main = new MainWindow();
         Application.Current.MainWindow = main;
         main.Show();
+
+        // Notify the user when startup finishes while another application is in the foreground.
+        main.Dispatcher.BeginInvoke(new Action(() => FlashTaskbarIfNotForeground(main)));
+
         Close();
     }
+
+    private static void FlashTaskbarIfNotForeground(Window window)
+    {
+        IntPtr handle = new WindowInteropHelper(window).Handle;
+        if (handle == IntPtr.Zero || GetForegroundWindow() == handle)
+            return;
+
+        var info = new FlashWindowInfo
+        {
+            Size = (uint)Marshal.SizeOf<FlashWindowInfo>(),
+            WindowHandle = handle,
+            Flags = FlashTaskbar,
+            Count = 6,
+            Timeout = 0
+        };
+
+        FlashWindowEx(ref info);
+    }
+
+    private const uint FlashTaskbar = 0x00000002;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct FlashWindowInfo
+    {
+        public uint Size;
+        public IntPtr WindowHandle;
+        public uint Flags;
+        public uint Count;
+        public uint Timeout;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool FlashWindowEx(ref FlashWindowInfo info);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
 
     private void ExitButton_Click(object sender, RoutedEventArgs e)
     {
