@@ -80,7 +80,7 @@
                         <TextBlock x:Name="VersionText" Text="Startup verification" Foreground="#8DA0C3" FontSize="12" Margin="0,3,0,0"/>
                     </StackPanel>
                 </StackPanel>
-                <Button Content="×" Width="32" Height="32" HorizontalAlignment="Right" VerticalAlignment="Top"
+                <Button Content="×" Width="32" Height="32" Padding="0" FontFamily="Segoe UI" FontSize="20" HorizontalAlignment="Right" VerticalAlignment="Top"
                         Click="ExitButton_Click" Background="#14243F" Foreground="#EAF0FB"
                         BorderBrush="#263A60" BorderThickness="1" FontSize="19" Cursor="Hand"/>
             </Grid>
