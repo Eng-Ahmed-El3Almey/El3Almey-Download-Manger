@@ -80,9 +80,8 @@
                         <TextBlock x:Name="VersionText" Text="Startup verification" Foreground="#8DA0C3" FontSize="12" Margin="0,3,0,0"/>
                     </StackPanel>
                 </StackPanel>
-                <Button Content="×" Width="32" Height="32" Padding="0" FontFamily="Segoe UI" HorizontalAlignment="Right" VerticalAlignment="Top"
-                        Click="ExitButton_Click" Background="#14243F" Foreground="#EAF0FB"
-                        BorderBrush="#263A60" BorderThickness="1" FontSize="19" Cursor="Hand"/>
+                <Button Content="×" Style="{StaticResource CloseWindowBtn}" Width="32" Height="32"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Click="ExitButton_Click"/>
             </Grid>
 
             <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="8,20">
