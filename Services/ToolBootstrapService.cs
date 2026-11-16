@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http;
@@ -38,7 +39,6 @@ public static class ToolBootstrapService
     {
         Directory.CreateDirectory(ToolsDirectory);
 
-        string configuredFfmpeg = ResolveConfiguredFfmpeg();
         bool customFfmpeg = !string.IsNullOrWhiteSpace(SettingsStore.Current.FfmpegPath);
         bool ffmpegReady = await IsRunnableAsync(configuredFfmpeg, "-version", cancellationToken);
 
@@ -46,7 +46,6 @@ public static class ToolBootstrapService
         {
             SettingsStore.Current.FfmpegPath = "";
             SettingsStore.Save();
-            configuredFfmpeg = BuiltInFfmpeg;
         }
 
         if (!ffmpegReady)
@@ -218,13 +217,10 @@ public static class ToolBootstrapService
     private static void ExtractFfmpeg(string archive, string toolDirectory, CancellationToken cancellationToken)
     {
         using var zip = ZipFile.OpenRead(archive);
-        int totalEntries = Math.Max(1, zip.Entries.Count);
-        int processed = 0;
 
         foreach (var entry in zip.Entries)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            processed++;
             string normalized = entry.FullName.Replace('\\', '/');
             int marker = normalized.IndexOf("/bin/", StringComparison.OrdinalIgnoreCase);
             string relative;
