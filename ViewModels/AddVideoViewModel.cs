@@ -104,6 +104,7 @@ public partial class AddVideoViewModel : ObservableObject
     [ObservableProperty] private bool _createM3U;
     [ObservableProperty] private bool _includeChapters;
     [ObservableProperty] private bool _addThumbnail;
+    [ObservableProperty] private bool _trackPlaylistEnabled;
     [ObservableProperty] private bool _allSelected = true;
     [ObservableProperty] private int _selectedEntries;
 
@@ -568,6 +569,7 @@ public partial class AddVideoViewModel : ObservableObject
     void Reset(bool keepUrl)
     {
         _res = null;
+        TrackPlaylistEnabled = false;
         Entries.Clear(); VideoQualities.Clear(); AudioQualities.Clear(); AudioTracks.Clear(); OriginalSubtitleTracks.Clear(); AutoTranslatedSubtitleTracks.Clear();
         SelectedVideoQuality = null; SelectedAudioQuality = null; SelectedAudioTrack = null; SelectedOriginalSubtitleTrack = null; SelectedAutoTranslatedSubtitleTrack = null;
         ErrorText = "";
@@ -590,8 +592,7 @@ public partial class AddVideoViewModel : ObservableObject
         SettingsStore.Save();
     }
 
-    [RelayCommand]
-    void TrackPlaylist()
+    void SaveTrackedPlaylist()
     {
         if (_res?.IsPlaylist != true || string.IsNullOrWhiteSpace(Url)) return;
         string root = string.IsNullOrWhiteSpace(SaveFolder)
@@ -611,9 +612,28 @@ public partial class AddVideoViewModel : ObservableObject
             NumberWidth = Math.Max(2, _res.Entries.Count.ToString().Length),
             LastPlaylistIndex = _res.Entries.Count
         };
-        if (!TrackingPlaylistStore.Load().Any(x => x.Url.Equals(record.Url, StringComparison.OrdinalIgnoreCase)))
-            TrackingPlaylistStore.Save(TrackingPlaylistStore.Load().Append(record));
-        TrackingAdded?.Invoke();
+        var records = TrackingPlaylistStore.Load();
+        var existing = records.FirstOrDefault(x => x.Url.Equals(record.Url, StringComparison.OrdinalIgnoreCase));
+        if (existing == null) records.Add(record);
+        else
+        {
+            existing.Title = record.Title;
+            existing.Channel = record.Channel;
+            existing.KnownVideoIds = record.KnownVideoIds;
+            existing.IsAudio = record.IsAudio;
+            existing.Height = record.Height;
+            existing.Kbps = record.Kbps;
+            existing.Format = record.Format;
+            existing.AudioTrackLanguage = record.AudioTrackLanguage;
+            existing.SubtitleTrackLanguage = record.SubtitleTrackLanguage;
+            existing.IncludeChapters = record.IncludeChapters;
+            existing.OutputFolder = record.OutputFolder;
+            existing.CreateSubfolder = record.CreateSubfolder;
+            existing.NumberItems = record.NumberItems;
+            existing.NumberWidth = record.NumberWidth;
+            existing.LastPlaylistIndex = record.LastPlaylistIndex;
+        }
+        TrackingPlaylistStore.Save(records);
     }
 
     [RelayCommand] void AddToQueue() => Submit(false);
@@ -643,6 +663,8 @@ public partial class AddVideoViewModel : ObservableObject
             items[0].FileBaseName = NextAvailableBaseName(items[0].OutputFolder, items[0].FileBaseName, items[0].Format);
         }
         if (CreateM3U && _res?.IsPlaylist == true) WritePlaylistM3U(items);
+        // Register the playlist only when the user submits it for download.
+        if (_res?.IsPlaylist == true && TrackPlaylistEnabled) SaveTrackedPlaylist();
         // Queue first, then navigate. All progress callbacks are marshalled to the UI dispatcher.
         Url = "";
         _mgr.Add(items, now, respectAutoStart: false);
