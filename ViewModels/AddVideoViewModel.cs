@@ -55,7 +55,7 @@ public partial class AddVideoViewModel : ObservableObject
     string _lastUrl = "";
     CancellationTokenSource? _cts;
 
-    public Action? Done { get; set; }                  // go to the Downloads screen
+    public Action? Done { get; set; }\n    public Action? TrackingAdded { get; set; }                  // go to the Downloads screen
     public Func<string?>? PickFolder { get; set; }
     // true = download with a new name, false = skip, null = cancel the whole action
     public Func<string, bool?>? DuplicateFilePrompt { get; set; }
@@ -587,6 +587,32 @@ public partial class AddVideoViewModel : ObservableObject
         if (IsAudio) SettingsStore.Current.AudioDownloadFolder = p;
         else SettingsStore.Current.DownloadFolder = p;
         SettingsStore.Save();
+    }
+
+    [RelayCommand]
+    void TrackPlaylist()
+    {
+        if (_res?.IsPlaylist != true || string.IsNullOrWhiteSpace(Url)) return;
+        string root = string.IsNullOrWhiteSpace(SaveFolder)
+            ? (IsAudio ? WindowsLibraryPaths.AudioFolder : WindowsLibraryPaths.VideoFolder) : SaveFolder;
+        var record = new TrackedPlaylist
+        {
+            Url = Url.Trim(), Title = _res.PlaylistTitle, Channel = _res.Channel,
+            KnownVideoIds = _res.Entries.Select(x => x.Id).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
+            IsAudio = IsAudio, Height = SelectedVideoQuality?.Height ?? 1080,
+            Kbps = SelectedAudioQuality?.Kbps ?? 192,
+            Format = IsAudio ? SelectedAudioFormat : SelectedVideoFormat,
+            AudioTrackLanguage = SelectedAudioTrack?.Id ?? "default",
+            SubtitleTrackLanguage = string.Join(";", new[] { SelectedOriginalSubtitleTrack?.Id, SelectedAutoTranslatedSubtitleTrack?.Id }
+                .Where(x => !string.IsNullOrWhiteSpace(x) && x != "none").Distinct(StringComparer.OrdinalIgnoreCase)),
+            IncludeChapters = !IsAudio && IncludeChapters, OutputFolder = root,
+            CreateSubfolder = CreateSubfolder, NumberItems = NumberItems,
+            NumberWidth = Math.Max(2, _res.Entries.Count.ToString().Length),
+            LastPlaylistIndex = _res.Entries.Count
+        };
+        if (!TrackingPlaylistStore.Load().Any(x => x.Url.Equals(record.Url, StringComparison.OrdinalIgnoreCase)))
+            TrackingPlaylistStore.Save(TrackingPlaylistStore.Load().Append(record));
+        TrackingAdded?.Invoke();
     }
 
     [RelayCommand] void AddToQueue() => Submit(false);
