@@ -403,6 +403,15 @@
 
           <!-- buttons -->
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,6">
+            <Button Style="{StaticResource GhostBtn}" Height="46" Padding="16,0" Command="{Binding TrackPlaylistCommand}" Margin="0,0,12,0">
+              <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource GhostBtn}">
+                  <Setter Property="Visibility" Value="Collapsed"/>
+                  <Style.Triggers><DataTrigger Binding="{Binding IsPlaylistMode}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                </Style>
+              </Button.Style>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" FontSize="15"/><TextBlock Text="Track Playlist" FontSize="14" FontWeight="SemiBold" Margin="9,0,0,0"/></StackPanel>
+            </Button>
             <Button Style="{StaticResource GhostBtn}" Content="{DynamicResource S.Cancel}" Width="104" Height="46" Command="{Binding CancelCommand}" Margin="0,0,12,0"/>
             <Button Style="{StaticResource GhostBtn}" Height="46" Padding="20,0" Command="{Binding AddToQueueCommand}" IsEnabled="{Binding CanDownload}" Margin="0,0,12,0">
               <StackPanel Orientation="Horizontal">
