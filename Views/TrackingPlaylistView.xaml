@@ -29,7 +29,7 @@
     <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="18">
      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
       <StackPanel><TextBlock Text="{Binding SelectedPlaylist.Title}" FontSize="19" FontWeight="Bold"/><TextBlock Text="{Binding SelectedPlaylist.Url}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding LastCheckedText}" Foreground="#83A7D8" FontSize="11" Margin="0,8,0,0"/></StackPanel>
-      <Button Grid.Column="1" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding SelectedPlaylist}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" Margin="0,0,8,0"/><TextBlock Text="Check for updates"/></StackPanel></Button>
+      <Button Grid.Column="1" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding HasSelectedPlaylist}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" Margin="0,0,8,0"/><TextBlock Text="Check for updates"/></StackPanel></Button>
      </Grid>
     </Border>
     <Grid Grid.Row="1" Margin="0,14,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="NEW VIDEOS" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="{Binding NewVideoCount, StringFormat={}{0} found}" Foreground="#62B5FF"/></Grid>
