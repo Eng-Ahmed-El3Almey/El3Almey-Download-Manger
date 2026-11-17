@@ -41,7 +41,7 @@ public partial class MainWindow : Window
         _add = new AddVideoViewModel(_manager)
         {
             Done = ShowDownloads,
-            TrackingAdded = ShowTrackingPlaylist,
+            TrackingAdded = () => { _tracking.Reload(); ShowTrackingPlaylist(); },
             PickFolder = PickFolder,
             DuplicateFilePrompt = title =>
             {
@@ -238,7 +238,8 @@ public partial class MainWindow : Window
                 : NavAdd.IsChecked == true ? 3
                 : NavDownloads.IsChecked == true ? 4
                 : NavHistory.IsChecked == true ? 5
-                : NavErrors.IsChecked == true ? 6 : NavSettings.IsChecked == true ? 7 : 8;
+                : NavTrackingPlaylist.IsChecked == true ? 6
+                : NavErrors.IsChecked == true ? 7 : NavSettings.IsChecked == true ? 8 : 9;
             int next = (current + (reverse ? pages.Length - 1 : 1)) % pages.Length;
             pages[next]();
             return;
