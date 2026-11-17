@@ -2,44 +2,216 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  Background="Transparent" Foreground="{StaticResource TextMain}" FontFamily="Segoe UI">
+ <UserControl.Resources>
+  <Style x:Key="TrackingDataGrid" TargetType="DataGrid">
+   <Setter Property="Background" Value="Transparent"/>
+   <Setter Property="Foreground" Value="#DCE8FA"/>
+   <Setter Property="BorderThickness" Value="0"/>
+   <Setter Property="RowBackground" Value="#101F39"/>
+   <Setter Property="AlternatingRowBackground" Value="#142541"/>
+   <Setter Property="GridLinesVisibility" Value="None"/>
+   <Setter Property="HeadersVisibility" Value="Column"/>
+   <Setter Property="CanUserAddRows" Value="False"/>
+   <Setter Property="CanUserResizeRows" Value="False"/>
+   <Setter Property="IsReadOnly" Value="True"/>
+   <Setter Property="AutoGenerateColumns" Value="False"/>
+   <Setter Property="RowHeaderWidth" Value="0"/>
+   <Setter Property="ColumnHeaderHeight" Value="42"/>
+   <Setter Property="RowHeight" Value="58"/>
+   <Setter Property="BorderBrush" Value="#263B5D"/>
+   <Setter Property="HorizontalGridLinesBrush" Value="#203451"/>
+   <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+   <Setter Property="ColumnHeaderStyle">
+    <Setter.Value>
+     <Style TargetType="DataGridColumnHeader">
+      <Setter Property="Background" Value="#1A2C4B"/>
+      <Setter Property="Foreground" Value="#BFD3F2"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="BorderBrush" Value="#2B4266"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+     </Style>
+    </Setter.Value>
+   </Setter>
+   <Setter Property="CellStyle">
+    <Setter.Value>
+     <Style TargetType="DataGridCell">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#DCE8FA"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Style.Triggers>
+       <Trigger Property="IsSelected" Value="True">
+        <Setter Property="Background" Value="#1C3B68"/>
+        <Setter Property="Foreground" Value="White"/>
+       </Trigger>
+      </Style.Triggers>
+     </Style>
+    </Setter.Value>
+   </Setter>
+  </Style>
+ </UserControl.Resources>
+
  <Grid>
-  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-  <StackPanel Margin="2,0,0,18">
-   <TextBlock Text="Tracking Playlist" FontSize="26" FontWeight="Bold"/>
-   <TextBlock Text="Keep your downloaded playlists in sync and get only the videos added since your last check." Foreground="{StaticResource TextMuted}" FontSize="13" Margin="0,6,0,0"/>
-  </StackPanel>
-  <Grid Grid.Row="1">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-   <Border Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="14">
-    <DockPanel>
-     <StackPanel DockPanel.Dock="Top">
-      <Grid Margin="0,0,0,12"><TextBlock Text="YOUR PLAYLISTS" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}"/><TextBlock Text="{Binding PlaylistCountText}" HorizontalAlignment="Right" Foreground="{StaticResource TextMuted}"/></Grid>
-     </StackPanel>
-     <ListBox ItemsSource="{Binding Playlists}" SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-      <ListBox.ItemTemplate><DataTemplate>
-       <Border Padding="10" Margin="0,0,0,8" Background="#142541" CornerRadius="8">
-        <StackPanel><TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Channel}" FontSize="11" Foreground="#8FA4C8" Margin="0,4,0,0"/><TextBlock Text="{Binding LastCheckedAt, StringFormat='Last checked: {0:g}'}" FontSize="10" Foreground="#7186A8" Margin="0,5,0,0"/></StackPanel>
-       </Border>
-      </DataTemplate></ListBox.ItemTemplate>
-     </ListBox>
-    </DockPanel>
+  <Grid.RowDefinitions>
+   <RowDefinition Height="Auto"/>
+   <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+
+  <Grid Margin="2,0,0,20">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <StackPanel>
+    <TextBlock Text="Tracking Playlist" FontSize="26" FontWeight="Bold"/>
+    <TextBlock Text="Keep your playlists up to date and download only newly added videos." Foreground="{StaticResource TextMuted}" FontSize="13" Margin="0,6,0,0"/>
+   </StackPanel>
+   <Border Grid.Column="1" Background="#142B4D" BorderBrush="#294B78" BorderThickness="1" CornerRadius="9" Padding="13,8" VerticalAlignment="Center">
+    <StackPanel Orientation="Horizontal">
+     <TextBlock Text="&#xE8D7;" Style="{StaticResource Icon}" Foreground="#75B6FF" FontSize="15" Margin="0,0,9,0"/>
+     <TextBlock Text="{Binding PlaylistCountText}" Foreground="#DCE8FA" FontWeight="SemiBold"/>
+     <TextBlock Text=" tracked" Foreground="{StaticResource TextMuted}" Margin="4,0,0,0"/>
+    </StackPanel>
    </Border>
+  </Grid>
+
+  <Grid Grid.Row="1">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="286"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+
+   <!-- Playlist library -->
+   <Border Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="13" Padding="14">
+    <Grid>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <Grid Margin="2,2,2,14">
+      <TextBlock Text="YOUR PLAYLISTS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
+      <TextBlock Text="{Binding PlaylistCountText}" HorizontalAlignment="Right" Foreground="#8FBFFF" FontSize="12" FontWeight="SemiBold"/>
+     </Grid>
+     <ListBox Grid.Row="1" ItemsSource="{Binding Playlists}" SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
+              Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+              ScrollViewer.VerticalScrollBarVisibility="Auto">
+      <ListBox.ItemContainerStyle>
+       <Style TargetType="ListBoxItem">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+         <Setter.Value>
+          <ControlTemplate TargetType="ListBoxItem">
+           <Border x:Name="ItemBorder" Background="#122440" BorderBrush="#243B5E" BorderThickness="1" CornerRadius="9" Padding="12">
+            <ContentPresenter/>
+           </Border>
+           <ControlTemplate.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+             <Setter TargetName="ItemBorder" Property="Background" Value="#193967"/>
+             <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#3978BE"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+             <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#4D83C4"/>
+            </Trigger>
+           </ControlTemplate.Triggers>
+          </ControlTemplate>
+         </Setter.Value>
+        </Setter>
+       </Style>
+      </ListBox.ItemContainerStyle>
+      <ListBox.ItemTemplate>
+       <DataTemplate>
+        <StackPanel>
+         <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" Foreground="#F0F5FF" TextTrimming="CharacterEllipsis"/>
+         <TextBlock Text="{Binding Channel}" FontSize="11" Foreground="#9BB0D0" Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
+         <TextBlock Text="{Binding LastCheckedAt, StringFormat='Last checked: {0:g}'}" FontSize="10" Foreground="#7890B5" Margin="0,7,0,0"/>
+        </StackPanel>
+       </DataTemplate>
+      </ListBox.ItemTemplate>
+     </ListBox>
+     <StackPanel Grid.Row="2" Margin="2,12,2,0">
+      <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,0,0,12"/>
+      <TextBlock Text="Add a playlist from Add Video and enable Track this playlist." FontSize="11" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"/>
+     </StackPanel>
+    </Grid>
+   </Border>
+
+   <!-- Selected playlist and updates -->
    <Grid Grid.Column="2">
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-    <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="18">
-     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-      <StackPanel><TextBlock Text="{Binding SelectedPlaylist.Title}" FontSize="19" FontWeight="Bold"/><TextBlock Text="{Binding SelectedPlaylist.Url}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding LastCheckedText}" Foreground="#83A7D8" FontSize="11" Margin="0,8,0,0"/></StackPanel>
-      <Button Grid.Column="1" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding HasSelectedPlaylist}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" Margin="0,0,8,0"/><TextBlock Text="Check for updates"/></StackPanel></Button>
+
+    <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="13" Padding="20">
+     <Grid>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+       <TextBlock Text="{Binding SelectedPlaylist.Title}" FontSize="20" FontWeight="Bold" Foreground="#F1F6FF" TextTrimming="CharacterEllipsis"/>
+       <TextBlock Text="{Binding SelectedPlaylist.Channel}" FontSize="12" Foreground="#A3B9D9" Margin="0,5,0,0"/>
+       <TextBlock Text="{Binding SelectedPlaylist.Url}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,7,0,0" TextTrimming="CharacterEllipsis"/>
+       <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+        <TextBlock Text="&#xE823;" Style="{StaticResource Icon}" Foreground="#78B8FF" FontSize="12" Margin="0,0,7,0"/>
+        <TextBlock Text="{Binding LastCheckedText}" Foreground="#8FBFFF" FontSize="11"/>
+       </StackPanel>
+      </StackPanel>
+      <Button Grid.Column="1" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding HasSelectedPlaylist}"
+              Style="{StaticResource PrimaryBtn}" Height="44" Padding="18,0" VerticalAlignment="Center">
+       <StackPanel Orientation="Horizontal">
+        <TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" FontSize="15" Margin="0,0,9,0"/>
+        <TextBlock Text="Check for updates" FontSize="13" FontWeight="SemiBold"/>
+       </StackPanel>
+      </Button>
      </Grid>
     </Border>
-    <Grid Grid.Row="1" Margin="0,14,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="NEW VIDEOS" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="{Binding NewVideoCount, StringFormat={}{0} found}" Foreground="#62B5FF"/></Grid>
-    <Border Grid.Row="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="12">
-     <Grid><DataGrid ItemsSource="{Binding NewVideos}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" Background="Transparent" Foreground="{StaticResource TextMain}" BorderThickness="0" RowBackground="#101F39" AlternatingRowBackground="#142541" GridLinesVisibility="None">
-       <DataGrid.Columns><DataGridTextColumn Header="#" Binding="{Binding Index}" Width="55"/><DataGridTextColumn Header="Video title" Binding="{Binding Title}" Width="*"/><DataGridTextColumn Header="Duration" Binding="{Binding Duration}" Width="100"/></DataGrid.Columns>
+
+    <Grid Grid.Row="1" Margin="2,16,2,10">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+      <TextBlock Text="NEW VIDEOS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}"/>
+      <Border Background="#17345B" CornerRadius="10" Padding="8,3" Margin="10,0,0,0">
+       <TextBlock Text="{Binding NewVideoCount}" Foreground="#9CCBFF" FontSize="11" FontWeight="SemiBold"/>
+      </Border>
+     </StackPanel>
+     <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+    </Grid>
+
+    <Border Grid.Row="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="13" Padding="10">
+     <Grid>
+      <DataGrid ItemsSource="{Binding NewVideos}" Style="{StaticResource TrackingDataGrid}">
+       <DataGrid.Columns>
+        <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="58"/>
+        <DataGridTextColumn Header="VIDEO TITLE" Binding="{Binding Title}" Width="*"/>
+        <DataGridTextColumn Header="DURATION" Binding="{Binding Duration}" Width="115"/>
+       </DataGrid.Columns>
       </DataGrid>
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+       <StackPanel.Style>
+        <Style TargetType="StackPanel">
+         <Setter Property="Visibility" Value="Collapsed"/>
+         <Style.Triggers>
+          <DataTrigger Binding="{Binding HasNewVideos}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+         </Style.Triggers>
+        </Style>
+       </StackPanel.Style>
+       <Border Width="58" Height="58" CornerRadius="29" Background="#172E50" HorizontalAlignment="Center">
+        <TextBlock Text="&#xE73E;" Style="{StaticResource Icon}" Foreground="#6FAEFF" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       </Border>
+       <TextBlock Text="No new videos to show" FontSize="15" FontWeight="SemiBold" Foreground="#D7E4F8" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+       <TextBlock Text="Select a playlist and check for updates to find newly added videos." FontSize="12" Foreground="{StaticResource TextMuted}" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="340" Margin="0,6,0,0"/>
+      </StackPanel>
      </Grid>
     </Border>
-    <Grid Grid.Row="3" Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" TextWrapping="Wrap"/><Button Grid.Column="1" Content="Remove playlist" Command="{Binding RemoveSelectedCommand}" Style="{StaticResource GhostBtn}" Height="42" Padding="14,0"/><Button Grid.Column="3" Content="Download new videos" Command="{Binding DownloadNewVideosCommand}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0" IsEnabled="{Binding HasNewVideos}"/></Grid>
+
+    <Grid Grid.Row="3" Margin="0,14,0,0">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <TextBlock Text="New videos will use the saved quality, format, folder and playlist options." Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" TextWrapping="Wrap"/>
+     <Button Grid.Column="1" Content="Remove playlist" Command="{Binding RemoveSelectedCommand}" Style="{StaticResource GhostBtn}" Height="42" Padding="15,0" IsEnabled="{Binding HasSelectedPlaylist}"/>
+     <Button Grid.Column="3" Command="{Binding DownloadNewVideosCommand}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0" IsEnabled="{Binding HasNewVideos}">
+      <StackPanel Orientation="Horizontal">
+       <TextBlock Text="&#xE896;" Style="{StaticResource Icon}" Margin="0,0,8,0"/>
+       <TextBlock Text="Download new videos" FontWeight="SemiBold"/>
+      </StackPanel>
+     </Button>
+    </Grid>
    </Grid>
   </Grid>
  </Grid>
