@@ -16,12 +16,12 @@ public partial class MainWindow : Window
     readonly DownloadManager _manager = new();
     readonly DownloadsViewModel _downloads;
     readonly AddVideoViewModel _add;
-    readonly HistoryViewModel _history;
+    readonly HistoryViewModel _history;\n    readonly TrackedPlaylistViewModel _tracking;
     readonly SettingsViewModel _settings = new();
 
     readonly AddVideoView _addView;
     readonly DownloadsView _downloadsView;
-    readonly HistoryView _historyView;
+    readonly HistoryView _historyView;\n    readonly TrackingPlaylistView _trackingView;
     readonly SettingsView _settingsView;
     readonly ErrorLogView _errorLogView;
     readonly ShortcutsView _shortcutsView;
@@ -38,7 +38,7 @@ public partial class MainWindow : Window
         _downloads = new DownloadsViewModel(_manager) { CopyText = t => { try { Clipboard.SetText(t); } catch { } } };
         _add = new AddVideoViewModel(_manager)
         {
-            Done = ShowDownloads,
+            Done = ShowDownloads,\n            TrackingAdded = ShowTrackingPlaylist,
             PickFolder = PickFolder,
             DuplicateFilePrompt = title =>
             {
@@ -53,7 +53,7 @@ public partial class MainWindow : Window
                     : dialog.DialogResult == false ? false : null;
             }
         };
-        _history = new HistoryViewModel(_manager)
+        _tracking = new TrackedPlaylistViewModel(_manager);\n        _history = new HistoryViewModel(_manager)
         {
             Confirm = msg => new ClearHistoryDialog(msg, Loc.Language == "ar") { Owner = this }.ShowDialog() == true
         };
@@ -67,7 +67,7 @@ public partial class MainWindow : Window
         DataContext = _downloads;
         _addView = new AddVideoView { DataContext = _add };
         _downloadsView = new DownloadsView { DataContext = _downloads };
-        _historyView = new HistoryView { DataContext = _history };
+        _historyView = new HistoryView { DataContext = _history };\n        _trackingView = new TrackingPlaylistView { DataContext = _tracking };
         _settingsView = new SettingsView { DataContext = _settings };
         _errorLogView = new ErrorLogView();
         _shortcutsView = new ShortcutsView();
@@ -153,7 +153,7 @@ public partial class MainWindow : Window
         _add.GetVideoCommand.Execute(null);
     }
     void ShowDownloads() { _downloads.Refresh(); Navigate(_downloadsView, NavDownloads, true); }
-    void ShowHistory() { _history.Refresh(); Navigate(_historyView, NavHistory, false); }
+    void ShowHistory() { _history.Refresh(); Navigate(_historyView, NavHistory, false); }\n    void ShowTrackingPlaylist() => Navigate(_trackingView, NavTrackingPlaylist, false);
     void ShowSettings() => Navigate(_settingsView, NavSettings, false);
     void ShowErrors() { _errorLogView.Refresh(); Navigate(_errorLogView, NavErrors, false); }
     void ShowShortcuts() => Navigate(_shortcutsView, NavShortcuts, false);
@@ -209,7 +209,7 @@ public partial class MainWindow : Window
     void NavAudioPlayer_Click(object s, RoutedEventArgs e) => ShowAudioPlayer();
     void NavAdd_Click(object s, RoutedEventArgs e) => ShowAdd();
     void NavDownloads_Click(object s, RoutedEventArgs e) => ShowDownloads();
-    void NavHistory_Click(object s, RoutedEventArgs e) => ShowHistory();
+    void NavHistory_Click(object s, RoutedEventArgs e) => ShowHistory();\n    void NavTrackingPlaylist_Click(object s, RoutedEventArgs e) => ShowTrackingPlaylist();
     void NavSettings_Click(object s, RoutedEventArgs e) => ShowSettings();
     void NavErrors_Click(object s, RoutedEventArgs e) => ShowErrors();
     void NavShortcuts_Click(object s, RoutedEventArgs e) => ShowShortcuts();
@@ -224,7 +224,7 @@ public partial class MainWindow : Window
         {
             e.Handled = true;
             bool reverse = modifiers.HasFlag(ModifierKeys.Shift);
-            var pages = new Action[] { ShowYouTube, ShowVideoPlayer, ShowAudioPlayer, ShowAdd, ShowDownloads, ShowHistory, ShowErrors, ShowSettings, ShowShortcuts };
+            var pages = new Action[] { ShowYouTube, ShowVideoPlayer, ShowAudioPlayer, ShowAdd, ShowDownloads, ShowHistory, ShowTrackingPlaylist, ShowErrors, ShowSettings, ShowShortcuts };
             int current = NavYouTube.IsChecked == true ? 0
                 : NavVideoPlayer.IsChecked == true ? 1
                 : NavAudioPlayer.IsChecked == true ? 2
