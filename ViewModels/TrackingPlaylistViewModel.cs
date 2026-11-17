@@ -103,6 +103,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                     Title = string.IsNullOrWhiteSpace(entry.Title) ? "Video " + index : entry.Title,
                     Channel = string.IsNullOrWhiteSpace(entry.Channel) ? result.Channel : entry.Channel,
                     Duration = entry.Duration,
+                    QualityText = item.IsAudio ? $"{item.Kbps} kbps" : $"{item.Height}p",
+                    SizeText = "—",
                     Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail)
                         ? YouTubeService.Thumb(entry.Id, "mqdefault") : entry.Thumbnail
                 });
