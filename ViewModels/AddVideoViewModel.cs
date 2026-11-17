@@ -56,7 +56,6 @@ public partial class AddVideoViewModel : ObservableObject
     CancellationTokenSource? _cts;
 
     public Action? Done { get; set; }
-    public Action? TrackingAdded { get; set; }                  // go to the Downloads screen
     public Func<string?>? PickFolder { get; set; }
     // true = download with a new name, false = skip, null = cancel the whole action
     public Func<string, bool?>? DuplicateFilePrompt { get; set; }
@@ -219,6 +218,7 @@ public partial class AddVideoViewModel : ObservableObject
     // ------------------------------------------------------------ link handling
     partial void OnUrlChanged(string value)
     {
+        TrackPlaylistEnabled = false;
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
