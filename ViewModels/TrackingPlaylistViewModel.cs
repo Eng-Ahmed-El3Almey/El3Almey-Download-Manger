@@ -80,6 +80,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
             foreach (var entry in result.Entries)
                 if (!known.Contains(entry.Id)) NewVideos.Add(entry);
             item.LastCheckedAt = DateTime.Now;
+            TrackingPlaylistStore.Save(_records);
             NewVideoCount = NewVideos.Count;
             StatusMessage = NewVideos.Count == 0
                 ? (Loc.Language == "ar" ? "القائمة محدثة. لا توجد فيديوهات جديدة." : "You're up to date. No new videos found.")
