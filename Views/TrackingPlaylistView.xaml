@@ -196,40 +196,50 @@
 
     <Border Grid.Row="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="13" Padding="10">
      <Grid>
-      <DataGrid ItemsSource="{Binding NewVideos}" Style="{StaticResource TrackingDataGrid}">
-       <DataGrid.Columns>
-        <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="58"/>
-        <DataGridTemplateColumn Header="VIDEO" Width="*">
-         <DataGridTemplateColumn.CellTemplate>
-          <DataTemplate>
-           <Grid>
-            <Grid.ColumnDefinitions><ColumnDefinition Width="132"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-            <Border Width="116" Height="65" CornerRadius="6" Background="#0A1730" ClipToBounds="True" VerticalAlignment="Center">
-             <Image Source="{Binding Thumb}" Stretch="UniformToFill"/>
-            </Border>
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,8,0">
-             <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" Foreground="#F0F5FF" TextTrimming="CharacterEllipsis"/>
-             <TextBlock Text="{Binding Channel}" FontSize="11" Foreground="#91A8C9" Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
-            </StackPanel>
-           </Grid>
-          </DataTemplate>
-         </DataGridTemplateColumn.CellTemplate>
-        </DataGridTemplateColumn>
-        <DataGridTextColumn Header="DURATION" Binding="{Binding DurationText}" Width="120"/>
-       </DataGrid.Columns>
-      </DataGrid>
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
-       <StackPanel.Style>
-        <Style TargetType="StackPanel">
-         <Setter Property="Visibility" Value="Collapsed"/>
-         <Style.Triggers>
-          <DataTrigger Binding="{Binding HasNewVideos}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
-         </Style.Triggers>
+      <Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+      <Border Grid.Row="0" Margin="2,0,2,6" Background="#142746" BorderBrush="#2A4165" BorderThickness="1" CornerRadius="7">
+       <Grid Margin="8,0,24,0" FlowDirection="LeftToRight">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/><ColumnDefinition Width="84"/><ColumnDefinition Width="88"/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="1" Text="#" FontSize="13" FontWeight="SemiBold" Foreground="#D6E5FF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="3" Text="Video title" FontSize="14" FontWeight="SemiBold" Foreground="#D6E5FF" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="4" Text="Duration" FontSize="13" FontWeight="SemiBold" Foreground="#D6E5FF" VerticalAlignment="Center" Margin="8,0,0,0"/>
+        <TextBlock Grid.Column="5" Text="Quality" FontSize="13" FontWeight="SemiBold" Foreground="#D6E5FF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="6" Text="Est. size" FontSize="13" FontWeight="SemiBold" Foreground="#D6E5FF" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0"/>
+       </Grid>
+      </Border>
+      <ListBox Grid.Row="1" ItemsSource="{Binding NewVideos}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="False" VirtualizingPanel.IsVirtualizing="True">
+       <ListBox.ItemContainerStyle>
+        <Style TargetType="ListBoxItem">
+         <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="2,0,2,0"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+          <Border x:Name="RowSurface" Background="Transparent" BorderBrush="#263957" BorderThickness="0,0,0,1"><ContentPresenter/></Border>
+          <ControlTemplate.Triggers>
+           <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="RowSurface" Property="Background" Value="#102746"/></Trigger>
+           <Trigger Property="IsSelected" Value="True"><Setter TargetName="RowSurface" Property="Background" Value="#142B4D"/></Trigger>
+          </ControlTemplate.Triggers>
+         </ControlTemplate></Setter.Value></Setter>
         </Style>
-       </StackPanel.Style>
-       <Border Width="58" Height="58" CornerRadius="29" Background="#172E50" HorizontalAlignment="Center">
-        <TextBlock Text="&#xE73E;" Style="{StaticResource Icon}" Foreground="#6FAEFF" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-       </Border>
+       </ListBox.ItemContainerStyle>
+       <ListBox.ItemTemplate>
+        <DataTemplate>
+         <Grid Height="70" Margin="8,0,24,0" FlowDirection="LeftToRight">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="30"/><ColumnDefinition Width="30"/><ColumnDefinition Width="88"/><ColumnDefinition Width="*"/><ColumnDefinition Width="84"/><ColumnDefinition Width="88"/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="1" Text="{Binding Index}" Foreground="{StaticResource TextMuted}" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <Border Grid.Column="2" Width="76" Height="44" CornerRadius="6" Background="#1D3358" Margin="0,0,12,0" VerticalAlignment="Center" ClipToBounds="True"><Image Source="{Binding Thumb, Mode=OneWay}" Stretch="UniformToFill" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="HighQuality"/></Border>
+          <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+           <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" Foreground="#F0F5FF" TextTrimming="CharacterEllipsis" TextAlignment="Left"/>
+           <TextBlock Text="{Binding Channel}" FontSize="12" Foreground="{StaticResource TextMuted}" TextTrimming="CharacterEllipsis" TextAlignment="Left" Margin="0,3,0,0"/>
+          </StackPanel>
+          <TextBlock Grid.Column="4" Text="{Binding DurationText}" FontSize="12" Foreground="#C9D6EE" VerticalAlignment="Center" Margin="8,0,0,0"/>
+          <TextBlock Grid.Column="5" Text="{Binding QualityText}" FontSize="12" Foreground="#8FC2FF" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          <TextBlock Grid.Column="6" Text="{Binding SizeText}" FontSize="12" Foreground="#9CC2FF" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,0,8,0"/>
+         </Grid>
+        </DataTemplate>
+       </ListBox.ItemTemplate>
+      </ListBox>
+      <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+       <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasNewVideos}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+       <Border Width="58" Height="58" CornerRadius="29" Background="#172E50" HorizontalAlignment="Center"><TextBlock Text="&#xE73E;" Style="{StaticResource Icon}" Foreground="#6FAEFF" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
        <TextBlock Text="No new videos to show" FontSize="15" FontWeight="SemiBold" Foreground="#D7E4F8" HorizontalAlignment="Center" Margin="0,14,0,0"/>
        <TextBlock Text="Select a playlist and check for updates to find newly added videos." FontSize="12" Foreground="{StaticResource TextMuted}" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="340" Margin="0,6,0,0"/>
       </StackPanel>
