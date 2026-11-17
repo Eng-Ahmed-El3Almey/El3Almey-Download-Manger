@@ -17,7 +17,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     public ObservableCollection<TrackedPlaylist> Playlists { get; } = new();
     public ObservableCollection<EntryInfo> NewVideos { get; } = new();
     public bool HasNewVideos => NewVideos.Count > 0;
-    public string PlaylistCountText => Playlists.Count.ToString();
+    public string PlaylistCountText => Playlists.Count.ToString();\n    public bool HasSelectedPlaylist => SelectedPlaylist != null;\n    partial void OnSelectedPlaylistChanged(TrackedPlaylist? value) => OnPropertyChanged(nameof(HasSelectedPlaylist));
     public string LastCheckedText => SelectedPlaylist?.LastCheckedAt?.ToString("g") ?? (Loc.Language == "ar" ? "لم يتم الفحص بعد" : "Never checked");
 
     public TrackedPlaylistViewModel(DownloadManager manager)
@@ -67,7 +67,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
             StatusMessage = NewVideos.Count == 0
                 ? (Loc.Language == "ar" ? "القائمة محدثة. لا توجد فيديوهات جديدة." : "You're up to date. No new videos found.")
                 : (Loc.Language == "ar" ? $"تم العثور على {NewVideos.Count} فيديو جديد." : $"{NewVideos.Count} new video(s) found.");
-            OnPropertyChanged(nameof(LastCheckedText));
+            OnPropertyChanged(nameof(LastCheckedText));\n            OnPropertyChanged(nameof(HasNewVideos));
         }
         catch (Exception ex)
         {
