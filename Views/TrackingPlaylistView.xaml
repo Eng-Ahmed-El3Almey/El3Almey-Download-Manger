@@ -34,8 +34,7 @@
     </Border>
     <Grid Grid.Row="1" Margin="0,14,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="NEW VIDEOS" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="{Binding NewVideoCount, StringFormat={}{0} found}" Foreground="#62B5FF"/></Grid>
     <Border Grid.Row="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="12">
-     <Grid><TextBlock Text="Select a playlist and check for updates to see newly added videos." Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="360"/>
-      <DataGrid ItemsSource="{Binding NewVideos}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" Background="Transparent" Foreground="{StaticResource TextMain}" BorderThickness="0" RowBackground="#101F39" AlternatingRowBackground="#142541" GridLinesVisibility="None">
+     <Grid><DataGrid ItemsSource="{Binding NewVideos}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" Background="Transparent" Foreground="{StaticResource TextMain}" BorderThickness="0" RowBackground="#101F39" AlternatingRowBackground="#142541" GridLinesVisibility="None">
        <DataGrid.Columns><DataGridTextColumn Header="#" Binding="{Binding Index}" Width="55"/><DataGridTextColumn Header="Video title" Binding="{Binding Title}" Width="*"/><DataGridTextColumn Header="Duration" Binding="{Binding Duration}" Width="100"/></DataGrid.Columns>
       </DataGrid>
      </Grid>
