@@ -1,0 +1,47 @@
+<UserControl x:Class="El3Almey.Wpf.Views.TrackingPlaylistView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Background="Transparent" Foreground="{StaticResource TextMain}" FontFamily="Segoe UI">
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <StackPanel Margin="2,0,0,18">
+   <TextBlock Text="Tracking Playlist" FontSize="26" FontWeight="Bold"/>
+   <TextBlock Text="Keep your downloaded playlists in sync and get only the videos added since your last check." Foreground="{StaticResource TextMuted}" FontSize="13" Margin="0,6,0,0"/>
+  </StackPanel>
+  <Grid Grid.Row="1">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Border Grid.Column="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="14">
+    <DockPanel>
+     <StackPanel DockPanel.Dock="Top">
+      <Grid Margin="0,0,0,12"><TextBlock Text="YOUR PLAYLISTS" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}"/><TextBlock Text="{Binding PlaylistCountText}" HorizontalAlignment="Right" Foreground="{StaticResource TextMuted}"/></Grid>
+     </StackPanel>
+     <ListBox ItemsSource="{Binding Playlists}" SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+      <ListBox.ItemTemplate><DataTemplate>
+       <Border Padding="10" Margin="0,0,0,8" Background="#142541" CornerRadius="8">
+        <StackPanel><TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Channel}" FontSize="11" Foreground="#8FA4C8" Margin="0,4,0,0"/><TextBlock Text="{Binding LastCheckedAt, StringFormat='Last checked: {0:g}'}" FontSize="10" Foreground="#7186A8" Margin="0,5,0,0"/></StackPanel>
+       </Border>
+      </DataTemplate></ListBox.ItemTemplate>
+     </ListBox>
+    </DockPanel>
+   </Border>
+   <Grid Grid.Column="2">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="18">
+     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <StackPanel><TextBlock Text="{Binding SelectedPlaylist.Title}" FontSize="19" FontWeight="Bold"/><TextBlock Text="{Binding SelectedPlaylist.Url}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding LastCheckedText}" Foreground="#83A7D8" FontSize="11" Margin="0,8,0,0"/></StackPanel>
+      <Button Grid.Column="1" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding SelectedPlaylist}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0"><StackPanel Orientation="Horizontal"><TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" Margin="0,0,8,0"/><TextBlock Text="Check for updates"/></StackPanel></Button>
+     </Grid>
+    </Border>
+    <Grid Grid.Row="1" Margin="0,14,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="NEW VIDEOS" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="{Binding NewVideoCount, StringFormat={}{0} found}" Foreground="#62B5FF"/></Grid>
+    <Border Grid.Row="2" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12" Padding="12">
+     <Grid><TextBlock Text="Select a playlist and check for updates to see newly added videos." Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="360"/>
+      <DataGrid ItemsSource="{Binding NewVideos}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" Background="Transparent" Foreground="{StaticResource TextMain}" BorderThickness="0" RowBackground="#101F39" AlternatingRowBackground="#142541" GridLinesVisibility="None">
+       <DataGrid.Columns><DataGridTextColumn Header="#" Binding="{Binding Index}" Width="55"/><DataGridTextColumn Header="Video title" Binding="{Binding Title}" Width="*"/><DataGridTextColumn Header="Duration" Binding="{Binding Duration}" Width="100"/></DataGrid.Columns>
+      </DataGrid>
+     </Grid>
+    </Border>
+    <Grid Grid.Row="3" Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" TextWrapping="Wrap"/><Button Grid.Column="1" Content="Remove playlist" Command="{Binding RemoveSelectedCommand}" Style="{StaticResource GhostBtn}" Height="42" Padding="14,0"/><Button Grid.Column="3" Content="Download new videos" Command="{Binding DownloadNewVideosCommand}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0" IsEnabled="{Binding HasNewVideos}"/></Grid>
+   </Grid>
+  </Grid>
+ </Grid>
+</UserControl>
