@@ -14,6 +14,8 @@ public class EntryInfo
     public TimeSpan? Duration { get; set; }
     public string DurationText => Duration?.ToString(@"hh\:mm\:ss") ?? "—";
     public string Thumb { get; set; } = "";
+    public string QualityText { get; set; } = "—";
+    public string SizeText { get; set; } = "—";
     public List<YtDlpService.VideoFormatEstimate> VideoFormats { get; set; } = new();
 }
 
