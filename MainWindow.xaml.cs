@@ -41,7 +41,6 @@ public partial class MainWindow : Window
         _add = new AddVideoViewModel(_manager)
         {
             Done = ShowDownloads,
-            TrackingAdded = () => { _tracking.Reload(); ShowTrackingPlaylist(); },
             PickFolder = PickFolder,
             DuplicateFilePrompt = title =>
             {
