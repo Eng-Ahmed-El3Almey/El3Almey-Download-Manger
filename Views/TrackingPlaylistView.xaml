@@ -17,7 +17,7 @@
    <Setter Property="AutoGenerateColumns" Value="False"/>
    <Setter Property="RowHeaderWidth" Value="0"/>
    <Setter Property="ColumnHeaderHeight" Value="42"/>
-   <Setter Property="RowHeight" Value="58"/>
+   <Setter Property="RowHeight" Value="82"/>
    <Setter Property="BorderBrush" Value="#263B5D"/>
    <Setter Property="HorizontalGridLinesBrush" Value="#203451"/>
    <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
@@ -122,11 +122,17 @@
       </ListBox.ItemContainerStyle>
       <ListBox.ItemTemplate>
        <DataTemplate>
-        <StackPanel>
-         <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" Foreground="#F0F5FF" TextTrimming="CharacterEllipsis"/>
-         <TextBlock Text="{Binding Channel}" FontSize="11" Foreground="#9BB0D0" Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
-         <TextBlock Text="{Binding LastCheckedAt, StringFormat='Last checked: {0:g}'}" FontSize="10" Foreground="#7890B5" Margin="0,7,0,0"/>
-        </StackPanel>
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="76"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+         <Border Width="66" Height="52" CornerRadius="6" Background="#0A1730" ClipToBounds="True" VerticalAlignment="Center">
+          <Image Source="{Binding PlaylistThumbnail}" Stretch="UniformToFill"/>
+         </Border>
+         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+          <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" Foreground="#F0F5FF" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{Binding Channel}" FontSize="11" Foreground="#9BB0D0" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{Binding LastCheckedAt, StringFormat='Last checked: {0:g}'}" FontSize="10" Foreground="#7890B5" Margin="0,5,0,0"/>
+         </StackPanel>
+        </Grid>
        </DataTemplate>
       </ListBox.ItemTemplate>
      </ListBox>
@@ -143,8 +149,11 @@
 
     <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="13" Padding="20">
      <Grid>
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-      <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="132"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <Border Width="116" Height="82" CornerRadius="9" Background="#0A1730" ClipToBounds="True" VerticalAlignment="Center">
+       <Image Source="{Binding SelectedPlaylist.PlaylistThumbnail}" Stretch="UniformToFill"/>
+      </Border>
+      <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,16,0">
        <TextBlock Text="{Binding SelectedPlaylist.Title}" FontSize="20" FontWeight="Bold" Foreground="#F1F6FF" TextTrimming="CharacterEllipsis"/>
        <TextBlock Text="{Binding SelectedPlaylist.Channel}" FontSize="12" Foreground="#A3B9D9" Margin="0,5,0,0"/>
        <TextBlock Text="{Binding SelectedPlaylist.Url}" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,7,0,0" TextTrimming="CharacterEllipsis"/>
@@ -153,7 +162,7 @@
         <TextBlock Text="{Binding LastCheckedText}" Foreground="#8FBFFF" FontSize="11"/>
        </StackPanel>
       </StackPanel>
-      <Button Grid.Column="1" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding HasSelectedPlaylist}"
+      <Button Grid.Column="2" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding HasSelectedPlaylist}"
               Style="{StaticResource PrimaryBtn}" Height="44" Padding="18,0" VerticalAlignment="Center">
        <StackPanel Orientation="Horizontal">
         <TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" FontSize="15" Margin="0,0,9,0"/>
@@ -179,8 +188,23 @@
       <DataGrid ItemsSource="{Binding NewVideos}" Style="{StaticResource TrackingDataGrid}">
        <DataGrid.Columns>
         <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="58"/>
-        <DataGridTextColumn Header="VIDEO TITLE" Binding="{Binding Title}" Width="*"/>
-        <DataGridTextColumn Header="DURATION" Binding="{Binding Duration}" Width="115"/>
+        <DataGridTemplateColumn Header="VIDEO" Width="*">
+         <DataGridTemplateColumn.CellTemplate>
+          <DataTemplate>
+           <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="132"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border Width="116" Height="65" CornerRadius="6" Background="#0A1730" ClipToBounds="True" VerticalAlignment="Center">
+             <Image Source="{Binding Thumb}" Stretch="UniformToFill"/>
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,8,0">
+             <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" Foreground="#F0F5FF" TextTrimming="CharacterEllipsis"/>
+             <TextBlock Text="{Binding Channel}" FontSize="11" Foreground="#91A8C9" Margin="0,5,0,0" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+           </Grid>
+          </DataTemplate>
+         </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="DURATION" Binding="{Binding DurationText}" Width="120"/>
        </DataGrid.Columns>
       </DataGrid>
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
