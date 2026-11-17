@@ -28,6 +28,7 @@ public class ResolveResult
     public DateTimeOffset? Published;
     public string Thumb = "";
     public string PlaylistTitle = "";
+    public string PlaylistThumbnail = "";
     public string? SingleVideoId;        // set when the link had both v= and list=
     public List<EntryInfo> Entries = new();
     public StreamManifest Manifest = null!;
@@ -135,6 +136,7 @@ public static class YouTubeService
             PlaylistTitle = string.IsNullOrWhiteSpace(metadata.Title) ? pid.Value : metadata.Title,
             Title = string.IsNullOrWhiteSpace(metadata.Title) ? pid.Value : metadata.Title,
             Channel = metadata.Channel,
+            PlaylistThumbnail = metadata.Thumbnail,
             SingleVideoId = currentVideo?.Value
         };
 
@@ -204,6 +206,8 @@ public static class YouTubeService
 
         res.VideoId = representativeEntry.Id;
         res.Thumb = representativeEntry.Thumb;
+        if (string.IsNullOrWhiteSpace(res.PlaylistThumbnail))
+            res.PlaylistThumbnail = representativeEntry.Thumb;
         res.Manifest = representativeManifest;
         res.Tracks = await YtDlpService.GetTracksAsync(
             "https://www.youtube.com/watch?v=" + representativeEntry.Id, ct);
