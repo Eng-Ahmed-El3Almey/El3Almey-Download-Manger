@@ -71,6 +71,7 @@ public static class YtDlpService
     {
         public string Title { get; init; } = "";
         public string Channel { get; init; } = "";
+        public string Thumbnail { get; init; } = "";
         public List<PlaylistEntryMetadata> Entries { get; init; } = new();
     }
 
@@ -135,6 +136,7 @@ public static class YtDlpService
         {
             Title = FirstNonEmpty(Str(root, "title"), Str(root, "playlist_title")),
             Channel = FirstNonEmpty(Str(root, "channel"), Str(root, "uploader")),
+            Thumbnail = Str(root, "thumbnail"),
             Entries = entries
         };
     }
