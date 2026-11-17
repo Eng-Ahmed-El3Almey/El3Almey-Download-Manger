@@ -7,13 +7,13 @@ namespace El3Almey.Services;
 
 public class EntryInfo
 {
-    public int Index;
-    public string Id = "";
-    public string Title = "";
-    public string Channel = "";
-    public TimeSpan? Duration;
-    public string Thumb = "";
-    public List<YtDlpService.VideoFormatEstimate> VideoFormats = new();
+    public int Index { get; set; }
+    public string Id { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string Channel { get; set; } = "";
+    public TimeSpan? Duration { get; set; }
+    public string Thumb { get; set; } = "";
+    public List<YtDlpService.VideoFormatEstimate> VideoFormats { get; set; } = new();
 }
 
 public class ResolveResult
