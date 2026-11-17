@@ -600,7 +600,7 @@ public partial class AddVideoViewModel : ObservableObject
         var record = new TrackedPlaylist
         {
             Url = Url.Trim(), Title = _res.PlaylistTitle, Channel = _res.Channel,
-            Thumbnail = _res.Entries.FirstOrDefault()?.Thumb ?? _res.Thumb,
+            Thumbnail = string.IsNullOrWhiteSpace(_res.PlaylistThumbnail) ? (_res.Entries.FirstOrDefault()?.Thumb ?? _res.Thumb) : _res.PlaylistThumbnail,
             KnownVideoIds = _res.Entries.Select(x => x.Id).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
             IsAudio = IsAudio, Height = SelectedVideoQuality?.Height ?? 1080,
             Kbps = SelectedAudioQuality?.Kbps ?? 192,
