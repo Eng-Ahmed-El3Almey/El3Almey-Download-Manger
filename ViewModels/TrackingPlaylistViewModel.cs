@@ -36,6 +36,19 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         OnPropertyChanged(nameof(PlaylistCountText));
     }
 
+    public void Reload()
+    {
+        _records.Clear();
+        Playlists.Clear();
+        foreach (var item in TrackingPlaylistStore.Load()) { _records.Add(item); Playlists.Add(item); }
+        SelectedPlaylist = Playlists.FirstOrDefault();
+        NewVideos.Clear();
+        NewVideoCount = 0;
+        OnPropertyChanged(nameof(PlaylistCountText));
+        OnPropertyChanged(nameof(LastCheckedText));
+        OnPropertyChanged(nameof(HasNewVideos));
+    }
+
     public bool Add(TrackedPlaylist item)
     {
         if (_records.Any(x => x.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase))) return false;
