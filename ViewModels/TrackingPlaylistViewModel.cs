@@ -84,9 +84,12 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 throw new InvalidOperationException("No available videos were returned for this playlist.");
             if (!string.IsNullOrWhiteSpace(result.Title)) item.Title = result.Title;
             if (!string.IsNullOrWhiteSpace(result.Channel)) item.Channel = result.Channel;
-            if (string.IsNullOrWhiteSpace(item.Thumbnail))
+            if (!string.IsNullOrWhiteSpace(result.Thumbnail))
+                item.Thumbnail = result.Thumbnail;
+            else if (string.IsNullOrWhiteSpace(item.Thumbnail))
                 item.Thumbnail = result.Entries.FirstOrDefault()?.Thumbnail
                     ?? YouTubeService.Thumb(result.Entries[0].Id, "hqdefault");
+            OnPropertyChanged(nameof(SelectedPlaylist));
             var known = new HashSet<string>(item.KnownVideoIds, StringComparer.OrdinalIgnoreCase);
             int index = 0;
             foreach (var entry in result.Entries)
