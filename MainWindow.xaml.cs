@@ -274,6 +274,7 @@ public partial class MainWindow : Window
         {
             if (NavDownloads.IsChecked == true) ShowDownloads();
             else if (NavHistory.IsChecked == true) ShowHistory();
+            else if (NavTrackingPlaylist.IsChecked == true) _tracking.CheckSelectedCommand.Execute(null);
             else if (NavErrors.IsChecked == true) _errorLogView.Refresh();
             e.Handled = true;
             return;
