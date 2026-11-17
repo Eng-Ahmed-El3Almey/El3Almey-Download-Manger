@@ -8,6 +8,7 @@ public sealed class TrackedPlaylist
     public string Url { get; set; } = "";
     public string Title { get; set; } = "";
     public string Channel { get; set; } = "";
+    public string Thumbnail { get; set; } = "";
     public DateTime AddedAt { get; set; } = DateTime.Now;
     public DateTime? LastCheckedAt { get; set; }
     public List<string> KnownVideoIds { get; set; } = new();
@@ -23,6 +24,10 @@ public sealed class TrackedPlaylist
     public bool NumberItems { get; set; }
     public int NumberWidth { get; set; } = 2;
     public int LastPlaylistIndex { get; set; }
+
+    public string PlaylistThumbnail => !string.IsNullOrWhiteSpace(Thumbnail)
+        ? Thumbnail
+        : KnownVideoIds.Count > 0 ? YouTubeService.Thumb(KnownVideoIds[0], "hqdefault") : "";
 }
 
 public static class TrackingPlaylistStore
