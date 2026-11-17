@@ -19,7 +19,13 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     public bool HasNewVideos => NewVideos.Count > 0;
     public string PlaylistCountText => Playlists.Count.ToString();
     public bool HasSelectedPlaylist => SelectedPlaylist != null;
-    partial void OnSelectedPlaylistChanged(TrackedPlaylist? value) => OnPropertyChanged(nameof(HasSelectedPlaylist));
+    public bool CanCheck => HasSelectedPlaylist && !IsChecking;
+    partial void OnSelectedPlaylistChanged(TrackedPlaylist? value)
+    {
+        OnPropertyChanged(nameof(HasSelectedPlaylist));
+        OnPropertyChanged(nameof(CanCheck));
+    }
+    partial void OnIsCheckingChanged(bool value) => OnPropertyChanged(nameof(CanCheck));
     public string LastCheckedText => SelectedPlaylist?.LastCheckedAt?.ToString("g") ?? (Loc.Language == "ar" ? "لم يتم الفحص بعد" : "Never checked");
 
     public TrackedPlaylistViewModel(DownloadManager manager)
