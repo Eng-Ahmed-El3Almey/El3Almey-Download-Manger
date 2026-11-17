@@ -72,13 +72,32 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         StatusMessage = Loc.Language == "ar" ? "جاري فحص قائمة التشغيل..." : "Checking playlist...";
         try
         {
-            var result = await YouTubeService.ResolveAsync(item.Url, false, CancellationToken.None);
-            if (!result.IsPlaylist) throw new InvalidOperationException("The saved URL no longer resolves to a playlist.");
-            item.Title = result.PlaylistTitle;
-            item.Channel = result.Channel;
+            // Read only the flat playlist index. Do not resolve stream manifests for every video.
+            var result = await YtDlpService.GetPlaylistMetadataAsync(item.Url, 1000, CancellationToken.None);
+            if (result.Entries.Count == 0)
+                throw new InvalidOperationException("No available videos were returned for this playlist.");
+            if (!string.IsNullOrWhiteSpace(result.Title)) item.Title = result.Title;
+            if (!string.IsNullOrWhiteSpace(result.Channel)) item.Channel = result.Channel;
+            if (string.IsNullOrWhiteSpace(item.Thumbnail))
+                item.Thumbnail = result.Entries.FirstOrDefault()?.Thumbnail
+                    ?? YouTubeService.Thumb(result.Entries[0].Id, "hqdefault");
             var known = new HashSet<string>(item.KnownVideoIds, StringComparer.OrdinalIgnoreCase);
+            int index = 0;
             foreach (var entry in result.Entries)
-                if (!known.Contains(entry.Id)) NewVideos.Add(entry);
+            {
+                index++;
+                if (known.Contains(entry.Id)) continue;
+                NewVideos.Add(new EntryInfo
+                {
+                    Index = index,
+                    Id = entry.Id,
+                    Title = string.IsNullOrWhiteSpace(entry.Title) ? "Video " + index : entry.Title,
+                    Channel = string.IsNullOrWhiteSpace(entry.Channel) ? result.Channel : entry.Channel,
+                    Duration = entry.Duration,
+                    Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail)
+                        ? YouTubeService.Thumb(entry.Id, "mqdefault") : entry.Thumbnail
+                });
+            }
             item.LastCheckedAt = DateTime.Now;
             TrackingPlaylistStore.Save(_records);
             NewVideoCount = NewVideos.Count;
