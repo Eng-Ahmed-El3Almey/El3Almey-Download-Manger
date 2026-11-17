@@ -67,6 +67,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         if (item == null || IsChecking) return;
         IsChecking = true;
         NewVideos.Clear();
+        OnPropertyChanged(nameof(HasNewVideos));
+        NewVideoCount = 0;
         StatusMessage = Loc.Language == "ar" ? "جاري فحص قائمة التشغيل..." : "Checking playlist...";
         try
         {
