@@ -375,6 +375,12 @@
                   <CheckBox Style="{StaticResource PlaylistOptionSwitch}" IsChecked="{Binding IncludeChapters}" IsEnabled="{Binding HasContent}" Margin="0,14,0,0">
                     <TextBlock Text="Embed YouTube chapters" FontSize="14" TextWrapping="Wrap"/>
                   </CheckBox>
+                  <CheckBox Style="{StaticResource PlaylistOptionSwitch}" IsChecked="{Binding TrackPlaylistEnabled, Mode=TwoWay}" IsEnabled="{Binding IsPlaylistMode}" Margin="0,14,0,0">
+                    <StackPanel>
+                      <TextBlock Text="Track this playlist" FontSize="14" FontWeight="SemiBold"/>
+                      <TextBlock Text="Find and download videos added later" FontSize="11" Foreground="#8193B4" Margin="0,3,0,0"/>
+                    </StackPanel>
+                  </CheckBox>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                   <TextBlock Text="{DynamicResource S.SaveToFolder}" Style="{StaticResource Muted}" FontSize="13"/>
@@ -403,15 +409,7 @@
 
           <!-- buttons -->
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,6">
-            <Button Height="46" Padding="16,0" Command="{Binding TrackPlaylistCommand}" Margin="0,0,12,0">
-              <Button.Style>
-                <Style TargetType="Button" BasedOn="{StaticResource GhostBtn}">
-                  <Setter Property="Visibility" Value="Collapsed"/>
-                  <Style.Triggers><DataTrigger Binding="{Binding IsPlaylistMode}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
-                </Style>
-              </Button.Style>
-              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" FontSize="15"/><TextBlock Text="Track Playlist" FontSize="14" FontWeight="SemiBold" Margin="9,0,0,0"/></StackPanel>
-            </Button>
+
             <Button Style="{StaticResource GhostBtn}" Content="{DynamicResource S.Cancel}" Width="104" Height="46" Command="{Binding CancelCommand}" Margin="0,0,12,0"/>
             <Button Style="{StaticResource GhostBtn}" Height="46" Padding="20,0" Command="{Binding AddToQueueCommand}" IsEnabled="{Binding CanDownload}" Margin="0,0,12,0">
               <StackPanel Orientation="Horizontal">
