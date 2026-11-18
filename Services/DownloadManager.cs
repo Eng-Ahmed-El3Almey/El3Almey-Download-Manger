@@ -24,6 +24,7 @@ public class DownloadRecord
     public string OutputFolder { get; set; } = "";
     public string FileBaseName { get; set; } = "";
     public string PlaylistGroupId { get; set; } = "";
+    public string PlaylistUrl { get; set; } = "";
     public string PlaylistTitle { get; set; } = "";
     public int PlaylistIndex { get; set; }
     public int PlaylistCount { get; set; }
@@ -83,7 +84,7 @@ public class DownloadManager
                     Details = r.Details, IsAudio = r.IsAudio, Height = r.Height, Kbps = r.Kbps,
                     AudioTrackLanguage = r.AudioTrackLanguage, SubtitleTrackLanguage = r.SubtitleTrackLanguage,
                     AddThumbnail = r.AddThumbnail, IncludeChapters = r.IncludeChapters, OutputFolder = r.OutputFolder, FileBaseName = r.FileBaseName,
-                    PlaylistGroupId = r.PlaylistGroupId, PlaylistTitle = r.PlaylistTitle, PlaylistIndex = r.PlaylistIndex, PlaylistCount = r.PlaylistCount,
+                    PlaylistGroupId = r.PlaylistGroupId, PlaylistUrl = r.PlaylistUrl, PlaylistTitle = r.PlaylistTitle, PlaylistIndex = r.PlaylistIndex, PlaylistCount = r.PlaylistCount,
                     FilePath = r.FilePath, Error = r.Error, TotalBytes = r.TotalBytes,
                     AddedAt = r.AddedAt, FinishedAt = r.FinishedAt,
                     Status = r.Status is DownloadStatus.Downloading or DownloadStatus.Queued
@@ -108,7 +109,7 @@ public class DownloadManager
         Details = i.Details, IsAudio = i.IsAudio, Height = i.Height, Kbps = i.Kbps,
         AudioTrackLanguage = i.AudioTrackLanguage, SubtitleTrackLanguage = i.SubtitleTrackLanguage,
         AddThumbnail = i.AddThumbnail, IncludeChapters = i.IncludeChapters, OutputFolder = i.OutputFolder, FileBaseName = i.FileBaseName,
-        PlaylistGroupId = i.PlaylistGroupId, PlaylistTitle = i.PlaylistTitle, PlaylistIndex = i.PlaylistIndex, PlaylistCount = i.PlaylistCount,
+        PlaylistGroupId = i.PlaylistGroupId, PlaylistUrl = i.PlaylistUrl, PlaylistTitle = i.PlaylistTitle, PlaylistIndex = i.PlaylistIndex, PlaylistCount = i.PlaylistCount,
         FilePath = i.FilePath, Error = i.Error, Status = i.Status, TotalBytes = i.TotalBytes, Progress = i.Progress,
         AddedAt = i.AddedAt, FinishedAt = i.FinishedAt
     }).ToList();
