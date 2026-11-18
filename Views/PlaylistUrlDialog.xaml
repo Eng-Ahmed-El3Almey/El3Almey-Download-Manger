@@ -1,0 +1,17 @@
+<Window x:Class="El3Almey.Wpf.Views.PlaylistUrlDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add playlist to tracking" Width="560" Height="230"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="#0B1730" Foreground="#EAF2FF" FontFamily="Segoe UI">
+ <Grid Margin="22">
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <TextBlock x:Name="PlaylistTitleText" FontSize="18" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+  <TextBlock Grid.Row="1" Text="This older download does not contain its original playlist link. Paste the playlist URL to enable future update checks." Foreground="#9FB4D3" TextWrapping="Wrap" Margin="0,10,0,14"/>
+  <TextBox x:Name="UrlBox" Grid.Row="2" Height="38" Padding="10,7" Background="#132544" Foreground="White" BorderBrush="#36547E" CaretBrush="White" VerticalContentAlignment="Center"/>
+  <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+   <Button Content="Cancel" Width="90" Height="36" Margin="0,0,10,0" Click="Cancel_Click" Background="#172B4A" Foreground="White" BorderBrush="#355078"/>
+   <Button Content="Add to tracking" Width="130" Height="36" Click="Add_Click" Background="#247CF0" Foreground="White" BorderBrush="#247CF0" FontWeight="SemiBold"/>
+  </StackPanel>
+ </Grid>
+</Window>
