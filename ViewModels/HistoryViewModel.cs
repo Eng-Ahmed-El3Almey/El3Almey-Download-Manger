@@ -115,6 +115,8 @@ public partial class HistoryViewModel : ObservableObject
             IncludeChapters = first.IncludeChapters,
             OutputFolder = first.OutputFolder,
             CreateSubfolder = false,
+            NumberItems = children.Any(x => { var separator = x.FileBaseName.IndexOf(" - ", StringComparison.Ordinal); return separator > 0 && int.TryParse(x.FileBaseName[..separator], out _); }),
+            NumberWidth = Math.Max(2, children.Select(x => { var separator = x.FileBaseName.IndexOf(" - ", StringComparison.Ordinal); return separator > 0 && int.TryParse(x.FileBaseName[..separator], out _) ? separator : 0; }).DefaultIfEmpty(2).Max()),
             LastPlaylistIndex = children.Max(x => x.PlaylistIndex)
         };
         TrackPlaylistRequested?.Invoke(record);
