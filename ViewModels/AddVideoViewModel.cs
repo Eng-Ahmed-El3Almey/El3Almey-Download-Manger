@@ -753,7 +753,7 @@ public partial class AddVideoViewModel : ObservableObject
                 .Where(id => !string.IsNullOrWhiteSpace(id) && id != "none").Distinct(StringComparer.OrdinalIgnoreCase)),
             IncludeChapters = !IsAudio && IncludeChapters,
             OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total,
-            PlaylistGroupId = playlistGroupId, PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
+            PlaylistGroupId = playlistGroupId, PlaylistUrl = r.IsPlaylist ? Url : "", PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
         };
 
         if (!r.IsPlaylist)
