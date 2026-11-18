@@ -30,6 +30,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         NewVideoCount = value?.NewVideoCount ?? 0;
         OnPropertyChanged(nameof(HasNewVideos));
         OnPropertyChanged(nameof(LastCheckedText));
+        if (value?.NewVideoCount > 0 && !IsChecking)
+            _ = LoadSelectedUpdatesAsync(value);
     }
     partial void OnIsCheckingChanged(bool value)
     {
@@ -140,7 +142,18 @@ public partial class TrackedPlaylistViewModel : ObservableObject
             OnPropertyChanged(nameof(LastCheckedText));
             OnPropertyChanged(nameof(HasNewVideos));
             IsChecking = false;
+            if (SelectedPlaylist?.NewVideoCount > 0 && NewVideos.Count == 0)
+                _ = LoadSelectedUpdatesAsync(SelectedPlaylist);
         }
+    }
+
+    async Task LoadSelectedUpdatesAsync(TrackedPlaylist item)
+    {
+        if (IsChecking || !ReferenceEquals(item, SelectedPlaylist)) return;
+        IsChecking = true;
+        try { await CheckPlaylistAsync(item, true); }
+        catch (Exception ex) { StatusMessage = (Loc.Language == "ar" ? "فشل الفحص: " : "Check failed: ") + ex.Message; }
+        finally { IsChecking = false; }
     }
 
     async Task CheckPlaylistAsync(TrackedPlaylist item, bool populateSelected)
