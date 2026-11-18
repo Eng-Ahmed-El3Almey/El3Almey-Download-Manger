@@ -58,7 +58,18 @@ public partial class MainWindow : Window
         _tracking = new TrackedPlaylistViewModel(_manager);
         _history = new HistoryViewModel(_manager)
         {
-            Confirm = msg => new ClearHistoryDialog(msg, Loc.Language == "ar") { Owner = this }.ShowDialog() == true
+            Confirm = msg => new ClearHistoryDialog(msg, Loc.Language == "ar") { Owner = this }.ShowDialog() == true,
+            TrackPlaylistRequested = record =>
+            {
+                if (string.IsNullOrWhiteSpace(record.Url))
+                {
+                    var dialog = new PlaylistUrlDialog(record.Title) { Owner = this };
+                    if (dialog.ShowDialog() != true) return;
+                    record.Url = dialog.PlaylistUrl;
+                }
+                _tracking.Add(record);
+                ShowTrackingPlaylist();
+            }
         };
         _settings.PickFolder = PickFolder;
         _settings.PickFile = () =>
