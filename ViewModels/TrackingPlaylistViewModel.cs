@@ -20,12 +20,22 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     public string PlaylistCountText => Playlists.Count.ToString();
     public bool HasSelectedPlaylist => SelectedPlaylist != null;
     public bool CanCheck => HasSelectedPlaylist && !IsChecking;
+    public bool CanCheckAll => Playlists.Count > 0 && !IsChecking;
+
     partial void OnSelectedPlaylistChanged(TrackedPlaylist? value)
     {
         OnPropertyChanged(nameof(HasSelectedPlaylist));
         OnPropertyChanged(nameof(CanCheck));
+        NewVideos.Clear();
+        NewVideoCount = value?.NewVideoCount ?? 0;
+        OnPropertyChanged(nameof(HasNewVideos));
+        OnPropertyChanged(nameof(LastCheckedText));
     }
-    partial void OnIsCheckingChanged(bool value) => OnPropertyChanged(nameof(CanCheck));
+    partial void OnIsCheckingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanCheck));
+        OnPropertyChanged(nameof(CanCheckAll));
+    }
     public string LastCheckedText => SelectedPlaylist?.LastCheckedAt?.ToString("g") ?? (Loc.Language == "ar" ? "لم يتم الفحص بعد" : "Never checked");
 
     public TrackedPlaylistViewModel(DownloadManager manager)
@@ -44,25 +54,29 @@ public partial class TrackedPlaylistViewModel : ObservableObject
 
     public void Reload()
     {
+        var selectedId = SelectedPlaylist?.Id;
         _records.Clear();
         Playlists.Clear();
         foreach (var item in TrackingPlaylistStore.Load()) { _records.Add(item); Playlists.Add(item); }
-        SelectedPlaylist = Playlists.FirstOrDefault();
+        SelectedPlaylist = Playlists.FirstOrDefault(x => x.Id == selectedId) ?? Playlists.FirstOrDefault();
         NewVideos.Clear();
-        NewVideoCount = 0;
+        NewVideoCount = SelectedPlaylist?.NewVideoCount ?? 0;
         OnPropertyChanged(nameof(PlaylistCountText));
         OnPropertyChanged(nameof(LastCheckedText));
         OnPropertyChanged(nameof(HasNewVideos));
+        OnPropertyChanged(nameof(CanCheckAll));
     }
 
     public bool Add(TrackedPlaylist item)
     {
         if (_records.Any(x => x.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase))) return false;
+        item.NewVideoCount = 0;
         _records.Add(item);
         Playlists.Add(item);
         SelectedPlaylist = item;
         TrackingPlaylistStore.Save(_records);
         OnPropertyChanged(nameof(PlaylistCountText));
+        OnPropertyChanged(nameof(CanCheckAll));
         return true;
     }
 
@@ -72,57 +86,109 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         var item = SelectedPlaylist;
         if (item == null || IsChecking) return;
         IsChecking = true;
-        NewVideos.Clear();
-        OnPropertyChanged(nameof(HasNewVideos));
-        NewVideoCount = 0;
         StatusMessage = Loc.Language == "ar" ? "جاري فحص قائمة التشغيل..." : "Checking playlist...";
         try
         {
-            // Read only the flat playlist index. Do not resolve stream manifests for every video.
-            var result = await YtDlpService.GetPlaylistMetadataAsync(item.Url, 1000, CancellationToken.None);
-            if (result.Entries.Count == 0)
-                throw new InvalidOperationException("No available videos were returned for this playlist.");
-            if (!string.IsNullOrWhiteSpace(result.Title)) item.Title = result.Title;
-            if (!string.IsNullOrWhiteSpace(result.Channel)) item.Channel = result.Channel;
-            if (!string.IsNullOrWhiteSpace(result.Thumbnail))
-                item.Thumbnail = result.Thumbnail;
-            else if (string.IsNullOrWhiteSpace(item.Thumbnail))
-                item.Thumbnail = result.Entries.FirstOrDefault()?.Thumbnail
-                    ?? YouTubeService.Thumb(result.Entries[0].Id, "hqdefault");
-            OnPropertyChanged(nameof(SelectedPlaylist));
-            var known = new HashSet<string>(item.KnownVideoIds, StringComparer.OrdinalIgnoreCase);
-            int index = 0;
-            foreach (var entry in result.Entries)
-            {
-                index++;
-                if (known.Contains(entry.Id)) continue;
-                NewVideos.Add(new EntryInfo
-                {
-                    Index = index,
-                    Id = entry.Id,
-                    Title = string.IsNullOrWhiteSpace(entry.Title) ? "Video " + index : entry.Title,
-                    Channel = string.IsNullOrWhiteSpace(entry.Channel) ? result.Channel : entry.Channel,
-                    Duration = entry.Duration,
-                    QualityText = item.IsAudio ? $"{item.Kbps} kbps" : $"{item.Height}p",
-                    SizeText = "—",
-                    Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail)
-                        ? YouTubeService.Thumb(entry.Id, "mqdefault") : entry.Thumbnail
-                });
-            }
-            item.LastCheckedAt = DateTime.Now;
-            TrackingPlaylistStore.Save(_records);
-            NewVideoCount = NewVideos.Count;
-            StatusMessage = NewVideos.Count == 0
+            await CheckPlaylistAsync(item, true);
+            StatusMessage = item.NewVideoCount == 0
                 ? (Loc.Language == "ar" ? "القائمة محدثة. لا توجد فيديوهات جديدة." : "You're up to date. No new videos found.")
-                : (Loc.Language == "ar" ? $"تم العثور على {NewVideos.Count} فيديو جديد." : $"{NewVideos.Count} new video(s) found.");
-            OnPropertyChanged(nameof(LastCheckedText));
-            OnPropertyChanged(nameof(HasNewVideos));
+                : (Loc.Language == "ar" ? $"تم العثور على {item.NewVideoCount} فيديو جديد." : $"{item.NewVideoCount} new video(s) found.");
         }
         catch (Exception ex)
         {
             StatusMessage = (Loc.Language == "ar" ? "فشل الفحص: " : "Check failed: ") + ex.Message;
         }
         finally { IsChecking = false; }
+    }
+
+    [RelayCommand]
+    async Task CheckAll()
+    {
+        if (IsChecking || Playlists.Count == 0) return;
+        IsChecking = true;
+        int succeeded = 0;
+        int totalNew = 0;
+        var errors = new List<string>();
+        try
+        {
+            foreach (var item in Playlists.ToList())
+            {
+                StatusMessage = (Loc.Language == "ar" ? "جاري فحص: " : "Checking: ") + item.Title;
+                try
+                {
+                    await CheckPlaylistAsync(item, ReferenceEquals(item, SelectedPlaylist));
+                    succeeded++;
+                    totalNew += item.NewVideoCount;
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(item.Title + ": " + ex.Message);
+                }
+            }
+
+            StatusMessage = errors.Count == 0
+                ? (Loc.Language == "ar"
+                    ? $"اكتمل فحص {succeeded} قائمة. تم العثور على {totalNew} فيديو جديد."
+                    : $"Checked {succeeded} playlists. Found {totalNew} new videos.")
+                : (Loc.Language == "ar"
+                    ? $"اكتمل فحص {succeeded} قائمة، وفشل {errors.Count}."
+                    : $"Checked {succeeded} playlists; {errors.Count} failed.");
+        }
+        finally
+        {
+            TrackingPlaylistStore.Save(_records);
+            OnPropertyChanged(nameof(LastCheckedText));
+            OnPropertyChanged(nameof(HasNewVideos));
+            IsChecking = false;
+        }
+    }
+
+    async Task CheckPlaylistAsync(TrackedPlaylist item, bool populateSelected)
+    {
+        var result = await YtDlpService.GetPlaylistMetadataAsync(item.Url, 1000, CancellationToken.None);
+        if (result.Entries.Count == 0)
+            throw new InvalidOperationException("No available videos were returned for this playlist.");
+
+        if (!string.IsNullOrWhiteSpace(result.Title)) item.Title = result.Title;
+        if (!string.IsNullOrWhiteSpace(result.Channel)) item.Channel = result.Channel;
+        if (!string.IsNullOrWhiteSpace(result.Thumbnail))
+            item.Thumbnail = result.Thumbnail;
+        else if (string.IsNullOrWhiteSpace(item.Thumbnail))
+            item.Thumbnail = result.Entries.FirstOrDefault()?.Thumbnail
+                ?? YouTubeService.Thumb(result.Entries[0].Id, "hqdefault");
+
+        var known = new HashSet<string>(item.KnownVideoIds, StringComparer.OrdinalIgnoreCase);
+        var discovered = new List<EntryInfo>();
+        int index = 0;
+        foreach (var entry in result.Entries)
+        {
+            index++;
+            if (known.Contains(entry.Id)) continue;
+            discovered.Add(new EntryInfo
+            {
+                Index = index,
+                Id = entry.Id,
+                Title = string.IsNullOrWhiteSpace(entry.Title) ? "Video " + index : entry.Title,
+                Channel = string.IsNullOrWhiteSpace(entry.Channel) ? result.Channel : entry.Channel,
+                Duration = entry.Duration,
+                QualityText = item.IsAudio ? $"{item.Kbps} kbps" : $"{item.Height}p",
+                SizeText = "—",
+                Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail)
+                    ? YouTubeService.Thumb(entry.Id, "mqdefault") : entry.Thumbnail
+            });
+        }
+
+        item.NewVideoCount = discovered.Count;
+        item.LastCheckedAt = DateTime.Now;
+        if (populateSelected)
+        {
+            NewVideos.Clear();
+            foreach (var entry in discovered) NewVideos.Add(entry);
+            NewVideoCount = discovered.Count;
+            OnPropertyChanged(nameof(HasNewVideos));
+        }
+        TrackingPlaylistStore.Save(_records);
+        OnPropertyChanged(nameof(LastCheckedText));
     }
 
     [RelayCommand]
@@ -154,12 +220,13 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 IncludeChapters = item.IncludeChapters, AddThumbnail = item.IsAudio,
                 OutputFolder = folder, FileBaseName = name,
                 Details = item.IsAudio ? $"{item.Format} • {item.Kbps}kbps" : $"{item.Format} • {item.Height}p",
-                TotalBytes = bytes, PlaylistGroupId = groupId, PlaylistTitle = item.Title,
+                TotalBytes = bytes, PlaylistGroupId = groupId, PlaylistUrl = item.Url, PlaylistTitle = item.Title,
                 PlaylistIndex = downloads.Count + 1, PlaylistCount = entries.Count
             });
             item.KnownVideoIds.Add(entry.Id);
         }
         foreach (var download in downloads) download.PlaylistCount = downloads.Count;
+        item.NewVideoCount = 0;
         TrackingPlaylistStore.Save(_records);
         _manager.Add(downloads, true, respectAutoStart: false);
         NewVideos.Clear();
@@ -180,9 +247,10 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         SelectedPlaylist = Playlists.FirstOrDefault();
         TrackingPlaylistStore.Save(_records);
         NewVideos.Clear();
-        NewVideoCount = 0;
+        NewVideoCount = SelectedPlaylist?.NewVideoCount ?? 0;
         OnPropertyChanged(nameof(PlaylistCountText));
         OnPropertyChanged(nameof(LastCheckedText));
         OnPropertyChanged(nameof(HasNewVideos));
+        OnPropertyChanged(nameof(CanCheckAll));
     }
 }
