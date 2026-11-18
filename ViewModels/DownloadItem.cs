@@ -29,7 +29,7 @@ public partial class DownloadItem : ObservableObject
     public bool IsPlaylist => !string.IsNullOrWhiteSpace(PlaylistGroupId);
     public bool IsPlaylistRepresentative => IsPlaylist && PlaylistIndex == 1;
     public bool CanOpenPlaylist => IsPlaylistRepresentative;
-    public bool CanTrackPlaylist => IsPlaylistRepresentative && !string.IsNullOrWhiteSpace(PlaylistUrl);
+    public bool CanTrackPlaylist => IsPlaylistRepresentative;
     public bool CanShowPrimaryAction => IsPlaylistRepresentative ? PlaylistCompletedCount < PlaylistCount : Status != DownloadStatus.Failed;
     public string PlaylistTotalSizeText => IsPlaylistRepresentative && PlaylistTotalBytes > 0 ? $"Total {Fmt.Bytes(PlaylistTotalBytes)}" : "";
     public long PlaylistTotalBytes { get; private set; }
