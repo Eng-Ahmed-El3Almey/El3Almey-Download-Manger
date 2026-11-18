@@ -18,6 +18,7 @@ public partial class HistoryViewModel : ObservableObject
     [ObservableProperty] private string _selectedFilter = "All";
 
     public Func<string, bool>? Confirm { get; set; }
+    public Action<TrackedPlaylist>? TrackPlaylistRequested { get; set; }
     public bool IsEmpty => Items.Count == 0;
     public string CountText => $"{Items.Count} {Loc.T("S.Items")}";
 
@@ -89,7 +90,37 @@ public partial class HistoryViewModel : ObservableObject
 
     [RelayCommand] void RetryVideo(DownloadItem item) { if (item.Status != DownloadStatus.Completed) _mgr.Retry(item); }
     [RelayCommand] void OpenFolder(DownloadItem i) => FileActions.ShowInFolder(i.FilePath, i.OutputFolder);
-    [RelayCommand] void Redownload(DownloadItem i) => _mgr.Retry(i);
+    [RelayCommand]
+    void TrackPlaylist(DownloadItem item)
+    {
+        if (!item.CanTrackPlaylist) return;
+        var children = _mgr.Items.Where(x => x.IsPlaylist && x.PlaylistGroupId == item.PlaylistGroupId)
+            .OrderBy(x => x.PlaylistIndex).ToList();
+        if (children.Count == 0) return;
+        var first = children[0];
+        var record = new TrackedPlaylist
+        {
+            Url = item.PlaylistUrl,
+            Title = item.PlaylistTitle,
+            Channel = first.Title,
+            Thumbnail = item.Thumbnail ?? "",
+            KnownVideoIds = children.Select(x => x.VideoId).Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
+            IsAudio = first.IsAudio,
+            Height = first.Height,
+            Kbps = first.Kbps,
+            Format = first.Format,
+            AudioTrackLanguage = first.AudioTrackLanguage,
+            SubtitleTrackLanguage = first.SubtitleTrackLanguage,
+            IncludeChapters = first.IncludeChapters,
+            OutputFolder = first.OutputFolder,
+            CreateSubfolder = false,
+            LastPlaylistIndex = children.Max(x => x.PlaylistIndex)
+        };
+        TrackPlaylistRequested?.Invoke(record);
+    }
+
+
     [RelayCommand] void Remove(DownloadItem i) => _mgr.Remove(new[] { i }, false);
 
     [RelayCommand]
