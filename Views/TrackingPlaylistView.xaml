@@ -142,7 +142,7 @@
      </ListBox>
      <StackPanel Grid.Row="2" Margin="2,12,2,0">
       <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,0,0,12"/>
-      <TextBlock Text="Add a playlist from Add Video and enable Track this playlist." FontSize="11" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"/>
+      <TextBlock Text="Add playlists from Add Video or use the History menu to track a previously downloaded playlist." FontSize="11" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"/>
      </StackPanel>
     </Grid>
    </Border>
