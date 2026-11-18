@@ -102,7 +102,7 @@ public partial class HistoryViewModel : ObservableObject
         {
             Url = item.PlaylistUrl,
             Title = item.PlaylistTitle,
-            Channel = first.Title,
+            Channel = "",
             Thumbnail = item.Thumbnail ?? "",
             KnownVideoIds = children.Select(x => x.VideoId).Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
