@@ -28,6 +28,28 @@ public static class YtDlpService
     static readonly SemaphoreSlim Gate = new(1, 1);
     static string ToolDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "El3AlmeyDownloadManager", "Tools");
     static string ExePath => Path.Combine(ToolDir, "yt-dlp.exe");
+    static string? FindJavaScriptRuntime()
+    {
+        var candidates = new[]
+        {
+            Path.Combine(AppContext.BaseDirectory, "Tools", "deno.exe"),
+            Path.Combine(AppContext.BaseDirectory, "deno.exe"),
+            Path.Combine(ToolDir, "deno.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "El3AlmeyDownloadManager", "Tools", "deno.exe")
+        };
+        return candidates.FirstOrDefault(File.Exists);
+    }
+
+    static void AddJavaScriptRuntimeArguments(List<string> args)
+    {
+        var deno = FindJavaScriptRuntime();
+        if (!string.IsNullOrWhiteSpace(deno))
+        {
+            args.Add("--js-runtimes");
+            args.Add("deno:" + deno);
+        }
+    }
 
     public static async Task<string> EnsureAsync(CancellationToken ct)
     {
@@ -342,7 +364,9 @@ public static class YtDlpService
         bool completed = false;
         try
         {
-        var args = new List<string>
+        var args = new List<string>();
+        AddJavaScriptRuntimeArguments(args);
+        args.AddRange(new[]
         {
             "--no-warnings", "--newline", "--no-playlist", "--windows-filenames", "--progress",
             // Emit progress more frequently so the UI does not appear frozen and then jump.
@@ -361,7 +385,7 @@ public static class YtDlpService
             "--retry-sleep", "fragment:exp=1:10",
             "--concurrent-fragments", "4",
             "--output", Path.Combine(workspace, Fmt.Sanitize(item.FileBaseName) + ".%(ext)s")
-        };
+        });
         string audioLang = string.IsNullOrWhiteSpace(item.AudioTrackLanguage) || item.AudioTrackLanguage == "default" ? "" : item.AudioTrackLanguage;
         if (item.IsAudio)
         {
@@ -466,16 +490,22 @@ public static class YtDlpService
 
         try
         {
-            var runArgs = new List<string>
+            var runArgs = new List<string>();
+            AddJavaScriptRuntimeArguments(runArgs);
+            runArgs.AddRange(new[]
             {
                 "--no-playlist",
                 "--skip-download",
                 automatic ? "--write-auto-subs" : "--write-subs",
                 "--sub-langs", language,
                 "--sub-format", "vtt/best",
+                "--retries", "5",
+                "--extractor-retries", "5",
+                "--retry-sleep", "http:exp=5:60",
+                "--sleep-requests", "1",
                 "--output", outputTemplate,
                 item.Url
-            };
+            });
 
             var psi = new ProcessStartInfo(exe)
             {
@@ -571,7 +601,10 @@ public static class YtDlpService
     static async Task<string> RunCaptureAsync(string exe, IEnumerable<string> args, CancellationToken ct)
     {
         var psi = new ProcessStartInfo(exe) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
-        foreach (var arg in args) psi.ArgumentList.Add(arg);
+        var allArgs = new List<string>();
+        AddJavaScriptRuntimeArguments(allArgs);
+        allArgs.AddRange(args);
+        foreach (var arg in allArgs) psi.ArgumentList.Add(arg);
         using var p = Process.Start(psi) ?? throw new InvalidOperationException("yt-dlp could not start.");
         var stdoutTask = p.StandardOutput.ReadToEndAsync(ct);
         var stderrTask = p.StandardError.ReadToEndAsync(ct);
