@@ -1,17 +1,21 @@
 using System.Text.Json;
+using System.ComponentModel;
 
 namespace El3Almey.Services;
 
-public sealed class TrackedPlaylist
+public sealed class TrackedPlaylist : INotifyPropertyChanged
 {
+    public event PropertyChangedEventHandler? PropertyChanged;
+    int _newVideoCount;
+    DateTime? _lastCheckedAt;
+    public int NewVideoCount { get => _newVideoCount; set { if (_newVideoCount == value) return; _newVideoCount = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NewVideoCount))); } }
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string Url { get; set; } = "";
-    public int NewVideoCount { get; set; }
     public string Title { get; set; } = "";
     public string Channel { get; set; } = "";
     public string Thumbnail { get; set; } = "";
     public DateTime AddedAt { get; set; } = DateTime.Now;
-    public DateTime? LastCheckedAt { get; set; }
+    public DateTime? LastCheckedAt { get => _lastCheckedAt; set { if (_lastCheckedAt == value) return; _lastCheckedAt = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LastCheckedAt))); } }
     public List<string> KnownVideoIds { get; set; } = new();
     public bool IsAudio { get; set; }
     public int Height { get; set; } = 1080;
