@@ -63,6 +63,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         SelectedPlaylist = Playlists.FirstOrDefault(x => x.Id == selectedId) ?? Playlists.FirstOrDefault();
         NewVideos.Clear();
         NewVideoCount = SelectedPlaylist?.NewVideoCount ?? 0;
+        if (SelectedPlaylist?.PendingNewVideoIds.Count > 0)
+            _ = LoadSelectedUpdatesAsync(SelectedPlaylist);
         OnPropertyChanged(nameof(PlaylistCountText));
         OnPropertyChanged(nameof(LastCheckedText));
         OnPropertyChanged(nameof(HasNewVideos));
@@ -171,13 +173,21 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 ?? YouTubeService.Thumb(result.Entries[0].Id, "hqdefault");
 
         var known = new HashSet<string>(item.KnownVideoIds, StringComparer.OrdinalIgnoreCase);
-        var discovered = new List<EntryInfo>();
+        var pending = new HashSet<string>(item.PendingNewVideoIds, StringComparer.OrdinalIgnoreCase);
+        foreach (var entry in result.Entries)
+        {
+            if (!known.Contains(entry.Id))
+                pending.Add(entry.Id);
+        }
+
+        item.PendingNewVideoIds = pending.ToList();
+        var pendingRows = new List<EntryInfo>();
         int index = 0;
         foreach (var entry in result.Entries)
         {
             index++;
-            if (known.Contains(entry.Id)) continue;
-            discovered.Add(new EntryInfo
+            if (!pending.Contains(entry.Id)) continue;
+            pendingRows.Add(new EntryInfo
             {
                 Index = index,
                 Id = entry.Id,
@@ -191,13 +201,13 @@ public partial class TrackedPlaylistViewModel : ObservableObject
             });
         }
 
-        item.NewVideoCount = discovered.Count;
+        item.NewVideoCount = item.PendingNewVideoIds.Count;
         item.LastCheckedAt = DateTime.Now;
-        if (populateSelected)
+        if (populateSelected && ReferenceEquals(item, SelectedPlaylist))
         {
             NewVideos.Clear();
-            foreach (var entry in discovered) NewVideos.Add(entry);
-            NewVideoCount = discovered.Count;
+            foreach (var entry in pendingRows) NewVideos.Add(entry);
+            NewVideoCount = item.NewVideoCount;
             OnPropertyChanged(nameof(HasNewVideos));
         }
         TrackingPlaylistStore.Save(_records);
@@ -236,15 +246,17 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 TotalBytes = bytes, PlaylistGroupId = groupId, PlaylistUrl = item.Url, PlaylistTitle = item.Title,
                 PlaylistIndex = downloads.Count + 1, PlaylistCount = entries.Count
             });
-            item.KnownVideoIds.Add(entry.Id);
         }
         foreach (var download in downloads) download.PlaylistCount = downloads.Count;
-        item.NewVideoCount = 0;
+        var queuedIds = entries.Select(x => x.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        item.KnownVideoIds.AddRange(queuedIds.Where(id => !item.KnownVideoIds.Contains(id, StringComparer.OrdinalIgnoreCase)));
+        item.PendingNewVideoIds.RemoveAll(id => queuedIds.Contains(id));
+        item.NewVideoCount = item.PendingNewVideoIds.Count;
         TrackingPlaylistStore.Save(_records);
         _manager.Add(downloads, true, respectAutoStart: false);
         NewVideos.Clear();
-        NewVideoCount = 0;
-        StatusMessage = Loc.Language == "ar" ? "تمت إضافة الفيديوهات الجديدة إلى التنزيلات." : "New videos added to Downloads.";
+        NewVideoCount = item.NewVideoCount;
+        StatusMessage = Loc.Language == "ar" ? "تمت إضافة الفيديوهات المحددة إلى التنزيلات." : "Selected new videos added to Downloads.";
         OnPropertyChanged(nameof(HasNewVideos));
     }
 
