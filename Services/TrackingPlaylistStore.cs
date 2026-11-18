@@ -6,6 +6,7 @@ public sealed class TrackedPlaylist
 {
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string Url { get; set; } = "";
+    public int NewVideoCount { get; set; }
     public string Title { get; set; } = "";
     public string Channel { get; set; } = "";
     public string Thumbnail { get; set; } = "";
