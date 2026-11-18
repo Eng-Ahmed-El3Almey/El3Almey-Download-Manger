@@ -22,6 +22,7 @@ public partial class DownloadItem : ObservableObject
     public string OutputFolder { get; set; } = "";
     public string FileBaseName { get; set; } = "";
     public string PlaylistGroupId { get; set; } = "";
+    public string PlaylistUrl { get; set; } = "";
     public string PlaylistTitle { get; set; } = "";
     public int PlaylistIndex { get; set; }
     public int PlaylistCount { get; set; }
