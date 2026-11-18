@@ -118,7 +118,7 @@ public partial class HistoryView : UserControl
         }
     }
 
-    static bool IsMenuAction(string? tag) => tag is "Open" or "OpenFolder" or "Redownload" or "Remove";
+    static bool IsMenuAction(string? tag) => tag is "Open" or "OpenFolder" or "TrackPlaylist" or "Remove";
 
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
@@ -136,7 +136,7 @@ public partial class HistoryView : UserControl
         {
             case "Open": vm.OpenCommand.Execute(item); break;
             case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
-            case "Redownload": vm.RedownloadCommand.Execute(item); break;
+            case "TrackPlaylist": vm.TrackPlaylistCommand.Execute(item); break;
             case "Remove": vm.RemoveCommand.Execute(item); break;
         }
 
