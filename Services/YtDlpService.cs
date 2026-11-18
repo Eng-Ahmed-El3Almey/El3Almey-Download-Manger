@@ -425,12 +425,25 @@ public static class YtDlpService
             .ToArray();
 
         foreach (var selection in selections)
-            await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection);
+        {
+            try
+            {
+                await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // A caption provider failure must never turn a successfully downloaded video into a failed download.
+                LogSubtitleResult(item, selection, -1, 0, "Subtitle exception: " + ex);
+            }
+        }
     }
 
     static async Task DownloadSingleSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct, string selected)
     {
-
         bool automatic = selected.StartsWith("auto:", StringComparison.OrdinalIgnoreCase);
         bool original = selected.StartsWith("original:", StringComparison.OrdinalIgnoreCase);
         string language = automatic || original
@@ -442,19 +455,22 @@ public static class YtDlpService
         Directory.CreateDirectory(item.OutputFolder);
         string baseName = Fmt.Sanitize(item.FileBaseName);
         string workspace = TempFileService.CreateWorkspace(item.OutputFolder, item.Id);
-        string outputTemplate = Path.Combine(workspace, baseName + ".%(ext)s");
-        (int ExitCode, string Stdout, string Stderr) result = (-1, "", "Subtitle command did not run.");
-        var found = new List<string>();
+        // Keep original and generated captions separate, even when both are VTT in the same language.
+        string captionKind = automatic ? "generated" : original ? "original" : "subtitle";
+        string outputStem = Fmt.Sanitize($"{baseName}.{captionKind}.{language}");
+        string outputTemplate = Path.Combine(workspace, outputStem + ".%(ext)s");
+        int exitCode = -1;
+        string stdout = "";
+        string stderr = "";
+        int movedCount = 0;
 
-        async Task<(int ExitCode, string Stdout, string Stderr)> RunSubtitleCommandAsync(bool useAutomatic)
+        try
         {
             var runArgs = new List<string>
             {
-                "--no-warnings",
                 "--no-playlist",
-                "--ignore-errors",
                 "--skip-download",
-                useAutomatic ? "--write-auto-subs" : "--write-subs",
+                automatic ? "--write-auto-subs" : "--write-subs",
                 "--sub-langs", language,
                 "--sub-format", "vtt/best",
                 "--output", outputTemplate,
@@ -469,57 +485,52 @@ public static class YtDlpService
                 RedirectStandardOutput = true
             };
             foreach (var arg in runArgs) psi.ArgumentList.Add(arg);
-            using var process = Process.Start(psi);
-            if (process == null) return (-1, "", "yt-dlp could not start.");
+
+            using var process = Process.Start(psi) ?? throw new InvalidOperationException("yt-dlp could not start the subtitle process.");
             var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
             var stderrTask = process.StandardError.ReadToEndAsync(ct);
             try
             {
                 await process.WaitForExitAsync(ct);
-                return (process.ExitCode, await stdoutTask, await stderrTask);
+                stdout = await stdoutTask;
+                stderr = await stderrTask;
+                exitCode = process.ExitCode;
             }
             catch (OperationCanceledException)
             {
                 try { process.Kill(true); } catch { }
                 throw;
             }
-        }
 
-        try
-        {
-            // Use a clean workspace so existing media/subtitle files cannot make yt-dlp
-            // incorrectly skip the caption or make the app mistake an old file for a new one.
-            result = await RunSubtitleCommandAsync(automatic);
-            found = Directory.Exists(workspace)
-                ? Directory.EnumerateFiles(workspace, baseName + ".*", SearchOption.TopDirectoryOnly).Where(IsSubtitleFile).ToList()
+            var found = Directory.Exists(workspace)
+                ? Directory.EnumerateFiles(workspace, outputStem + ".*", SearchOption.TopDirectoryOnly)
+                    .Where(IsSubtitleFile).ToList()
                 : new List<string>();
-
-            if (found.Count == 0)
-            {
-                // Some videos expose only original captions or only generated captions.
-                result = await RunSubtitleCommandAsync(!automatic);
-                found = Directory.Exists(workspace)
-                    ? Directory.EnumerateFiles(workspace, baseName + ".*", SearchOption.TopDirectoryOnly).Where(IsSubtitleFile).ToList()
-                    : new List<string>();
-            }
 
             foreach (var source in found)
             {
                 var destination = Path.Combine(item.OutputFolder, Path.GetFileName(source));
                 File.Move(source, destination, true);
+                movedCount++;
             }
+
+            LogSubtitleResult(item, selected, exitCode, movedCount,
+                $"yt-dlp subtitle output. stderr: {stderr}{Environment.NewLine}stdout: {stdout}");
         }
         finally
         {
             TempFileService.TryDeleteWorkspace(workspace);
         }
+    }
 
+    static void LogSubtitleResult(ViewModels.DownloadItem item, string selected, int exitCode, int filesCreated, string details)
+    {
         try
         {
             var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "El3AlmeyDownloadManager", "logs");
             Directory.CreateDirectory(logDir);
             File.AppendAllText(Path.Combine(logDir, "subtitle-warnings.log"),
-                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{language}; requested={(automatic ? "generated" : original ? "original" : "legacy")}] ExitCode={result.ExitCode}; FilesCreated={found.Count}{Environment.NewLine}{result.Stderr}{Environment.NewLine}{result.Stdout}{Environment.NewLine}---{Environment.NewLine}");
+                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {item.Title} [{selected}] ExitCode={exitCode}; FilesCreated={filesCreated}{Environment.NewLine}{details}{Environment.NewLine}---{Environment.NewLine}");
         }
         catch { }
     }
