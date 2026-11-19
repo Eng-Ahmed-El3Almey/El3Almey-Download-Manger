@@ -394,6 +394,28 @@
         </Grid>
       </Border>
 
+      <!-- Tracking playlist updates -->
+      <Border Style="{StaticResource SectionCard}">
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <Border Width="38" Height="38" CornerRadius="11" Background="#193D61" VerticalAlignment="Top">
+            <TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" Foreground="#83C5FF" FontSize="19"/>
+          </Border>
+          <StackPanel Grid.Column="1" Margin="8,0,0,0">
+            <TextBlock Text="Tracking playlist updates" Style="{StaticResource SectionTitle}"/>
+            <TextBlock Text="Automatically check your tracked playlists for newly published videos." Style="{StaticResource SectionSubtitle}"/>
+            <CheckBox Style="{StaticResource SettingToggle}" IsChecked="{Binding AutoCheckTrackedPlaylists}">
+              <StackPanel>
+                <TextBlock Text="Check tracked playlists automatically" FontSize="13" FontWeight="SemiBold"/>
+                <TextBlock Text="The app checks all saved playlists while it is running. You can still check them manually at any time." Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+              </StackPanel>
+            </CheckBox>
+            <TextBlock Text="Check interval" Style="{StaticResource Label}" Margin="0,12,0,7"/>
+            <ComboBox ItemsSource="{Binding TrackingIntervals}" SelectedItem="{Binding TrackingCheckInterval}" Style="{StaticResource SettingCombo}" IsEnabled="{Binding AutoCheckTrackedPlaylists}"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
       <!-- Scheduling and maintenance -->
       <Border Style="{StaticResource SectionCard}">
         <Grid>
