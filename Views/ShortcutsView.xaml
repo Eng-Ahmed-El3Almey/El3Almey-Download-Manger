@@ -58,9 +58,9 @@
           <Border Style="{StaticResource ShortcutCard}">
             <StackPanel>
               <TextBlock Text="Download controls" Style="{StaticResource ShortcutTitle}"/>
-              <Grid Margin="0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Pause all downloads" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + P" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
-              <Grid Margin="0,8,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Resume all downloads" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + R" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
-              <Grid Margin="0,8,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Refresh current list" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="F5" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+              <Grid Margin="0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Refresh Downloads / History" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="F5" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+              <Grid Margin="0,8,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Check selected tracking playlist" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="F5 (Tracking Playlist)" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+              <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Check all tracked playlists" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + Shift + F" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
             </StackPanel>
           </Border>
 
@@ -80,6 +80,16 @@
         <StackPanel Grid.Column="2">
           <Border Style="{StaticResource ShortcutCard}">
             <StackPanel>
+              <TextBlock Text="Tracking Playlist" Style="{StaticResource ShortcutTitle}"/>
+              <Grid Margin="0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Check selected playlist" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="F5" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+              <Grid Margin="0,8,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Check all playlists" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + Shift + F" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+              <Grid Margin="0,8,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Select all new videos" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + A" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+              <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Clear video selection" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + Shift + A" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+            </StackPanel>
+          </Border>
+
+          <Border Style="{StaticResource ShortcutCard}">
+            <StackPanel>
               <TextBlock Text="Add Video" Style="{StaticResource ShortcutTitle}"/>
               <Grid Margin="0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Focus video URL" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + L" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
               <Grid Margin="0,8,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Fetch link / open selected file" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Enter" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
@@ -91,7 +101,7 @@
           <Border Style="{StaticResource ShortcutCard}">
             <StackPanel>
               <TextBlock Text="Search and settings" Style="{StaticResource ShortcutTitle}"/>
-              <Grid Margin="0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Search downloads" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + F" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
+              <Grid Margin="0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Focus search (Downloads / Tracking Playlist)" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + F" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
               <Grid Margin="0,8,0,4"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Save settings" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Ctrl + S" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
               <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Clear search / cancel entry" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="Esc" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
               <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Refresh Error List" Foreground="{StaticResource TextMain}"/><TextBlock Grid.Column="1" Text="F5" Foreground="#8FC1FF" FontWeight="SemiBold"/></Grid>
