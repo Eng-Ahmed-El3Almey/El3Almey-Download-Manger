@@ -13,11 +13,17 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     [ObservableProperty] private bool _isChecking;
     [ObservableProperty] private string _statusMessage = "";
     [ObservableProperty] private int _newVideoCount;
+    [ObservableProperty] private string _searchText = "";
+    [ObservableProperty] private bool _allVideosSelected;
 
     public ObservableCollection<TrackedPlaylist> Playlists { get; } = new();
     public ObservableCollection<EntryInfo> NewVideos { get; } = new();
+    public ObservableCollection<EntryInfo> VisibleNewVideos { get; } = new();
     public bool HasNewVideos => NewVideos.Count > 0;
     public string PlaylistCountText => Playlists.Count.ToString();
+    public int TotalTrackedVideoCount => Playlists.Sum(x => x.KnownVideoIds.Count + x.PendingNewVideoIds.Count);
+    public string TotalTrackedVideoCountText => TotalTrackedVideoCount.ToString();
+    public int SelectedVideoCount => NewVideos.Count(x => x.IsSelected);
     public bool HasSelectedPlaylist => SelectedPlaylist != null;
     public bool CanCheck => HasSelectedPlaylist && !IsChecking;
     public bool CanCheckAll => Playlists.Count > 0 && !IsChecking;
@@ -31,6 +37,23 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         OnPropertyChanged(nameof(HasNewVideos));
         OnPropertyChanged(nameof(LastCheckedText));
         RestorePendingRows(value);
+    }
+    partial void OnSearchTextChanged(string value) => RefreshVisibleVideos();
+    partial void OnAllVideosSelectedChanged(bool value)
+    {
+        foreach (var video in NewVideos) video.IsSelected = value;
+        RefreshVisibleVideos();
+        OnPropertyChanged(nameof(SelectedVideoCount));
+    }
+    void RefreshVisibleVideos()
+    {
+        VisibleNewVideos.Clear();
+        IEnumerable<EntryInfo> query = NewVideos;
+        if (!string.IsNullOrWhiteSpace(SearchText))
+            query = query.Where(x => x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                || x.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var video in query) VisibleNewVideos.Add(video);
+        OnPropertyChanged(nameof(SelectedVideoCount));
     }
     partial void OnIsCheckingChanged(bool value)
     {
@@ -51,6 +74,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(LastCheckedText));
         OnPropertyChanged(nameof(PlaylistCountText));
+        OnPropertyChanged(nameof(TotalTrackedVideoCount));
+        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
     }
 
     public void Reload()
@@ -193,7 +218,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 Channel = string.IsNullOrWhiteSpace(entry.Channel) ? result.Channel : entry.Channel,
                 Duration = entry.Duration,
                 QualityText = item.IsAudio ? $"{item.Kbps} kbps" : $"{item.Height}p",
-                SizeText = "—",
+                VideoFormats = formatRows,
+                SizeText = EstimateSizeText(item, entry),
                 Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail)
                     ? YouTubeService.Thumb(entry.Id, "mqdefault") : entry.Thumbnail
             });
@@ -224,7 +250,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         Directory.CreateDirectory(folder);
         int width = Math.Max(item.NumberWidth, resultWidth(NewVideos.Select(x => x.Index).DefaultIfEmpty(1).Max()));
         string groupId = Guid.NewGuid().ToString("N");
-        var entries = NewVideos.ToList();
+        var entries = NewVideos.Where(x => x.IsSelected || NewVideos.All(v => !v.IsSelected)).ToList();
+        if (entries.Count == 0) return;
         var downloads = new List<DownloadItem>();
         foreach (var entry in entries)
         {
@@ -258,6 +285,45 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         NewVideoCount = item.NewVideoCount;
         StatusMessage = Loc.Language == "ar" ? "تمت إضافة الفيديوهات المحددة إلى التنزيلات." : "Selected new videos added to Downloads.";
         OnPropertyChanged(nameof(HasNewVideos));
+    }
+
+    static string EstimateSizeText(TrackedPlaylist playlist, EntryInfo entry)
+    {
+        if (playlist.IsAudio && entry.Duration.HasValue)
+            return Fmt.Bytes((long)(entry.Duration.Value.TotalSeconds * playlist.Kbps * 125));
+        var estimate = entry.VideoFormats
+            .Where(x => x.Height <= playlist.Height)
+            .OrderByDescending(x => x.Height)
+            .Select(x => x.EstimatedBytes)
+            .FirstOrDefault();
+        return estimate > 0 ? Fmt.Bytes(estimate) : "—";
+    }
+
+    public bool AddFromDownload(DownloadItem download, IEnumerable<DownloadItem> groupItems)
+    {
+        if (!download.IsPlaylistRepresentative || string.IsNullOrWhiteSpace(download.PlaylistUrl)) return false;
+        var children = groupItems.Where(x => x.IsPlaylist && x.PlaylistGroupId == download.PlaylistGroupId)
+            .OrderBy(x => x.PlaylistIndex).ToList();
+        if (children.Count == 0) return false;
+        var item = new TrackedPlaylist
+        {
+            Url = download.PlaylistUrl,
+            Title = string.IsNullOrWhiteSpace(download.PlaylistTitle) ? download.Title : download.PlaylistTitle,
+            Channel = children.FirstOrDefault()?.Details ?? "",
+            Thumbnail = download.Thumbnail ?? "",
+            KnownVideoIds = children.Select(x => x.VideoId).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
+            IsAudio = download.IsAudio,
+            Height = download.Height,
+            Kbps = download.Kbps,
+            Format = download.Format,
+            AudioTrackLanguage = download.AudioTrackLanguage,
+            SubtitleTrackLanguage = download.SubtitleTrackLanguage,
+            IncludeChapters = download.IncludeChapters,
+            OutputFolder = download.OutputFolder,
+            CreateSubfolder = true,
+            LastPlaylistIndex = children.Count
+        };
+        return Add(item);
     }
 
     static int resultWidth(int value) => Math.Max(2, value.ToString().Length);
