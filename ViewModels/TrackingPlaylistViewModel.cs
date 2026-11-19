@@ -47,9 +47,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     {
         VisiblePlaylists.Clear();
         IEnumerable<TrackedPlaylist> query = Playlists;
-        if (!string.IsNullOrWhiteSpace(SearchText)
-            && !(SelectedPlaylist?.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)
-            && !(SelectedPlaylist?.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false))
+        if (!string.IsNullOrWhiteSpace(SearchText))
             query = query.Where(x => x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
                 || x.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         foreach (var playlist in query) VisiblePlaylists.Add(playlist);
@@ -65,7 +63,9 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     {
         VisibleNewVideos.Clear();
         IEnumerable<EntryInfo> query = NewVideos;
-        if (!string.IsNullOrWhiteSpace(SearchText))
+        if (!string.IsNullOrWhiteSpace(SearchText)
+            && !(SelectedPlaylist?.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)
+            && !(SelectedPlaylist?.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false))
             query = query.Where(x => x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
                 || x.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         foreach (var video in query) VisibleNewVideos.Add(video);
