@@ -101,7 +101,7 @@
             </RadioButton>
 
             <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,10,8,8"/>
-            <TextBlock Text="TOOLS & SETTINGS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8"/>
+            <TextBlock Text="TOOLS &amp; SETTINGS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8"/>
             <RadioButton x:Name="NavErrors" GroupName="nav" Style="{StaticResource NavItem}" Click="NavErrors_Click">
               <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE783;" Width="26" FontSize="18" Foreground="#FF7888"/><TextBlock Text="Error List" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
