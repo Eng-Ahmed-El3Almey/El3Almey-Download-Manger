@@ -57,7 +57,6 @@ public partial class MainWindow : Window
             }
         };
         _tracking = new TrackedPlaylistViewModel(_manager);
-        _downloads.BindTrackingCounts(_tracking);
         _downloads.TrackPlaylistRequested = item =>
         {
             var added = _tracking.AddFromDownload(item, _manager.Items);
@@ -195,9 +194,9 @@ public partial class MainWindow : Window
         ShowAdd();
         _add.GetVideoCommand.Execute(null);
     }
-    void ShowDownloads() { _downloads.Refresh(); Navigate(_downloadsView, NavDownloads, true); }
+    void ShowDownloads() { _downloads.Refresh(); SearchBox.DataContext = _downloads; Navigate(_downloadsView, NavDownloads, true); }
     void ShowHistory() { _history.Refresh(); Navigate(_historyView, NavHistory, false); }
-    void ShowTrackingPlaylist() { _tracking.Reload(); Navigate(_trackingView, NavTrackingPlaylist, false); }
+    void ShowTrackingPlaylist() { _tracking.Reload(); SearchBox.DataContext = _tracking; Navigate(_trackingView, NavTrackingPlaylist, true); }
     void ShowSettings() => Navigate(_settingsView, NavSettings, false);
     void ShowErrors() { _errorLogView.Refresh(); Navigate(_errorLogView, NavErrors, false); }
     void ShowShortcuts() => Navigate(_shortcutsView, NavShortcuts, false);
