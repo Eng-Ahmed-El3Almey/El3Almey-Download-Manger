@@ -39,7 +39,7 @@
             <TextBox x:Name="SearchInput" Grid.Column="1" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMain}"
                      CaretBrush="White" FontSize="13" VerticalContentAlignment="Center"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock Grid.Column="1" Text="{DynamicResource S.SearchDownloads}" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False">
+            <TextBlock Grid.Column="1" Text="Search videos or playlists..." FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False">
               <TextBlock.Style>
                 <Style TargetType="TextBlock" BasedOn="{StaticResource Muted}">
                   <Setter Property="Visibility" Value="Collapsed"/>
