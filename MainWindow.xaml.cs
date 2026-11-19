@@ -57,6 +57,7 @@ public partial class MainWindow : Window
             }
         };
         _tracking = new TrackedPlaylistViewModel(_manager);
+        _downloads.BindTrackingCounts(_tracking);
         _downloads.TrackPlaylistRequested = item =>
         {
             var added = _tracking.AddFromDownload(item, _manager.Items);
