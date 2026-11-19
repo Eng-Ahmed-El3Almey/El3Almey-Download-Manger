@@ -315,6 +315,10 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         TrackingPlaylistStore.Save(_records);
         NewVideos.Clear();
         VisibleNewVideos.Clear();
+        _allVideosSelected = false;
+        OnPropertyChanged(nameof(AllVideosSelected));
+        OnPropertyChanged(nameof(SelectedVideoCount));
+        OnPropertyChanged(nameof(HasSelectedVideos));
         NewVideoCount = item.NewVideoCount;
         StatusMessage = Loc.Language == "ar" ? "تمت إضافة الفيديوهات المحددة إلى التنزيلات." : "Selected new videos added to Downloads.";
         OnPropertyChanged(nameof(HasNewVideos));
