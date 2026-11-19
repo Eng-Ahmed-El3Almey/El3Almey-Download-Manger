@@ -51,6 +51,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
             query = query.Where(x => x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
                 || x.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         foreach (var playlist in query) VisiblePlaylists.Add(playlist);
+        if (SelectedPlaylist != null && !VisiblePlaylists.Contains(SelectedPlaylist))
+            VisiblePlaylists.Insert(0, SelectedPlaylist);
     }
     partial void OnAllVideosSelectedChanged(bool value)
     {
