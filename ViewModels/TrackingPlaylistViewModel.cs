@@ -199,6 +199,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         {
             if (e.PropertyName == nameof(EntryInfo.IsSelected))
             {
+                _allVideosSelected = NewVideos.Count > 0 && NewVideos.All(x => x.IsSelected);
+                OnPropertyChanged(nameof(AllVideosSelected));
                 OnPropertyChanged(nameof(SelectedVideoCount));
                 OnPropertyChanged(nameof(HasSelectedVideos));
             }
@@ -258,6 +260,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
             NewVideos.Clear();
             foreach (var entry in pendingRows) AddVideoRow(entry);
             AllVideosSelected = NewVideos.Count > 0;
+            RefreshVisibleVideos();
             NewVideoCount = item.NewVideoCount;
             OnPropertyChanged(nameof(HasNewVideos));
         }
@@ -308,6 +311,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         item.NewVideoCount = item.PendingNewVideoIds.Count;
         TrackingPlaylistStore.Save(_records);
         NewVideos.Clear();
+        VisibleNewVideos.Clear();
         NewVideoCount = item.NewVideoCount;
         StatusMessage = Loc.Language == "ar" ? "تمت إضافة الفيديوهات المحددة إلى التنزيلات." : "Selected new videos added to Downloads.";
         OnPropertyChanged(nameof(HasNewVideos));
