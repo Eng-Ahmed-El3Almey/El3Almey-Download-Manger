@@ -68,90 +68,49 @@
         <Grid Margin="16,18,16,16">
           <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
           <StackPanel>
+            <TextBlock Text="DISCOVER" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,8,0,8"/>
             <RadioButton x:Name="NavYouTube" GroupName="nav" IsChecked="True" Style="{StaticResource NavItem}" Click="NavYouTube_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE714;" Width="26" FontSize="18"/>
-                <TextBlock Text="YouTube Browser" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE714;" Width="26" FontSize="18"/><TextBlock Text="YouTube Browser" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
             <RadioButton x:Name="NavVideoPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavVideoPlayer_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE714;" Width="26" FontSize="18"/>
-                <TextBlock Text="Video Player" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE714;" Width="26" FontSize="18"/><TextBlock Text="Video Player" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
             <RadioButton x:Name="NavAudioPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAudioPlayer_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;" Width="26" FontSize="18"/>
-                <TextBlock Text="Audio Player" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;" Width="26" FontSize="18"/><TextBlock Text="Audio Player" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
-            <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,8,0,10"/>
+
+            <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,10,8,8"/>
+            <TextBlock Text="DOWNLOADS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8"/>
             <RadioButton x:Name="NavAdd" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAdd_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" Width="26" FontSize="18"/>
-                <TextBlock Text="{DynamicResource S.AddVideo}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE710;" Width="26" FontSize="18"/><TextBlock Text="{DynamicResource S.AddVideo}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
             <RadioButton x:Name="NavDownloads" GroupName="nav" Style="{StaticResource NavItem}" Click="NavDownloads_Click">
               <Grid>
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock Style="{StaticResource Icon}" Text="&#xE896;" Width="26" FontSize="18"/>
-                  <TextBlock Text="{DynamicResource S.Downloads}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <Border Background="{StaticResource Primary}" CornerRadius="10" MinWidth="24" Height="21" HorizontalAlignment="Right" Padding="7,0">
-                  <TextBlock Text="{Binding AllCount}" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                </Border>
+                <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE896;" Width="26" FontSize="18"/><TextBlock Text="{DynamicResource S.Downloads}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
+                <Border Background="{StaticResource Primary}" CornerRadius="10" MinWidth="24" Height="21" HorizontalAlignment="Right" Padding="7,0"><TextBlock Text="{Binding AllCount}" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/></Border>
               </Grid>
             </RadioButton>
             <RadioButton x:Name="NavHistory" GroupName="nav" Style="{StaticResource NavItem}" Click="NavHistory_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" Width="26" FontSize="18"/>
-                <TextBlock Text="{DynamicResource S.History}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" Width="26" FontSize="18"/><TextBlock Text="{DynamicResource S.History}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
-<RadioButton x:Name="NavTrackingPlaylist" GroupName="nav" Style="{StaticResource NavItem}" Click="NavTrackingPlaylist_Click">
-              <Grid>
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26" FontSize="18"/>
-                  <TextBlock Text="Tracking Playlist" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-              </Grid>
+
+            <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,10,8,8"/>
+            <TextBlock Text="PLAYLISTS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8"/>
+            <RadioButton x:Name="NavTrackingPlaylist" GroupName="nav" Style="{StaticResource NavItem}" Click="NavTrackingPlaylist_Click">
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26" FontSize="18"/><TextBlock Text="Tracking Playlist" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
+
+            <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,10,8,8"/>
+            <TextBlock Text="TOOLS & SETTINGS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8"/>
             <RadioButton x:Name="NavErrors" GroupName="nav" Style="{StaticResource NavItem}" Click="NavErrors_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE783;" Width="26" FontSize="18" Foreground="#FF7888"/>
-                <TextBlock Text="Error List" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE783;" Width="26" FontSize="18" Foreground="#FF7888"/><TextBlock Text="Error List" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
             <RadioButton x:Name="NavSettings" GroupName="nav" Style="{StaticResource NavItem}" Click="NavSettings_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE713;" Width="26" FontSize="18"/>
-                <TextBlock Text="{DynamicResource S.Settings}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE713;" Width="26" FontSize="18"/><TextBlock Text="{DynamicResource S.Settings}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
             <RadioButton x:Name="NavShortcuts" GroupName="nav" Style="{StaticResource NavItem}" Click="NavShortcuts_Click">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE765;" Width="26" FontSize="18"/>
-                <TextBlock Text="Keyboard Shortcuts" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
+              <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE765;" Width="26" FontSize="18"/><TextBlock Text="Keyboard Shortcuts" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/></StackPanel>
             </RadioButton>
-
-            <Border Height="1" Background="{StaticResource CardBorder}" Margin="0,12,0,16"/>
-            <TextBlock Text="{DynamicResource S.QuickActions}" FontSize="14" Style="{StaticResource Muted}" Margin="14,0,0,10"/>
-
-            <Button Style="{StaticResource NavButton}" Command="{Binding PauseAllCommand}">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE769;" Width="26" FontSize="18"/>
-                <TextBlock Text="{DynamicResource S.PauseAll}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
-            </Button>
-            <Button Style="{StaticResource NavButton}" Command="{Binding ResumeAllCommand}">
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Width="26" FontSize="18"/>
-                <TextBlock Text="{DynamicResource S.ResumeAll}" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-              </StackPanel>
-            </Button>
           </StackPanel>
 
           <StackPanel Grid.Row="2">
