@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using YoutubeExplode;
 using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos;
@@ -5,8 +7,11 @@ using YoutubeExplode.Videos.Streams;
 
 namespace El3Almey.Services;
 
-public class EntryInfo
+public class EntryInfo : INotifyPropertyChanged
 {
+    public event PropertyChangedEventHandler? PropertyChanged;
+    bool _isSelected;
+    public bool IsSelected { get => _isSelected; set { if (_isSelected == value) return; _isSelected = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected))); } }
     public int Index { get; set; }
     public string Id { get; set; } = "";
     public string Title { get; set; } = "";
@@ -16,7 +21,6 @@ public class EntryInfo
     public string Thumb { get; set; } = "";
     public string QualityText { get; set; } = "—";
     public string SizeText { get; set; } = "—";
-    public bool IsSelected { get; set; }
     public List<YtDlpService.VideoFormatEstimate> VideoFormats { get; set; } = new();
 }
 
