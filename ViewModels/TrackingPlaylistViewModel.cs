@@ -89,6 +89,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         NewVideoCount = SelectedPlaylist?.NewVideoCount ?? 0;
         RestorePendingRows(SelectedPlaylist);
         OnPropertyChanged(nameof(PlaylistCountText));
+        OnPropertyChanged(nameof(TotalTrackedVideoCount));
+        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
         OnPropertyChanged(nameof(LastCheckedText));
         OnPropertyChanged(nameof(HasNewVideos));
         OnPropertyChanged(nameof(CanCheckAll));
@@ -103,6 +105,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         SelectedPlaylist = item;
         TrackingPlaylistStore.Save(_records);
         OnPropertyChanged(nameof(PlaylistCountText));
+        OnPropertyChanged(nameof(TotalTrackedVideoCount));
+        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
         OnPropertyChanged(nameof(CanCheckAll));
         return true;
     }
