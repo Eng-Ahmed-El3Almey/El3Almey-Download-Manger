@@ -16,6 +16,8 @@ public class AppSettings
     public bool IncludeChaptersByDefault { get; set; } = false;
     public int MaxConcurrent { get; set; } = 3;
     public bool AutoStartQueue { get; set; } = true;
+    public bool AutoCheckTrackedPlaylists { get; set; } = false;
+    public int TrackingPlaylistCheckIntervalMinutes { get; set; } = 60;
     public bool SleepWhenDownloadsFinish { get; set; } = false;
     public bool ShowDownloadCompletedNotification { get; set; } = true;
     public bool PlaySoundNotification { get; set; } = false;
