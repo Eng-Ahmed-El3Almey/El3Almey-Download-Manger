@@ -11,6 +11,13 @@ public class LanguageOption
     public override string ToString() => Name;
 }
 
+public class IntervalChoice
+{
+    public int Minutes { get; init; }
+    public string Label { get; init; } = "";
+    public override string ToString() => Label;
+}
+
 public class QualityChoice
 {
     public int Value { get; init; }
@@ -41,6 +48,18 @@ public partial class SettingsViewModel : ObservableObject
         new() { Value = 192, Label = "192 kbps" }, new() { Value = 128, Label = "128 kbps" }
     };
     public int[] ConcurrentChoices { get; } = { 1, 2, 3, 4, 5, 6 };
+    public IntervalChoice[] TrackingIntervals { get; } =
+    {
+        new() { Minutes = 5, Label = "Every 5 minutes" },
+        new() { Minutes = 10, Label = "Every 10 minutes" },
+        new() { Minutes = 15, Label = "Every 15 minutes" },
+        new() { Minutes = 30, Label = "Every 30 minutes" },
+        new() { Minutes = 60, Label = "Every hour" },
+        new() { Minutes = 180, Label = "Every 3 hours" },
+        new() { Minutes = 360, Label = "Every 6 hours" },
+        new() { Minutes = 720, Label = "Every 12 hours" },
+        new() { Minutes = 1440, Label = "Every 24 hours" }
+    };
 
     [ObservableProperty] private LanguageOption _selectedLanguage;
     [ObservableProperty] private string _downloadFolder;
@@ -53,6 +72,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _includeChaptersByDefault;
     [ObservableProperty] private int _maxConcurrent;
     [ObservableProperty] private bool _autoStart;
+    [ObservableProperty] private bool _autoCheckTrackedPlaylists;
+    [ObservableProperty] private IntervalChoice _trackingCheckInterval;
     [ObservableProperty] private bool _sleepWhenDownloadsFinish;
     [ObservableProperty] private bool _showDownloadCompletedNotification;
     [ObservableProperty] private bool _playSoundNotification;
@@ -85,6 +106,8 @@ public partial class SettingsViewModel : ObservableObject
         _includeChaptersByDefault = S.IncludeChaptersByDefault;
         _maxConcurrent = S.MaxConcurrent;
         _autoStart = S.AutoStartQueue;
+        _autoCheckTrackedPlaylists = S.AutoCheckTrackedPlaylists;
+        _trackingCheckInterval = TrackingIntervals.FirstOrDefault(x => x.Minutes == S.TrackingPlaylistCheckIntervalMinutes) ?? TrackingIntervals[4];
         _sleepWhenDownloadsFinish = S.SleepWhenDownloadsFinish;
         _showDownloadCompletedNotification = S.ShowDownloadCompletedNotification;
         _playSoundNotification = S.PlaySoundNotification;
@@ -106,6 +129,8 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnIncludeChaptersByDefaultChanged(bool value) => Commit(() => S.IncludeChaptersByDefault = value);
     partial void OnMaxConcurrentChanged(int value) => Commit(() => S.MaxConcurrent = value);
     partial void OnAutoStartChanged(bool value) => Commit(() => S.AutoStartQueue = value);
+    partial void OnAutoCheckTrackedPlaylistsChanged(bool value) => Commit(() => S.AutoCheckTrackedPlaylists = value);
+    partial void OnTrackingCheckIntervalChanged(IntervalChoice value) => Commit(() => S.TrackingPlaylistCheckIntervalMinutes = value.Minutes);
     partial void OnSleepWhenDownloadsFinishChanged(bool value) => Commit(() => S.SleepWhenDownloadsFinish = value);
     partial void OnShowDownloadCompletedNotificationChanged(bool value) => Commit(() => S.ShowDownloadCompletedNotification = value);
     partial void OnPlaySoundNotificationChanged(bool value) => Commit(() => S.PlaySoundNotification = value);
