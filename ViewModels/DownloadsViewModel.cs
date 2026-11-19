@@ -36,6 +36,7 @@ public partial class DownloadsViewModel : ObservableObject
     [ObservableProperty] private bool _allSelected;
 
     public Action<string>? CopyText { get; set; }
+    public Action<DownloadItem>? TrackPlaylistRequested { get; set; }
 
     public bool HasSelection => SelectedCount > 0;
     public string SelectedText => $"{SelectedCount} {Loc.T("S.ItemsSelected")}";
@@ -243,6 +244,13 @@ public partial class DownloadsViewModel : ObservableObject
         }
         _mgr.Resume(i);
     }
+    [RelayCommand] void TrackPlaylist(DownloadItem i)
+    {
+        CloseMenus();
+        if (!i.IsPlaylistRepresentative) return;
+        TrackPlaylistRequested?.Invoke(i);
+    }
+
     [RelayCommand] void RemoveFromHistory(DownloadItem i) { CloseMenus(); _mgr.Remove(new[] { i }, false); }
     [RelayCommand] void AskDelete(DownloadItem i) { CloseMenus(); AskDeleteMany(new[] { i }); }
 
