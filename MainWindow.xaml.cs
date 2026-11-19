@@ -293,6 +293,26 @@ public partial class MainWindow : Window
         bool typing = Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase
             || Keyboard.FocusedElement is System.Windows.Controls.PasswordBox;
 
+        if (modifiers == ModifierKeys.Alt && !typing)
+        {
+            switch (e.Key)
+            {
+                case Key.Y: ShowYouTube(); break;
+                case Key.V: ShowVideoPlayer(); break;
+                case Key.A: ShowAudioPlayer(); break;
+                case Key.D: ShowAdd(); break;
+                case Key.N: ShowDownloads(); break;
+                case Key.H: ShowHistory(); break;
+                case Key.T: ShowTrackingPlaylist(); break;
+                case Key.E: ShowErrors(); break;
+                case Key.S: ShowSettings(); break;
+                case Key.K: ShowShortcuts(); break;
+                default: return;
+            }
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == Key.F1 && modifiers == ModifierKeys.None)
         {
             ShowShortcuts();
@@ -369,10 +389,10 @@ public partial class MainWindow : Window
             case Key.D4: case Key.NumPad4: ShowAdd(); e.Handled = true; break;
             case Key.D5: case Key.NumPad5: ShowDownloads(); e.Handled = true; break;
             case Key.D6: case Key.NumPad6: ShowHistory(); e.Handled = true; break;
-            case Key.D7: case Key.NumPad7: ShowErrors(); e.Handled = true; break;
-            case Key.D8: case Key.NumPad8: ShowSettings(); e.Handled = true; break;
-            case Key.D9: case Key.NumPad9: ShowShortcuts(); e.Handled = true; break;
-            case Key.D0: case Key.NumPad0: ShowTrackingPlaylist(); e.Handled = true; break;
+            case Key.D7: case Key.NumPad7: ShowTrackingPlaylist(); e.Handled = true; break;
+            case Key.D8: case Key.NumPad8: ShowErrors(); e.Handled = true; break;
+            case Key.D9: case Key.NumPad9: ShowSettings(); e.Handled = true; break;
+            case Key.D0: case Key.NumPad0: ShowShortcuts(); e.Handled = true; break;
             case Key.P: _downloads.PauseAllCommand.Execute(null); e.Handled = true; break;
             case Key.R: _downloads.ResumeAllCommand.Execute(null); e.Handled = true; break;
             case Key.F when shift && NavTrackingPlaylist.IsChecked == true:
