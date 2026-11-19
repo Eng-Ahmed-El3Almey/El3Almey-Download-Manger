@@ -45,6 +45,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         foreach (var video in NewVideos) video.IsSelected = value;
         RefreshVisibleVideos();
         OnPropertyChanged(nameof(SelectedVideoCount));
+        OnPropertyChanged(nameof(HasSelectedVideos));
     }
     void RefreshVisibleVideos()
     {
@@ -55,6 +56,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 || x.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         foreach (var video in query) VisibleNewVideos.Add(video);
         OnPropertyChanged(nameof(SelectedVideoCount));
+        OnPropertyChanged(nameof(HasSelectedVideos));
     }
     partial void OnIsCheckingChanged(bool value)
     {
@@ -179,11 +181,29 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     void RestorePendingRows(TrackedPlaylist? item)
     {
         NewVideos.Clear();
+        VisibleNewVideos.Clear();
         if (item != null)
             foreach (var entry in item.PendingNewVideos)
-                NewVideos.Add(entry);
+            {
+                entry.IsSelected = true;
+                AddVideoRow(entry);
+            }
+        AllVideosSelected = NewVideos.Count > 0;
         NewVideoCount = item?.NewVideoCount ?? 0;
         OnPropertyChanged(nameof(HasNewVideos));
+    }
+
+    void AddVideoRow(EntryInfo entry)
+    {
+        entry.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(EntryInfo.IsSelected))
+            {
+                OnPropertyChanged(nameof(SelectedVideoCount));
+                OnPropertyChanged(nameof(HasSelectedVideos));
+            }
+        };
+        NewVideos.Add(entry);
     }
 
     async Task CheckPlaylistAsync(TrackedPlaylist item, bool populateSelected)
@@ -223,7 +243,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 Channel = string.IsNullOrWhiteSpace(entry.Channel) ? result.Channel : entry.Channel,
                 Duration = entry.Duration,
                 QualityText = item.IsAudio ? $"{item.Kbps} kbps" : $"{item.Height}p",
-                VideoFormats = formatRows,
+                VideoFormats = entry.VideoFormats ?? new List<YtDlpService.VideoFormatEstimate>(),
                 SizeText = EstimateSizeText(item, entry),
                 Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail)
                     ? YouTubeService.Thumb(entry.Id, "mqdefault") : entry.Thumbnail
@@ -236,7 +256,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         if (populateSelected && ReferenceEquals(item, SelectedPlaylist))
         {
             NewVideos.Clear();
-            foreach (var entry in pendingRows) NewVideos.Add(entry);
+            foreach (var entry in pendingRows) AddVideoRow(entry);
+            AllVideosSelected = NewVideos.Count > 0;
             NewVideoCount = item.NewVideoCount;
             OnPropertyChanged(nameof(HasNewVideos));
         }
