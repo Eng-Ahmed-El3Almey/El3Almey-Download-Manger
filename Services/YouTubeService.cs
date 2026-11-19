@@ -16,6 +16,7 @@ public class EntryInfo
     public string Thumb { get; set; } = "";
     public string QualityText { get; set; } = "—";
     public string SizeText { get; set; } = "—";
+    public bool IsSelected { get; set; }
     public List<YtDlpService.VideoFormatEstimate> VideoFormats { get; set; } = new();
 }
 
