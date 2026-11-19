@@ -189,6 +189,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 AddVideoRow(entry);
             }
         AllVideosSelected = NewVideos.Count > 0;
+        RefreshVisibleVideos();
         NewVideoCount = item?.NewVideoCount ?? 0;
         OnPropertyChanged(nameof(HasNewVideos));
     }
