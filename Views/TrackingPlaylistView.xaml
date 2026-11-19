@@ -263,7 +263,7 @@
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <TextBlock Text="New videos will use the saved quality, format, folder and playlist options." Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" TextWrapping="Wrap"/>
      <Button Grid.Column="1" Content="Remove playlist" Command="{Binding RemoveSelectedCommand}" Style="{StaticResource GhostBtn}" Height="42" Padding="15,0" IsEnabled="{Binding HasSelectedPlaylist}"/>
-     <Button Grid.Column="3" Command="{Binding DownloadNewVideosCommand}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0" IsEnabled="{Binding HasNewVideos}">
+     <Button Grid.Column="3" Command="{Binding DownloadNewVideosCommand}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="18,0" IsEnabled="{Binding HasSelectedVideos}">
       <StackPanel Orientation="Horizontal">
        <TextBlock Text="&#xE896;" Style="{StaticResource Icon}" Margin="0,0,8,0"/>
        <TextBlock Text="Download new videos" FontWeight="SemiBold"/>
