@@ -267,6 +267,8 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         }
         TrackingPlaylistStore.Save(_records);
         OnPropertyChanged(nameof(LastCheckedText));
+        OnPropertyChanged(nameof(TotalTrackedVideoCount));
+        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
     }
 
     [RelayCommand]
