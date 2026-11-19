@@ -89,7 +89,7 @@
       <TextBlock Text="YOUR PLAYLISTS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
       <TextBlock Text="{Binding PlaylistCountText}" HorizontalAlignment="Right" Foreground="#8FBFFF" FontSize="12" FontWeight="SemiBold"/>
      </Grid>
-     <ListBox Grid.Row="1" ItemsSource="{Binding Playlists}" SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
+     <ListBox Grid.Row="1" ItemsSource="{Binding VisiblePlaylists}" SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
               Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
               ScrollViewer.VerticalScrollBarVisibility="Auto">
       <ListBox.ItemContainerStyle>
@@ -177,7 +177,7 @@
         <TextBlock Text="{Binding LastCheckedText}" Foreground="#8FBFFF" FontSize="11"/>
        </StackPanel>
       </StackPanel>
-      <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="12,0,0,0">
+      <StackPanel Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="12,0,0,0">
        <Button Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding CanCheck}" Style="{StaticResource PrimaryBtn}" Height="42" Padding="16,0">
         <StackPanel Orientation="Horizontal">
          <TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" FontSize="15" Margin="0,0,8,0"/>
@@ -189,17 +189,14 @@
     </Border>
 
     <Grid Grid.Row="2" Margin="2,16,2,10">
-     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="260"/><ColumnDefinition Width="12"/></Grid.ColumnDefinitions>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
       <TextBlock Text="NEW VIDEOS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}"/>
       <Border Background="#17345B" CornerRadius="10" Padding="8,3" Margin="10,0,0,0">
        <TextBlock Text="{Binding NewVideoCount}" Foreground="#9CCBFF" FontSize="11" FontWeight="SemiBold"/>
       </Border>
      </StackPanel>
-     <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="36" Padding="10,0" VerticalContentAlignment="Center"
-              Background="#101F39" Foreground="#E5EEFF" BorderBrush="#2A4165" BorderThickness="1"
-              ToolTip="Search new videos by title or channel"/>
-     <TextBlock Grid.Column="2" Text="{Binding StatusMessage}" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+     <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="12,0,0,0"/>
     </Grid>
 
     <Border Grid.Row="3" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="13" Padding="10">
