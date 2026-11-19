@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     readonly HistoryViewModel _history;
     readonly TrackedPlaylistViewModel _tracking;
     readonly SettingsViewModel _settings = new();
+    readonly DispatcherTimer _trackingAutoCheckTimer = new();
 
     readonly AddVideoView _addView;
     readonly DownloadsView _downloadsView;
@@ -56,6 +57,13 @@ public partial class MainWindow : Window
             }
         };
         _tracking = new TrackedPlaylistViewModel(_manager);
+        _trackingAutoCheckTimer.Tick += (_, _) =>
+        {
+            if (!_tracking.IsChecking && _tracking.Playlists.Count > 0)
+                _tracking.CheckAllCommand.Execute(null);
+        };
+        SettingsStore.Changed += ConfigureTrackingAutoCheck;
+        ConfigureTrackingAutoCheck();
         _history = new HistoryViewModel(_manager)
         {
             Confirm = msg => new ClearHistoryDialog(msg, Loc.Language == "ar") { Owner = this }.ShowDialog() == true,
@@ -98,14 +106,25 @@ public partial class MainWindow : Window
         _manager.Pump();
     }
 
+    private void ConfigureTrackingAutoCheck()
+    {
+        _trackingAutoCheckTimer.Stop();
+        var settings = SettingsStore.Current;
+        if (!settings.AutoCheckTrackedPlaylists) return;
+
+        int minutes = Math.Clamp(settings.TrackingPlaylistCheckIntervalMinutes, 5, 1440);
+        _trackingAutoCheckTimer.Interval = TimeSpan.FromMinutes(minutes);
+        _trackingAutoCheckTimer.Start();
+    }
+
     private bool _allowCloseAfterConfirmation;
     private bool _closeConfirmationOpen;
 
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        if (_allowCloseAfterConfirmation) { _manager.Shutdown(); return; }
+        if (_allowCloseAfterConfirmation) { _trackingAutoCheckTimer.Stop(); SettingsStore.Changed -= ConfigureTrackingAutoCheck; _manager.Shutdown(); return; }
         bool hasActiveDownloads = _manager.Items.Any(item => item.Status is DownloadStatus.Downloading or DownloadStatus.Queued);
-        if (!hasActiveDownloads) { _manager.Shutdown(); return; }
+        if (!hasActiveDownloads) { _trackingAutoCheckTimer.Stop(); SettingsStore.Changed -= ConfigureTrackingAutoCheck; _manager.Shutdown(); return; }
         e.Cancel = true;
         if (_closeConfirmationOpen) return;
         bool arabic = Loc.Language == "ar";
