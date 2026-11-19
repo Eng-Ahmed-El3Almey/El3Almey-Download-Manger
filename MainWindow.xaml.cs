@@ -57,6 +57,14 @@ public partial class MainWindow : Window
             }
         };
         _tracking = new TrackedPlaylistViewModel(_manager);
+        _downloads.TrackPlaylistRequested = item =>
+        {
+            var added = _tracking.AddFromDownload(item, _manager.Items);
+            if (added) ShowTrackingPlaylist();
+            else MessageBox.Show(this, "This playlist is already being tracked or its playlist link is unavailable.",
+                "Tracking Playlist", MessageBoxButton.OK, MessageBoxImage.Information);
+        };
+
         _trackingAutoCheckTimer.Tick += (_, _) =>
         {
             if (!_tracking.IsChecking && _tracking.Playlists.Count > 0)
