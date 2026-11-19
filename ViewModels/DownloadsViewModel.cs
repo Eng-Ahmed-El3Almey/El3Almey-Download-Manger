@@ -37,22 +37,7 @@ public partial class DownloadsViewModel : ObservableObject
 
     public Action<string>? CopyText { get; set; }
     public Action<DownloadItem>? TrackPlaylistRequested { get; set; }
-    public string TotalTrackedVideoCountText { get; private set; } = "0";
-    public void BindTrackingCounts(TrackedPlaylistViewModel tracking)
-    {
-        void RefreshCount()
-        {
-            TotalTrackedVideoCountText = tracking.TotalTrackedVideoCountText;
-            OnPropertyChanged(nameof(TotalTrackedVideoCountText));
-        }
-        tracking.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName is nameof(TrackedPlaylistViewModel.TotalTrackedVideoCountText)
-                or nameof(TrackedPlaylistViewModel.TotalTrackedVideoCount))
-                RefreshCount();
-        };
-        RefreshCount();
-    }
+
 
     public bool HasSelection => SelectedCount > 0;
     public string SelectedText => $"{SelectedCount} {Loc.T("S.ItemsSelected")}";
