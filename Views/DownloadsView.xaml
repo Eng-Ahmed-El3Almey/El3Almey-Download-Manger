@@ -159,6 +159,12 @@
                                 Command="{Binding DataContext.OpenPlaylistDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                           <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="16"/>
                         </Button>
+                        <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
+                                ToolTip="Add playlist to Tracking Playlist" ToolTipService.Placement="Bottom"
+                                Visibility="{Binding CanTrackPlaylist, Converter={StaticResource B2V}}"
+                                Command="{Binding DataContext.TrackPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
+                          <TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" FontSize="16"/>
+                        </Button>
                         <!-- ⋯ menu -->
                         <Grid>
                           <ToggleButton x:Name="MoreBtn" IsChecked="{Binding IsMenuOpen, Mode=TwoWay}" Click="MoreBtn_Click" Width="38" Height="38" Cursor="Hand" ToolTip="More actions" ToolTipService.Placement="Bottom">
@@ -186,6 +192,9 @@
                                 <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,5"/>
                                 <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="Retry">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.Retry}" FontSize="14"/></StackPanel></Button>
+                                <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="TrackPlaylist"
+                                        Visibility="{Binding CanTrackPlaylist, Converter={StaticResource B2V}}">
+                                  <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" FontSize="15" Width="26"/><TextBlock Text="Add to Tracking Playlist" FontSize="14"/></StackPanel></Button>
                                 <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="AddToQueue">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8FD;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.AddToQueue}" FontSize="14"/></StackPanel></Button>
                                 <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,5"/>
