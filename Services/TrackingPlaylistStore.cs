@@ -18,6 +18,7 @@ public sealed class TrackedPlaylist : INotifyPropertyChanged
     public DateTime? LastCheckedAt { get => _lastCheckedAt; set { if (_lastCheckedAt == value) return; _lastCheckedAt = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LastCheckedAt))); } }
     public List<string> KnownVideoIds { get; set; } = new();
     public List<string> PendingNewVideoIds { get; set; } = new();
+    public List<EntryInfo> PendingNewVideos { get; set; } = new();
     public bool IsAudio { get; set; }
     public int Height { get; set; } = 1080;
     public int Kbps { get; set; } = 192;
