@@ -200,7 +200,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         {
             if (e.PropertyName == nameof(EntryInfo.IsSelected))
             {
-                _allVideosSelected = NewVideos.Count > 0 && NewVideos.All(x => x.IsSelected);
+                AllVideosSelected = NewVideos.Count > 0 && NewVideos.All(x => x.IsSelected);
                 OnPropertyChanged(nameof(AllVideosSelected));
                 OnPropertyChanged(nameof(SelectedVideoCount));
                 OnPropertyChanged(nameof(HasSelectedVideos));
@@ -246,8 +246,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
                 Channel = string.IsNullOrWhiteSpace(entry.Channel) ? result.Channel : entry.Channel,
                 Duration = entry.Duration,
                 QualityText = item.IsAudio ? $"{item.Kbps} kbps" : $"{item.Height}p",
-                VideoFormats = entry.VideoFormats ?? new List<YtDlpService.VideoFormatEstimate>(),
-                SizeText = EstimateSizeText(item, entry),
+                SizeText = "—",
                 Thumb = string.IsNullOrWhiteSpace(entry.Thumbnail)
                     ? YouTubeService.Thumb(entry.Id, "mqdefault") : entry.Thumbnail
             });
@@ -315,7 +314,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         TrackingPlaylistStore.Save(_records);
         NewVideos.Clear();
         VisibleNewVideos.Clear();
-        _allVideosSelected = false;
+        AllVideosSelected = false;
         OnPropertyChanged(nameof(AllVideosSelected));
         OnPropertyChanged(nameof(SelectedVideoCount));
         OnPropertyChanged(nameof(HasSelectedVideos));
