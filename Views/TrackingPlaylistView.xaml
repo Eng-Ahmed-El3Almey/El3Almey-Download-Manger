@@ -152,10 +152,17 @@
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
 
     <Grid Grid.Row="0" Margin="0,0,0,12">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="10"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <TextBlock Text="PLAYLIST UPDATES" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
-     <Button HorizontalAlignment="Right" Command="{Binding CheckAllCommand}" IsEnabled="{Binding CanCheckAll}" Style="{StaticResource PrimaryBtn}" Height="40" Padding="17,0">
+     <Button Grid.Column="1" Command="{Binding CheckSelectedCommand}" IsEnabled="{Binding CanCheck}" Style="{StaticResource PrimaryBtn}" Height="40" Padding="15,0">
       <StackPanel Orientation="Horizontal">
        <TextBlock Text="&#xE72C;" Style="{StaticResource Icon}" FontSize="15" Margin="0,0,8,0"/>
+       <TextBlock Text="Check for updates" FontSize="13" FontWeight="SemiBold"/>
+      </StackPanel>
+     </Button>
+     <Button Grid.Column="3" Command="{Binding CheckAllCommand}" IsEnabled="{Binding CanCheckAll}" Style="{StaticResource GhostBtn}" Height="40" Padding="15,0">
+      <StackPanel Orientation="Horizontal">
+       <TextBlock Text="&#xE8D7;" Style="{StaticResource Icon}" FontSize="15" Margin="0,0,8,0"/>
        <TextBlock Text="Check all playlists" FontSize="13" FontWeight="SemiBold"/>
       </StackPanel>
      </Button>
