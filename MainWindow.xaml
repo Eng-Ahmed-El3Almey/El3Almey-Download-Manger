@@ -116,9 +116,6 @@
                   <TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26" FontSize="18"/>
                   <TextBlock Text="Tracking Playlist" FontSize="15" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Border Background="{StaticResource Primary}" CornerRadius="10" MinWidth="24" Height="21" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="7,0">
-                  <TextBlock Text="{Binding TotalTrackedVideoCountText}" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                </Border>
               </Grid>
             </RadioButton>
             <RadioButton x:Name="NavErrors" GroupName="nav" Style="{StaticResource NavItem}" Click="NavErrors_Click">
