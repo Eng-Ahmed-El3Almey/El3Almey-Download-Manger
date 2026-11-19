@@ -140,7 +140,30 @@ public partial class StartupWindow : Window
             ? "لن يتم فتح البرنامج لأن إحدى الأدوات المطلوبة لم تجتز الفحص."
             : "The application will remain closed because a required tool failed verification.";
         StatusText.Text = arabic ? "فشل التحقق." : "Verification failed.";
-        ErrorText.Text = exception.Message;
+        string diagnostic = exception.ToString();
+        string logPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "El3AlmeyDownloadManager", "Logs", "startup-error.log");
+
+        try
+        {
+            string? logDirectory = Path.GetDirectoryName(logPath);
+            if (!string.IsNullOrEmpty(logDirectory))
+                Directory.CreateDirectory(logDirectory);
+
+            File.WriteAllText(logPath,
+                $"Startup failure: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\\r\\n\\r\\n{diagnostic}");
+        }
+        catch (Exception logException)
+        {
+            diagnostic += Environment.NewLine + Environment.NewLine
+                + "Could not write diagnostic log: " + logException;
+            logPath = "";
+        }
+
+        ErrorText.Text = diagnostic
+            + (string.IsNullOrEmpty(logPath) ? "" : Environment.NewLine + Environment.NewLine
+                + (arabic ? "ملف تفاصيل الخطأ: " : "Diagnostic log: ") + logPath);
         ErrorText.Visibility = Visibility.Visible;
         StartupProgressBar.IsIndeterminate = false;
         InstallButton.Visibility = Visibility.Collapsed;
