@@ -17,12 +17,11 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     [ObservableProperty] private bool _allVideosSelected;
 
     public ObservableCollection<TrackedPlaylist> Playlists { get; } = new();
+    public ObservableCollection<TrackedPlaylist> VisiblePlaylists { get; } = new();
     public ObservableCollection<EntryInfo> NewVideos { get; } = new();
     public ObservableCollection<EntryInfo> VisibleNewVideos { get; } = new();
     public bool HasNewVideos => NewVideos.Count > 0;
     public string PlaylistCountText => Playlists.Count.ToString();
-    public int TotalTrackedVideoCount => Playlists.Sum(x => x.KnownVideoIds.Count + x.PendingNewVideoIds.Count);
-    public string TotalTrackedVideoCountText => TotalTrackedVideoCount.ToString();
     public int SelectedVideoCount => NewVideos.Count(x => x.IsSelected);
     public bool HasSelectedVideos => SelectedVideoCount > 0;
     public bool HasSelectedPlaylist => SelectedPlaylist != null;
@@ -39,7 +38,22 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         OnPropertyChanged(nameof(LastCheckedText));
         RestorePendingRows(value);
     }
-    partial void OnSearchTextChanged(string value) => RefreshVisibleVideos();
+    partial void OnSearchTextChanged(string value)
+    {
+        RefreshVisiblePlaylists();
+        RefreshVisibleVideos();
+    }
+    void RefreshVisiblePlaylists()
+    {
+        VisiblePlaylists.Clear();
+        IEnumerable<TrackedPlaylist> query = Playlists;
+        if (!string.IsNullOrWhiteSpace(SearchText)
+            && !(SelectedPlaylist?.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)
+            && !(SelectedPlaylist?.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false))
+            query = query.Where(x => x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                || x.Channel.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        foreach (var playlist in query) VisiblePlaylists.Add(playlist);
+    }
     partial void OnAllVideosSelectedChanged(bool value)
     {
         foreach (var video in NewVideos) video.IsSelected = value;
@@ -69,6 +83,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     {
         _manager = manager;
         foreach (var item in TrackingPlaylistStore.Load()) { _records.Add(item); Playlists.Add(item); }
+        RefreshVisiblePlaylists();
         if (Playlists.Count > 0) SelectedPlaylist = Playlists[0];
         Loc.Changed += RefreshLabels;
     }
@@ -77,8 +92,6 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(LastCheckedText));
         OnPropertyChanged(nameof(PlaylistCountText));
-        OnPropertyChanged(nameof(TotalTrackedVideoCount));
-        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
     }
 
     public void Reload()
@@ -87,13 +100,12 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         _records.Clear();
         Playlists.Clear();
         foreach (var item in TrackingPlaylistStore.Load()) { _records.Add(item); Playlists.Add(item); }
+        RefreshVisiblePlaylists();
         SelectedPlaylist = Playlists.FirstOrDefault(x => x.Id == selectedId) ?? Playlists.FirstOrDefault();
         NewVideos.Clear();
         NewVideoCount = SelectedPlaylist?.NewVideoCount ?? 0;
         RestorePendingRows(SelectedPlaylist);
         OnPropertyChanged(nameof(PlaylistCountText));
-        OnPropertyChanged(nameof(TotalTrackedVideoCount));
-        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
         OnPropertyChanged(nameof(LastCheckedText));
         OnPropertyChanged(nameof(HasNewVideos));
         OnPropertyChanged(nameof(CanCheckAll));
@@ -105,11 +117,10 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         item.NewVideoCount = 0;
         _records.Add(item);
         Playlists.Add(item);
+        RefreshVisiblePlaylists();
         SelectedPlaylist = item;
         TrackingPlaylistStore.Save(_records);
         OnPropertyChanged(nameof(PlaylistCountText));
-        OnPropertyChanged(nameof(TotalTrackedVideoCount));
-        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
         OnPropertyChanged(nameof(CanCheckAll));
         return true;
     }
@@ -266,8 +277,6 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         }
         TrackingPlaylistStore.Save(_records);
         OnPropertyChanged(nameof(LastCheckedText));
-        OnPropertyChanged(nameof(TotalTrackedVideoCount));
-        OnPropertyChanged(nameof(TotalTrackedVideoCountText));
     }
 
     [RelayCommand]
@@ -371,6 +380,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         var old = SelectedPlaylist;
         _records.Remove(old);
         Playlists.Remove(old);
+        RefreshVisiblePlaylists();
         SelectedPlaylist = Playlists.FirstOrDefault();
         TrackingPlaylistStore.Save(_records);
         NewVideos.Clear();
