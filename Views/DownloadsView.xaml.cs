@@ -122,7 +122,7 @@ public partial class DownloadsView : UserControl
         return null;
     }
 
-    static bool IsMenuAction(string? tag) => tag is "OpenFile" or "OpenFolder" or "CopyTitle" or "CopyUrl" or "Retry" or "AddToQueue" or "RemoveFromHistory" or "AskDelete";
+    static bool IsMenuAction(string? tag) => tag is "OpenFile" or "OpenFolder" or "CopyTitle" or "CopyUrl" or "Retry" or "AddToQueue" or "RemoveFromHistory" or "AskDelete" or "TrackPlaylist";
 
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
@@ -144,6 +144,7 @@ public partial class DownloadsView : UserControl
             case "CopyUrl": vm.CopyUrlCommand.Execute(item); break;
             case "Retry": vm.RetryCommand.Execute(item); break;
             case "AddToQueue": vm.AddToQueueCommand.Execute(item); break;
+            case "TrackPlaylist": vm.TrackPlaylistCommand.Execute(item); break;
             case "RemoveFromHistory": vm.RemoveFromHistoryCommand.Execute(item); break;
             case "AskDelete": vm.AskDeleteCommand.Execute(item); break;
         }
