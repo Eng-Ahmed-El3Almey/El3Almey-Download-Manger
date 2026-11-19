@@ -24,6 +24,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
     public int TotalTrackedVideoCount => Playlists.Sum(x => x.KnownVideoIds.Count + x.PendingNewVideoIds.Count);
     public string TotalTrackedVideoCountText => TotalTrackedVideoCount.ToString();
     public int SelectedVideoCount => NewVideos.Count(x => x.IsSelected);
+    public bool HasSelectedVideos => SelectedVideoCount > 0;
     public bool HasSelectedPlaylist => SelectedPlaylist != null;
     public bool CanCheck => HasSelectedPlaylist && !IsChecking;
     public bool CanCheckAll => Playlists.Count > 0 && !IsChecking;
@@ -254,7 +255,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         Directory.CreateDirectory(folder);
         int width = Math.Max(item.NumberWidth, resultWidth(NewVideos.Select(x => x.Index).DefaultIfEmpty(1).Max()));
         string groupId = Guid.NewGuid().ToString("N");
-        var entries = NewVideos.Where(x => x.IsSelected || NewVideos.All(v => !v.IsSelected)).ToList();
+        var entries = NewVideos.Where(x => x.IsSelected).ToList();
         if (entries.Count == 0) return;
         var downloads = new List<DownloadItem>();
         foreach (var entry in entries)
@@ -313,7 +314,7 @@ public partial class TrackedPlaylistViewModel : ObservableObject
         {
             Url = download.PlaylistUrl,
             Title = string.IsNullOrWhiteSpace(download.PlaylistTitle) ? download.Title : download.PlaylistTitle,
-            Channel = children.FirstOrDefault()?.Details ?? "",
+            Channel = "",
             Thumbnail = download.Thumbnail ?? "",
             KnownVideoIds = children.Select(x => x.VideoId).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
             IsAudio = download.IsAudio,
