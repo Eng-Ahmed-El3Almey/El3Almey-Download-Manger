@@ -372,13 +372,11 @@ public partial class MainWindow : Window
             case Key.D7: case Key.NumPad7: ShowErrors(); e.Handled = true; break;
             case Key.D8: case Key.NumPad8: ShowSettings(); e.Handled = true; break;
             case Key.D9: case Key.NumPad9: ShowShortcuts(); e.Handled = true; break;
+            case Key.F when shift && NavTrackingPlaylist.IsChecked == true:
+                _tracking.CheckAllCommand.Execute(null); e.Handled = true; break;
             case Key.F:
                 if (NavDownloads.IsChecked != true && NavTrackingPlaylist.IsChecked != true) ShowDownloads();
                 SearchInput.Focus(); SearchInput.SelectAll(); e.Handled = true; break;
-            case Key.A when shift && NavTrackingPlaylist.IsChecked == true:
-                _tracking.AllVideosSelected = false; e.Handled = true; break;
-            case Key.F when shift && NavTrackingPlaylist.IsChecked == true:
-                _tracking.CheckAllCommand.Execute(null); e.Handled = true; break;
             case Key.OemComma: ShowSettings(); e.Handled = true; break;
         }
     }
