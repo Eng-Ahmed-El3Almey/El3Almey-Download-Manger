@@ -170,7 +170,23 @@ public static class ToolBootstrapService
             }
 
             // The stream must be closed before replacing the executable.
-            File.Move(temporaryPath, YtDlpPath, true);
+            // A previous download may have left the target marked read-only.
+            if (File.Exists(YtDlpPath))
+            {
+                File.SetAttributes(YtDlpPath, FileAttributes.Normal);
+                try
+                {
+                    File.Delete(YtDlpPath);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    throw new IOException(
+                        "Cannot replace the existing yt-dlp.exe. Close any process using it and check the file permissions in: " + ToolsDirectory,
+                        ex);
+                }
+            }
+
+            File.Move(temporaryPath, YtDlpPath);
         }
         finally
         {
