@@ -54,9 +54,9 @@ public partial class YouTubeBrowserView : UserControl
         catch (Exception ex)
         {
             LoadingPanel.Visibility = Visibility.Collapsed;
-            MessageBox.Show(Window.GetWindow(this),
+            ThemedMessageDialog.Show(Window.GetWindow(this), "YouTube Browser",
                 "YouTube Browser could not be initialized. Make sure Microsoft Edge WebView2 Runtime is installed.\n\n" + ex.Message,
-                "YouTube Browser", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedDialogKind.Error);
         }
     }
 
