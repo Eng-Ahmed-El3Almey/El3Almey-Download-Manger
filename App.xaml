@@ -214,8 +214,8 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="RadioButton">
-            <Border x:Name="b" Background="Transparent" CornerRadius="8" Padding="16,0">
-              <ContentPresenter VerticalAlignment="Center"/>
+            <Border x:Name="b" Background="Transparent" CornerRadius="8" Padding="0">
+              <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#234675"/></Trigger>
