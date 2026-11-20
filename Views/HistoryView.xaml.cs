@@ -118,7 +118,7 @@ public partial class HistoryView : UserControl
         }
     }
 
-    static bool IsMenuAction(string? tag) => tag is "Open" or "OpenFolder" or "TrackPlaylist" or "Remove";
+    static bool IsMenuAction(string? tag) => tag is "OpenPlaylist" or "Open" or "OpenFolder" or "TrackPlaylist" or "Retry" or "CopyLink" or "CopyTitle" or "Remove";
 
     void ActionMenuItem_Click(object sender, RoutedEventArgs e)
     {
@@ -134,9 +134,19 @@ public partial class HistoryView : UserControl
 
         switch (element.Tag?.ToString())
         {
+            case "OpenPlaylist": vm.OpenPlaylistDetailsCommand.Execute(item); break;
             case "Open": vm.OpenCommand.Execute(item); break;
             case "OpenFolder": vm.OpenFolderCommand.Execute(item); break;
             case "TrackPlaylist": vm.TrackPlaylistCommand.Execute(item); break;
+            case "Retry": vm.RetryVideoCommand.Execute(item); break;
+            case "CopyLink":
+                var link = item.IsPlaylistRepresentative && !string.IsNullOrWhiteSpace(item.PlaylistUrl) ? item.PlaylistUrl : item.Url;
+                if (!string.IsNullOrWhiteSpace(link)) Clipboard.SetText(link);
+                break;
+            case "CopyTitle":
+                var title = item.DisplayTitle;
+                if (!string.IsNullOrWhiteSpace(title)) Clipboard.SetText(title);
+                break;
             case "Remove": vm.RemoveCommand.Execute(item); break;
         }
 
