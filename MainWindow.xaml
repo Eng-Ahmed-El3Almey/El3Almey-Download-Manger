@@ -69,25 +69,35 @@
           <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
           <StackPanel>
             <TextBlock Text="DISCOVER" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,8,0,8" Visibility="Collapsed"/>
-            <RadioButton x:Name="NavYouTube" GroupName="nav" IsChecked="True" Style="{StaticResource NavItem}" Click="NavYouTube_Click" ToolTip="Ctrl + 1  |  Alt + Y"><TextBlock Style="{StaticResource Icon}" Text="&#xE714;"/></RadioButton>
-            <RadioButton x:Name="NavVideoPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavVideoPlayer_Click" ToolTip="Ctrl + 2  |  Alt + V"><TextBlock Style="{StaticResource Icon}" Text="&#xE714;"/></RadioButton>
-            <RadioButton x:Name="NavAudioPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAudioPlayer_Click" ToolTip="Ctrl + 3  |  Alt + A"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;"/></RadioButton>
+            <RadioButton x:Name="NavYouTube" GroupName="nav" IsChecked="True" Style="{StaticResource NavItem}" Click="NavYouTube_Click" ToolTip="YouTube Browser
+Ctrl + 1  |  Alt + Y"><TextBlock Style="{StaticResource Icon}" Text="&#xE714;"/></RadioButton>
+            <RadioButton x:Name="NavVideoPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavVideoPlayer_Click" ToolTip="Video Player
+Ctrl + 2  |  Alt + V"><TextBlock Style="{StaticResource Icon}" Text="&#xE714;"/></RadioButton>
+            <RadioButton x:Name="NavAudioPlayer" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAudioPlayer_Click" ToolTip="Audio Player
+Ctrl + 3  |  Alt + A"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;"/></RadioButton>
 
             <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,7,8,7"/>
             <TextBlock Text="DOWNLOADS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8" Visibility="Collapsed"/>
-            <RadioButton x:Name="NavAdd" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAdd_Click" ToolTip="Ctrl + 4  |  Alt + D"><TextBlock Style="{StaticResource Icon}" Text="&#xE710;"/></RadioButton>
-            <RadioButton x:Name="NavDownloads" GroupName="nav" Style="{StaticResource NavItem}" Click="NavDownloads_Click" ToolTip="Ctrl + 5  |  Alt + N"><Grid><TextBlock Style="{StaticResource Icon}" Text="&#xE896;" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/><Border Background="{StaticResource Primary}" CornerRadius="8" MinWidth="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="3,0" Margin="0,2,1,0"><TextBlock Text="{Binding AllCount}" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/></Border></Grid></RadioButton>
-            <RadioButton x:Name="NavHistory" GroupName="nav" Style="{StaticResource NavItem}" Click="NavHistory_Click" ToolTip="Ctrl + 6  |  Alt + H"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;"/></RadioButton>
+            <RadioButton x:Name="NavAdd" GroupName="nav" Style="{StaticResource NavItem}" Click="NavAdd_Click" ToolTip="Add Video
+Ctrl + 4  |  Alt + D"><TextBlock Style="{StaticResource Icon}" Text="&#xE710;"/></RadioButton>
+            <RadioButton x:Name="NavDownloads" GroupName="nav" Style="{StaticResource NavItem}" Click="NavDownloads_Click" ToolTip="Downloads
+Ctrl + 5  |  Alt + N"><Grid><TextBlock Style="{StaticResource Icon}" Text="&#xE896;" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/><Border Background="{StaticResource Primary}" CornerRadius="8" MinWidth="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="3,0" Margin="0,2,1,0"><TextBlock Text="{Binding AllCount}" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/></Border></Grid></RadioButton>
+            <RadioButton x:Name="NavHistory" GroupName="nav" Style="{StaticResource NavItem}" Click="NavHistory_Click" ToolTip="History
+Ctrl + 6  |  Alt + H"><TextBlock Style="{StaticResource Icon}" Text="&#xE81C;"/></RadioButton>
 
             <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,7,8,7"/>
             <TextBlock Text="PLAYLISTS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8" Visibility="Collapsed"/>
-            <RadioButton x:Name="NavTrackingPlaylist" GroupName="nav" Style="{StaticResource NavItem}" Click="NavTrackingPlaylist_Click" ToolTip="Ctrl + 7  |  Alt + T"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;"/></RadioButton>
+            <RadioButton x:Name="NavTrackingPlaylist" GroupName="nav" Style="{StaticResource NavItem}" Click="NavTrackingPlaylist_Click" ToolTip="Tracking Playlist
+Ctrl + 7  |  Alt + T"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;"/></RadioButton>
 
             <Border Height="1" Background="{StaticResource CardBorder}" Margin="8,7,8,7"/>
             <TextBlock Text="TOOLS &amp; SETTINGS" FontSize="11" FontWeight="Bold" Style="{StaticResource Muted}" Margin="14,4,0,8" Visibility="Collapsed"/>
-            <RadioButton x:Name="NavErrors" GroupName="nav" Style="{StaticResource NavItem}" Click="NavErrors_Click" ToolTip="Ctrl + 8  |  Alt + E"><TextBlock Style="{StaticResource Icon}" Text="&#xE783;" Foreground="#FF7888"/></RadioButton>
-            <RadioButton x:Name="NavSettings" GroupName="nav" Style="{StaticResource NavItem}" Click="NavSettings_Click" ToolTip="Ctrl + 9  |  Alt + S"><TextBlock Style="{StaticResource Icon}" Text="&#xE713;"/></RadioButton>
-            <RadioButton x:Name="NavShortcuts" GroupName="nav" Style="{StaticResource NavItem}" Click="NavShortcuts_Click" ToolTip="Ctrl + 0  |  Alt + K"><TextBlock Style="{StaticResource Icon}" Text="&#xE765;"/></RadioButton>
+            <RadioButton x:Name="NavErrors" GroupName="nav" Style="{StaticResource NavItem}" Click="NavErrors_Click" ToolTip="Error List
+Ctrl + 8  |  Alt + E"><TextBlock Style="{StaticResource Icon}" Text="&#xE783;" Foreground="#FF7888"/></RadioButton>
+            <RadioButton x:Name="NavSettings" GroupName="nav" Style="{StaticResource NavItem}" Click="NavSettings_Click" ToolTip="Settings
+Ctrl + 9  |  Alt + S"><TextBlock Style="{StaticResource Icon}" Text="&#xE713;"/></RadioButton>
+            <RadioButton x:Name="NavShortcuts" GroupName="nav" Style="{StaticResource NavItem}" Click="NavShortcuts_Click" ToolTip="Keyboard Shortcuts
+Ctrl + 0  |  Alt + K"><TextBlock Style="{StaticResource Icon}" Text="&#xE765;"/></RadioButton>
           </StackPanel>
 
           <StackPanel Grid.Row="2" Visibility="Collapsed">
