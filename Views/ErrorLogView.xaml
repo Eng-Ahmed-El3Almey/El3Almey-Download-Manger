@@ -47,21 +47,26 @@
    </Border>
   </Grid>
   <Grid Grid.Row="2">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="0.88*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1.42*"/></Grid.ColumnDefinitions>
+   <Grid.ColumnDefinitions><ColumnDefinition Width="0.78*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1.52*"/></Grid.ColumnDefinitions>
    <Border Background="#0D192D" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
     <Grid>
-     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <Grid Margin="2,1,2,11"><TextBlock Text="ISSUES &amp; EVENTS" Foreground="#A9C9F3" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock Text="{Binding ElementName=EntriesList, Path=Items.Count, StringFormat={}{0} ITEMS}" Foreground="#7188A9" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/></Grid>
      <TextBox x:Name="FilterBox" Grid.Row="1" Height="37" Margin="0,0,0,10" TextChanged="FilterBox_TextChanged" VerticalContentAlignment="Center" ToolTip="Search by error, message or log file"/>
-     <ListBox x:Name="EntriesList" Grid.Row="2" SelectionChanged="EntriesList_SelectionChanged">
+     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
+      <Button x:Name="FilterAllButton" Content="All" Click="FilterAll_Click" Padding="14,6" Margin="0,0,7,0" Background="#2B5B94"/>
+      <Button x:Name="FilterDownloadsButton" Content="Downloads" Click="FilterDownloads_Click" Padding="14,6" Margin="0,0,7,0" Background="#14243D"/>
+      <Button x:Name="FilterCrashesButton" Content="Crashes" Click="FilterCrashes_Click" Padding="14,6" Background="#14243D"/>
+     </StackPanel>
+     <ListBox x:Name="EntriesList" Grid.Row="3" SelectionChanged="EntriesList_SelectionChanged">
       <ListBox.ItemTemplate><DataTemplate>
        <Border Background="#132440" CornerRadius="8" Padding="10">
         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
          <Border Background="#F06B83" CornerRadius="2"/>
          <StackPanel Grid.Column="1" Margin="9,0,0,0">
-          <Grid><TextBlock Text="{Binding Title}" Foreground="#F1F5FC" FontSize="12" FontWeight="SemiBold"/><TextBlock Text="{Binding TimeText}" Foreground="#8FA5C4" FontSize="10" HorizontalAlignment="Right" Margin="6,0,0,0"/></Grid>
-          <TextBlock Text="{Binding Summary}" Foreground="#B6C7DF" FontSize="11" TextWrapping="Wrap" MaxHeight="34" Margin="0,5,0,0"/>
-          <TextBlock Text="{Binding SourceName}" Foreground="#70B5FF" FontSize="10" Margin="0,6,0,0"/>
+          <Grid><TextBlock Text="{Binding Title}" Foreground="#F1F5FC" FontSize="13" FontWeight="SemiBold"/><TextBlock Text="{Binding TimeText}" Foreground="#8FA5C4" FontSize="11" HorizontalAlignment="Right" Margin="6,0,0,0"/></Grid>
+          <TextBlock Text="{Binding Summary}" Foreground="#B6C7DF" FontSize="12" TextWrapping="Wrap" MaxHeight="42" Margin="0,5,0,0"/>
+          <TextBlock Text="{Binding SourceName}" Foreground="#70B5FF" FontSize="11" Margin="0,6,0,0"/>
          </StackPanel>
         </Grid>
        </Border>
@@ -73,16 +78,16 @@
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
      <Grid Margin="1,0,0,13">
-      <StackPanel><TextBlock Text="SELECTED EVENT" Foreground="#8FB7E8" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="DetailTitle" Text="Select an event" Foreground="#F4F7FC" FontSize="21" FontWeight="Bold" Margin="0,6,0,0"/><TextBlock x:Name="DetailMeta" Text="Select an item from the list to see its details." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,4,0,0"/></StackPanel>
+      <StackPanel><TextBlock Text="SELECTED EVENT" Foreground="#8FB7E8" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="DetailTitle" Text="Select an event" Foreground="#F4F7FC" FontSize="23" FontWeight="Bold" Margin="0,6,0,0"/><TextBlock x:Name="DetailMeta" Text="Select an item from the list to see its details." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,4,0,0"/></StackPanel>
       <Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#392337" CornerRadius="12" Padding="9,4"><TextBlock Text="ERROR" Foreground="#FF91A5" FontSize="9" FontWeight="Bold"/></Border>
      </Grid>
      <Border Grid.Row="1" Background="#132D4E" BorderBrush="#254B77" BorderThickness="1" CornerRadius="8" Padding="13" Margin="0,0,0,12">
-      <StackPanel><TextBlock Text="SUMMARY" Foreground="#69B8FF" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="FriendlyReason" Text="Choose an event to view a readable explanation." Foreground="#E4EDF9" FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel>
+      <StackPanel><TextBlock Text="SUMMARY" Foreground="#69B8FF" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="FriendlyReason" Text="Choose an event to view a readable explanation." Foreground="#E4EDF9" FontSize="14" TextWrapping="Wrap" Margin="0,7,0,0"/></StackPanel>
      </Border>
      <Border Grid.Row="2" Background="#081426" BorderBrush="#263B59" BorderThickness="1" CornerRadius="8" Padding="10">
       <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
        <DockPanel Margin="1,0,1,9"><TextBlock Text="TECHNICAL LOG" Foreground="#AFC4E1" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/><Button Content="Copy Details" Click="Copy_Click" DockPanel.Dock="Right" Padding="10,5" Background="#18345A"/></DockPanel>
-       <TextBox x:Name="RawDetails" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" Padding="2" FontFamily="Consolas" FontSize="11" Foreground="#C7D6EA"/>
+       <TextBox x:Name="RawDetails" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" Padding="2" FontFamily="Consolas" FontSize="12" Foreground="#C7D6EA"/>
       </Grid>
      </Border>
      <Grid Grid.Row="3" Margin="0,11,0,0">
