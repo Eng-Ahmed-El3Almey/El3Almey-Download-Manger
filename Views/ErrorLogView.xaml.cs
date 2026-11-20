@@ -62,8 +62,6 @@ public partial class ErrorLogView : UserControl
         CountText.Text = _allEntries.Count.ToString();
         DownloadCountText.Text = _allEntries.Count(e => e.SourceName.Equals("download-errors.log", StringComparison.OrdinalIgnoreCase)).ToString();
         CrashCountText.Text = _allEntries.Count(e => e.SourceName.Equals("crash.log", StringComparison.OrdinalIgnoreCase)).ToString();
-        FilesText.Text = fileCount.ToString();
-        LatestText.Text = _allEntries.Count == 0 ? "—" : _allEntries[^1].TimeText;
         ApplyFilter();
         if (EntriesList.Items.Count > 0) EntriesList.SelectedIndex = 0;
         else ShowEmpty();
