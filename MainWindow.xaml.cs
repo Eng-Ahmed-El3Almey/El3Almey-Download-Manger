@@ -61,8 +61,8 @@ public partial class MainWindow : Window
         {
             var added = _tracking.AddFromDownload(item, _manager.Items);
             if (added) ShowTrackingPlaylist();
-            else MessageBox.Show(this, "This playlist is already being tracked or its playlist link is unavailable.",
-                "Tracking Playlist", MessageBoxButton.OK, MessageBoxImage.Information);
+            else ThemedMessageDialog.Show(this, "Tracking Playlist",
+                "This playlist is already being tracked or its playlist link is unavailable.");
         };
 
         _trackingAutoCheckTimer.Tick += (_, _) =>
