@@ -209,7 +209,7 @@ public partial class ErrorLogView : UserControl
             }
 
             blocks.RemoveAt(index);
-            var delimiter = content.Replace("\\r\\n", "\\n").Contains("\\n---\\n", StringComparison.Ordinal)
+            var delimiter = content.Replace("\r\n", "\n").Contains("\n---\n", StringComparison.Ordinal)
                 ? Environment.NewLine + "---" + Environment.NewLine
                 : Environment.NewLine;
             File.WriteAllText(entry.LogPath, string.Join(delimiter, blocks));
@@ -217,7 +217,7 @@ public partial class ErrorLogView : UserControl
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Could not delete the selected entry.\\n\\n{ex.Message}",
+            MessageBox.Show($"Could not delete the selected entry.\n\n{ex.Message}",
                 "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -225,7 +225,7 @@ public partial class ErrorLogView : UserControl
     private void DeleteAll_Click(object sender, RoutedEventArgs e)
     {
         var result = MessageBox.Show(
-            "Delete all entries from the application log files?\\n\\nThis clears download errors, crash reports and other supported logs. This action cannot be undone.",
+            "Delete all entries from the application log files?\n\nThis clears download errors, crash reports and other supported logs. This action cannot be undone.",
             "Confirm Delete All",
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning);
@@ -251,7 +251,7 @@ public partial class ErrorLogView : UserControl
 
         Refresh();
         if (failures.Count > 0)
-            MessageBox.Show("Some log files could not be cleared:\\n\\n" + string.Join("\\n", failures),
+            MessageBox.Show("Some log files could not be cleared:\n\n" + string.Join("\n", failures),
                 "Delete All", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
