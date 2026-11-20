@@ -40,12 +40,15 @@ public partial class DownloadItem : ObservableObject
     string _displayStatusText = "";
     bool _playlistHasActiveDownloads;
     Brush _displayStatusFg = B("#4A9BFF");
+    Brush _displayStatusBg = B("#14325F");
     public double DisplayProgress => IsPlaylistRepresentative ? _displayProgress : Progress;
     public string DisplayProgressText => IsPlaylistRepresentative ? $"{DisplayProgress:0}% • {PlaylistCompletedCount}/{PlaylistCount}" : ProgressText;
     public int PlaylistCompletedCount { get; private set; }
     public int PlaylistFailedCount { get; private set; }
     public string DisplayStatusText => IsPlaylistRepresentative ? _displayStatusText : StatusText;
     public Brush DisplayStatusFg => IsPlaylistRepresentative ? _displayStatusFg : StatusFg;
+    public Brush DisplayStatusBg => IsPlaylistRepresentative ? _displayStatusBg : StatusBg;
+    public bool CanRetryAction => CanRetry || CanRetryPlaylist;
 
     public void UpdatePlaylistSummary(IReadOnlyCollection<DownloadItem> children)
     {
@@ -64,6 +67,10 @@ public partial class DownloadItem : ObservableObject
             : children.Any(x => x.Status == DownloadStatus.Downloading) ? B("#4A9BFF")
             : children.Any(x => x.Status == DownloadStatus.Failed) ? B("#FF5468")
             : children.Any(x => x.Status == DownloadStatus.Queued) ? B("#A78BFA") : B("#F5A524");
+        _displayStatusBg = children.All(x => x.Status == DownloadStatus.Completed) ? B("#0F3A2A")
+            : children.Any(x => x.Status == DownloadStatus.Downloading) ? B("#14325F")
+            : children.Any(x => x.Status == DownloadStatus.Failed) ? B("#431A25")
+            : children.Any(x => x.Status == DownloadStatus.Queued) ? B("#2A1F57") : B("#3D2A10");
         OnPropertyChanged(nameof(DisplayProgress)); OnPropertyChanged(nameof(DisplayProgressText));
         OnPropertyChanged(nameof(DisplayStatusText)); OnPropertyChanged(nameof(DisplayStatusFg));
         OnPropertyChanged(nameof(PlaylistTotalSizeText)); OnPropertyChanged(nameof(HistorySizeText)); OnPropertyChanged(nameof(CanOpenPlaylist));
@@ -147,7 +154,7 @@ public partial class DownloadItem : ObservableObject
     partial void OnStatusChanged(DownloadStatus value)
     {
         foreach (var n in new[] { nameof(StatusText), nameof(StatusFg), nameof(StatusBg), nameof(PrimaryIcon),
-                                  nameof(CanOpenFolder), nameof(IsCompleted), nameof(CanRetry), nameof(CanRetryPlaylist), nameof(CanShowPrimaryAction), nameof(DisplayStatusText), nameof(DisplayStatusFg), nameof(PrimaryActionTooltip) })
+                                  nameof(CanOpenFolder), nameof(IsCompleted), nameof(CanRetry), nameof(CanRetryPlaylist), nameof(CanRetryAction), nameof(CanShowPrimaryAction), nameof(DisplayStatusText), nameof(DisplayStatusFg), nameof(DisplayStatusBg), nameof(PrimaryActionTooltip) })
             OnPropertyChanged(n);
     }
     partial void OnProgressChanged(double value) { OnPropertyChanged(nameof(ProgressText)); OnPropertyChanged(nameof(SizeText)); OnPropertyChanged(nameof(DisplayProgress)); OnPropertyChanged(nameof(DisplayProgressText)); }
