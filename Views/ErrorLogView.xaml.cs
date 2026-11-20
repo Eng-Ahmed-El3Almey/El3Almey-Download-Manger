@@ -184,7 +184,7 @@ public partial class ErrorLogView : UserControl
     {
         if (EntriesList.SelectedItem is not ErrorLogEntry entry)
         {
-            MessageBox.Show("Select an error entry first.", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Information);
+            ThemedMessageDialog.Show(Window.GetWindow(this), "Delete Error", "Select an error entry first.");
             return;
         }
 
@@ -202,8 +202,8 @@ public partial class ErrorLogView : UserControl
             var index = blocks.FindIndex(block => string.Equals(block.Trim(), entry.Details.Trim(), StringComparison.Ordinal));
             if (index < 0)
             {
-                MessageBox.Show("The selected entry could not be found in the source log. Refresh the list and try again.",
-                    "Delete Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageDialog.Show(Window.GetWindow(this), "Delete Error",
+                    "The selected entry could not be found in the source log. Refresh the list and try again.", ThemedDialogKind.Warning);
                 return;
             }
 
@@ -216,20 +216,21 @@ public partial class ErrorLogView : UserControl
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Could not delete the selected entry.\n\n{ex.Message}",
-                "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            ThemedMessageDialog.Show(Window.GetWindow(this), "Delete Error",
+                $"Could not delete the selected entry.\n\n{ex.Message}", ThemedDialogKind.Error);
         }
     }
 
     private void DeleteAll_Click(object sender, RoutedEventArgs e)
     {
-        var result = MessageBox.Show(
-            "Delete all entries from the application log files?\n\nThis clears download errors, crash reports and other supported logs. This action cannot be undone.",
+        var result = ThemedMessageDialog.Show(
+            Window.GetWindow(this),
             "Confirm Delete All",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
+            "Delete all entries from the application log files?\n\nThis clears download errors, crash reports and other supported logs. This action cannot be undone.",
+            ThemedDialogKind.Warning,
+            ThemedDialogButtons.YesNo);
 
-        if (result != MessageBoxResult.Yes) return;
+        if (result != true) return;
 
         var logDirectory = Path.Combine(SettingsStore.DataDir, "logs");
         var candidates = new[]
@@ -250,8 +251,8 @@ public partial class ErrorLogView : UserControl
 
         Refresh();
         if (failures.Count > 0)
-            MessageBox.Show("Some log files could not be cleared:\n\n" + string.Join("\n", failures),
-                "Delete All", MessageBoxButton.OK, MessageBoxImage.Warning);
+            ThemedMessageDialog.Show(Window.GetWindow(this), "Delete All",
+                "Some log files could not be cleared:\n\n" + string.Join("\n", failures), ThemedDialogKind.Warning);
     }
 
     private void SetFilter(string filter)
