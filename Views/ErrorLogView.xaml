@@ -3,77 +3,65 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  Background="Transparent">
  <UserControl.Resources>
+  <SolidColorBrush x:Key="PanelBrush" Color="#101D35"/>
+  <SolidColorBrush x:Key="PanelBorderBrush" Color="#263B5D"/>
+  <SolidColorBrush x:Key="MutedBrush" Color="#91A6C5"/>
   <Style TargetType="Button">
    <Setter Property="Foreground" Value="#EAF2FF"/>
-   <Setter Property="Background" Value="#17366B"/>
-   <Setter Property="BorderBrush" Value="#315B9A"/>
+   <Setter Property="Background" Value="#1B3D70"/>
+   <Setter Property="BorderBrush" Value="#315B91"/>
    <Setter Property="BorderThickness" Value="1"/>
-   <Setter Property="Padding" Value="14,9"/>
+   <Setter Property="Padding" Value="13,8"/>
+   <Setter Property="FontSize" Value="12"/>
    <Setter Property="FontWeight" Value="SemiBold"/>
    <Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#28518C"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="Bd" Property="Background" Value="#122B50"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Bd" Property="Opacity" Value="0.45"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
   </Style>
   <Style TargetType="TextBox">
-   <Setter Property="Foreground" Value="#EAF2FF"/>
-   <Setter Property="Background" Value="#101F3A"/>
-   <Setter Property="BorderBrush" Value="#2B4772"/>
-   <Setter Property="CaretBrush" Value="#FFFFFF"/>
-   <Setter Property="Padding" Value="10,8"/>
+   <Setter Property="Foreground" Value="#EAF2FF"/><Setter Property="Background" Value="#0A172B"/><Setter Property="BorderBrush" Value="#2A4266"/><Setter Property="CaretBrush" Value="White"/><Setter Property="Padding" Value="11,8"/><Setter Property="FontSize" Value="12"/>
+  </Style>
+  <Style TargetType="ListBox">
+   <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+   <Setter Property="ItemContainerStyle"><Setter.Value><Style TargetType="ListBoxItem"><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,0,7"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="ItemBorder" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="8" Padding="0"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemBorder" Property="Background" Value="#1A355B"/><Setter TargetName="ItemBorder" Property="BorderBrush" Value="#4388D6"/></Trigger><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ItemBorder" Property="Background" Value="#172C4A"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style></Setter.Value></Setter>
   </Style>
  </UserControl.Resources>
- <Grid>
+ <Grid Margin="2">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-  <Grid Margin="0,0,0,16">
-   <StackPanel>
-    <TextBlock Text="Error Center" FontSize="27" FontWeight="Bold" Foreground="#F3F7FF"/>
-    <TextBlock Text="View and manage application logs, download failures and crash reports." FontSize="13" Foreground="#91A9CF" Margin="0,5,0,0"/>
-   </StackPanel>
+  <Grid Margin="0,0,0,15">
+   <StackPanel><TextBlock Text="Error Center" FontSize="26" FontWeight="Bold" Foreground="#F4F7FC"/><TextBlock Text="Review download issues and application reports" FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/></StackPanel>
    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-    <Button Content="Open Log Folder" Click="OpenFolder_Click" Margin="0,0,8,0" Background="#14294C"/>
-    <Button Content="⟳  Refresh" Click="Refresh_Click"/>
+    <Button Content="Open Log Folder" Click="OpenFolder_Click" Background="#14243D" Margin="0,0,8,0"/>
+    <Button Content="↻  Refresh" Click="Refresh_Click"/>
    </StackPanel>
   </Grid>
   <Grid Grid.Row="1" Margin="0,0,0,14">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-   <Border Background="#111F3C" BorderBrush="#263F6B" BorderThickness="1" CornerRadius="11" Padding="15" Margin="0,0,10,0">
-    <StackPanel Orientation="Horizontal">
-     <Border Width="42" Height="42" CornerRadius="21" Background="#43223E" VerticalAlignment="Center"><TextBlock Text="!" Foreground="#FF647F" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="Total Errors" Foreground="#A7B9D5" FontSize="11"/><TextBlock x:Name="CountText" Text="0" Foreground="#FFFFFF" FontSize="25" FontWeight="Bold"/></StackPanel>
-    </StackPanel>
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="9" Padding="14">
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="34" Height="34" CornerRadius="17" Background="#3B263F"><TextBlock Text="!" Foreground="#FF7A91" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="11,0,0,0" VerticalAlignment="Center"><TextBlock Text="TOTAL EVENTS" Foreground="{StaticResource MutedBrush}" FontSize="10" FontWeight="SemiBold"/><TextBlock x:Name="CountText" Text="0" Foreground="White" FontSize="23" FontWeight="Bold"/></StackPanel></Grid>
    </Border>
-   <Border Grid.Column="1" Background="#111F3C" BorderBrush="#263F6B" BorderThickness="1" CornerRadius="11" Padding="15" Margin="0,0,10,0">
-    <StackPanel Orientation="Horizontal">
-     <Border Width="42" Height="42" CornerRadius="21" Background="#123B70" VerticalAlignment="Center"><TextBlock Text="↓" Foreground="#26A8FF" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="Download Errors" Foreground="#A7B9D5" FontSize="11"/><TextBlock x:Name="DownloadCountText" Text="0" Foreground="#FFFFFF" FontSize="25" FontWeight="Bold"/></StackPanel>
-    </StackPanel>
+   <Border Grid.Column="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="9" Padding="14">
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="34" Height="34" CornerRadius="17" Background="#173B66"><TextBlock Text="↓" Foreground="#55B6FF" FontSize="21" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="11,0,0,0" VerticalAlignment="Center"><TextBlock Text="DOWNLOAD ERRORS" Foreground="{StaticResource MutedBrush}" FontSize="10" FontWeight="SemiBold"/><TextBlock x:Name="DownloadCountText" Text="0" Foreground="White" FontSize="23" FontWeight="Bold"/></StackPanel></Grid>
    </Border>
-   <Border Grid.Column="2" Background="#111F3C" BorderBrush="#263F6B" BorderThickness="1" CornerRadius="11" Padding="15">
-    <StackPanel Orientation="Horizontal">
-     <Border Width="42" Height="42" CornerRadius="21" Background="#33245F" VerticalAlignment="Center"><TextBlock Text="⚙" Foreground="#B78AFF" FontSize="21" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="Crash Reports" Foreground="#A7B9D5" FontSize="11"/><TextBlock x:Name="CrashCountText" Text="0" Foreground="#FFFFFF" FontSize="25" FontWeight="Bold"/></StackPanel>
-    </StackPanel>
+   <Border Grid.Column="4" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="9" Padding="14">
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="34" Height="34" CornerRadius="17" Background="#30264E"><TextBlock Text="×" Foreground="#C4A0FF" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="11,0,0,0" VerticalAlignment="Center"><TextBlock Text="CRASH REPORTS" Foreground="{StaticResource MutedBrush}" FontSize="10" FontWeight="SemiBold"/><TextBlock x:Name="CrashCountText" Text="0" Foreground="White" FontSize="23" FontWeight="Bold"/></StackPanel></Grid>
    </Border>
   </Grid>
   <Grid Grid.Row="2">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="0.92*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="1.38*"/></Grid.ColumnDefinitions>
-   <Border Background="#0D1930" BorderBrush="#263F6B" BorderThickness="1" CornerRadius="12" Padding="12">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="0.88*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1.42*"/></Grid.ColumnDefinitions>
+   <Border Background="#0D192D" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-     <TextBlock Text="ISSUES &amp; EVENTS" Foreground="#8FB7EE" FontSize="11" FontWeight="Bold" Margin="3,2,0,12"/>
-     <Grid Grid.Row="1" Margin="0,0,0,9">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-      <TextBox x:Name="FilterBox" Height="36" TextChanged="FilterBox_TextChanged" VerticalContentAlignment="Center"/>
-      <TextBlock Text="⌕" Grid.Column="1" Foreground="#72AFFF" FontSize="20" VerticalAlignment="Center" Margin="-30,0,10,0" IsHitTestVisible="False"/>
-     </Grid>
-     <ListBox x:Name="EntriesList" Grid.Row="2" Background="Transparent" BorderThickness="0" SelectionChanged="EntriesList_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+     <Grid Margin="2,1,2,11"><TextBlock Text="ISSUES &amp; EVENTS" Foreground="#A9C9F3" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock Text="{Binding ElementName=EntriesList, Path=Items.Count, StringFormat={}{0} ITEMS}" Foreground="#7188A9" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/></Grid>
+     <TextBox x:Name="FilterBox" Grid.Row="1" Height="37" Margin="0,0,0,10" TextChanged="FilterBox_TextChanged" VerticalContentAlignment="Center" ToolTip="Search by error, message or log file"/>
+     <ListBox x:Name="EntriesList" Grid.Row="2" SelectionChanged="EntriesList_SelectionChanged">
       <ListBox.ItemTemplate><DataTemplate>
-       <Border Background="#122440" BorderBrush="#29466F" BorderThickness="1" CornerRadius="9" Padding="11" Margin="0,0,0,8">
-        <Grid>
-         <Grid.ColumnDefinitions><ColumnDefinition Width="32"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-         <Border Width="27" Height="27" CornerRadius="14" Background="#3B203D" VerticalAlignment="Top"><TextBlock Text="!" Foreground="#FF637E" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-         <StackPanel Grid.Column="1">
-          <DockPanel LastChildFill="True"><TextBlock Text="{Binding TimeText}" Foreground="#8FA8CC" FontSize="10" DockPanel.Dock="Right" Margin="8,0,0,0"/><TextBlock Text="{Binding Title}" Foreground="#F1F6FF" FontSize="12" FontWeight="SemiBold"/></DockPanel>
-          <TextBlock Text="{Binding Summary}" Foreground="#B5C6E0" FontSize="11" TextWrapping="Wrap" MaxHeight="38" Margin="0,5,0,0"/>
-          <TextBlock Text="{Binding SourceName}" Foreground="#75B4FF" FontSize="10" Margin="0,6,0,0"/>
+       <Border Background="#132440" CornerRadius="8" Padding="10">
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+         <Border Background="#F06B83" CornerRadius="2"/>
+         <StackPanel Grid.Column="1" Margin="9,0,0,0">
+          <Grid><TextBlock Text="{Binding Title}" Foreground="#F1F5FC" FontSize="12" FontWeight="SemiBold"/><TextBlock Text="{Binding TimeText}" Foreground="#8FA5C4" FontSize="10" HorizontalAlignment="Right" Margin="6,0,0,0"/></Grid>
+          <TextBlock Text="{Binding Summary}" Foreground="#B6C7DF" FontSize="11" TextWrapping="Wrap" MaxHeight="34" Margin="0,5,0,0"/>
+          <TextBlock Text="{Binding SourceName}" Foreground="#70B5FF" FontSize="10" Margin="0,6,0,0"/>
          </StackPanel>
         </Grid>
        </Border>
@@ -81,24 +69,26 @@
      </ListBox>
     </Grid>
    </Border>
-   <Border Grid.Column="2" Background="#0D1930" BorderBrush="#263F6B" BorderThickness="1" CornerRadius="12" Padding="16">
+   <Border Grid.Column="2" Background="#0D192D" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <Grid>
-      <StackPanel><TextBlock Text="ERROR DETAILS" Foreground="#8FB7EE" FontSize="11" FontWeight="Bold"/><TextBlock x:Name="DetailTitle" Text="Select an entry" Foreground="#F3F7FF" FontSize="20" FontWeight="Bold" Margin="0,7,0,0"/><TextBlock x:Name="DetailMeta" Text="Choose an issue from the list to inspect its details." Foreground="#91A9CF" FontSize="11" Margin="0,4,0,12"/></StackPanel>
-      <Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#40233A" BorderBrush="#85415C" BorderThickness="1" CornerRadius="15" Padding="10,5"><TextBlock Text="●  ISSUE" Foreground="#FF8299" FontSize="10" FontWeight="Bold"/></Border>
+     <Grid Margin="1,0,0,13">
+      <StackPanel><TextBlock Text="SELECTED EVENT" Foreground="#8FB7E8" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="DetailTitle" Text="Select an event" Foreground="#F4F7FC" FontSize="21" FontWeight="Bold" Margin="0,6,0,0"/><TextBlock x:Name="DetailMeta" Text="Select an item from the list to see its details." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,4,0,0"/></StackPanel>
+      <Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#392337" CornerRadius="12" Padding="9,4"><TextBlock Text="ERROR" Foreground="#FF91A5" FontSize="9" FontWeight="Bold"/></Border>
      </Grid>
-     <Border Grid.Row="1" Background="#102B53" BorderBrush="#1764B8" BorderThickness="1" CornerRadius="9" Padding="13" Margin="0,0,0,12">
-      <StackPanel><TextBlock Text="SUGGESTED ACTION / WHAT HAPPENED" Foreground="#38B8FF" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="FriendlyReason" Text="No entry selected." Foreground="#E0ECFF" FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel>
+     <Border Grid.Row="1" Background="#132D4E" BorderBrush="#254B77" BorderThickness="1" CornerRadius="8" Padding="13" Margin="0,0,0,12">
+      <StackPanel><TextBlock Text="SUMMARY" Foreground="#69B8FF" FontSize="10" FontWeight="Bold"/><TextBlock x:Name="FriendlyReason" Text="Choose an event to view a readable explanation." Foreground="#E4EDF9" FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel>
      </Border>
-     <Expander Grid.Row="2" IsExpanded="True" Foreground="#DCE8FA" Background="#09162B" BorderBrush="#29466F" BorderThickness="1" Padding="0">
-      <Expander.Header><DockPanel><TextBlock Text="Technical Details" FontWeight="SemiBold" Foreground="#EAF2FF"/><Button Content="Copy Details" Click="Copy_Click" DockPanel.Dock="Right" Padding="9,4" Margin="12,0,0,0"/></DockPanel></Expander.Header>
-      <TextBox x:Name="RawDetails" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="#071326" Foreground="#C8D7ED" BorderBrush="#263A5B" Padding="12" FontFamily="Consolas" FontSize="11" MinHeight="170"/>
-     </Expander>
-     <DockPanel Grid.Row="3" Margin="0,12,0,0">
-      <TextBlock x:Name="SourcePathText" Text="" Foreground="#8196B6" FontSize="10" VerticalAlignment="Center" MaxWidth="450" TextTrimming="CharacterEllipsis"/>
-      <Button Content="Open Source Log" Click="OpenLog_Click" DockPanel.Dock="Right" Background="#172D52"/>
-     </DockPanel>
+     <Border Grid.Row="2" Background="#081426" BorderBrush="#263B59" BorderThickness="1" CornerRadius="8" Padding="10">
+      <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+       <DockPanel Margin="1,0,1,9"><TextBlock Text="TECHNICAL LOG" Foreground="#AFC4E1" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/><Button Content="Copy Details" Click="Copy_Click" DockPanel.Dock="Right" Padding="10,5" Background="#18345A"/></DockPanel>
+       <TextBox x:Name="RawDetails" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" Padding="2" FontFamily="Consolas" FontSize="11" Foreground="#C7D6EA"/>
+      </Grid>
+     </Border>
+     <Grid Grid.Row="3" Margin="0,11,0,0">
+      <TextBlock x:Name="SourcePathText" Text="" Foreground="#8298B7" FontSize="10" VerticalAlignment="Center" MaxWidth="500" TextTrimming="CharacterEllipsis" Margin="0,0,150,0"/>
+      <Button Content="Open Source Log  ↗" Click="OpenLog_Click" HorizontalAlignment="Right" Padding="13,8" Background="#172E50"/>
+     </Grid>
     </Grid>
    </Border>
   </Grid>
