@@ -60,6 +60,8 @@ public partial class ErrorLogView : UserControl
         }
 
         CountText.Text = _allEntries.Count.ToString();
+        DownloadCountText.Text = _allEntries.Count(e => e.SourceName.Equals("download-errors.log", StringComparison.OrdinalIgnoreCase)).ToString();
+        CrashCountText.Text = _allEntries.Count(e => e.SourceName.Equals("crash.log", StringComparison.OrdinalIgnoreCase)).ToString();
         FilesText.Text = fileCount.ToString();
         LatestText.Text = _allEntries.Count == 0 ? "—" : _allEntries[^1].TimeText;
         ApplyFilter();
@@ -125,6 +127,13 @@ public partial class ErrorLogView : UserControl
 
     private static string MakeFriendly(string text)
     {
+        if (text.Contains("Private video", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("Sign in", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("cookies-from-browser", StringComparison.OrdinalIgnoreCase))
+            return "YouTube requires an authenticated session to access this video. Sign in to the account that has permission to watch it, then retry. If it is a private video, your account must be approved by its owner.";
+        if (text.Contains("Video unavailable", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("This video is private", StringComparison.OrdinalIgnoreCase))
+            return "This video is private or unavailable to the current YouTube account. Check access permissions before retrying.";
         if (text.Contains("No space left on device", StringComparison.OrdinalIgnoreCase)
             || text.Contains("Errno 28", StringComparison.OrdinalIgnoreCase))
             return "The destination drive is out of free space. Free up storage, then retry the download.";
