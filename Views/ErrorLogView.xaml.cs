@@ -180,6 +180,81 @@ public partial class ErrorLogView : UserControl
     private void FilterDownloads_Click(object sender, RoutedEventArgs e) => SetFilter("Downloads");
     private void FilterCrashes_Click(object sender, RoutedEventArgs e) => SetFilter("Crashes");
 
+    private void DeleteSelected_Click(object sender, RoutedEventArgs e)
+    {
+        if (EntriesList.SelectedItem is not ErrorLogEntry entry)
+        {
+            MessageBox.Show("Select an error entry first.", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var result = MessageBox.Show(
+            "Delete this log entry? This action cannot be undone.",
+            "Confirm Delete",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (result != MessageBoxResult.Yes) return;
+
+        try
+        {
+            var content = File.ReadAllText(entry.LogPath);
+            var blocks = SplitEntries(content).ToList();
+            var index = blocks.FindIndex(block => string.Equals(block.Trim(), entry.Details.Trim(), StringComparison.Ordinal));
+            if (index < 0)
+            {
+                MessageBox.Show("The selected entry could not be found in the source log. Refresh the list and try again.",
+                    "Delete Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            blocks.RemoveAt(index);
+            var delimiter = content.Replace("\\r\\n", "\\n").Contains("\\n---\\n", StringComparison.Ordinal)
+                ? Environment.NewLine + "---" + Environment.NewLine
+                : Environment.NewLine;
+            File.WriteAllText(entry.LogPath, string.Join(delimiter, blocks));
+            Refresh();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Could not delete the selected entry.\\n\\n{ex.Message}",
+                "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void DeleteAll_Click(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBox.Show(
+            "Delete all entries from the application log files?\\n\\nThis clears download errors, crash reports and other supported logs. This action cannot be undone.",
+            "Confirm Delete All",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (result != MessageBoxResult.Yes) return;
+
+        var logDirectory = Path.Combine(SettingsStore.DataDir, "logs");
+        var candidates = new[]
+        {
+            Path.Combine(logDirectory, "download-errors.log"),
+            Path.Combine(SettingsStore.DataDir, "crash.log"),
+            Path.Combine(SettingsStore.DataDir, "download-manager.log"),
+            Path.Combine(SettingsStore.DataDir, "tool-preparation.log")
+        };
+
+        var failures = new List<string>();
+        foreach (var path in candidates)
+        {
+            if (!File.Exists(path)) continue;
+            try { File.WriteAllText(path, string.Empty); }
+            catch (Exception ex) { failures.Add($"{Path.GetFileName(path)}: {ex.Message}"); }
+        }
+
+        Refresh();
+        if (failures.Count > 0)
+            MessageBox.Show("Some log files could not be cleared:\\n\\n" + string.Join("\\n", failures),
+                "Delete All", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
     private void SetFilter(string filter)
     {
         _activeFilter = filter;
