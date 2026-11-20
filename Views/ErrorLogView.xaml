@@ -47,8 +47,8 @@
    </Border>
   </Grid>
   <Grid Grid.Row="2">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="0.78*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1.52*"/></Grid.ColumnDefinitions>
-   <Border Background="#0D192D" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="0.62*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1.68*"/></Grid.ColumnDefinitions>
+   <Border Background="#0D192D" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="10">
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <Grid Margin="2,1,2,11"><TextBlock Text="ISSUES &amp; EVENTS" Foreground="#A9C9F3" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock Text="{Binding ElementName=EntriesList, Path=Items.Count, StringFormat={}{0} ITEMS}" Foreground="#7188A9" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/></Grid>
@@ -59,12 +59,16 @@
        <TextBox x:Name="FilterBox" Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="5,4" VerticalContentAlignment="Center" TextChanged="FilterBox_TextChanged" ToolTip="Search by error, message or log file"/>
       </Grid>
      </Border>
-     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
-      <Button x:Name="FilterAllButton" Content="All" Click="FilterAll_Click" Padding="14,6" Margin="0,0,7,0" Background="#2B5B94"/>
-      <Button x:Name="FilterDownloadsButton" Content="Downloads" Click="FilterDownloads_Click" Padding="14,6" Margin="0,0,7,0" Background="#14243D"/>
-      <Button x:Name="FilterCrashesButton" Content="Crashes" Click="FilterCrashes_Click" Padding="14,6" Background="#14243D" Margin="0,0,12,0"/>
-      <Button Content="Delete" Click="DeleteSelected_Click" Padding="12,6" Margin="0,0,7,0" Background="#633044" BorderBrush="#96506A"/>
-      <Button Content="Delete All" Click="DeleteAll_Click" Padding="12,6" Background="#7A2638" BorderBrush="#A94A5E"/>
+     <StackPanel Grid.Row="2" Margin="0,0,0,9">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+       <Button x:Name="FilterAllButton" Content="All" Click="FilterAll_Click" Padding="11,6" Margin="0,0,6,0" Background="#2B5B94"/>
+       <Button x:Name="FilterDownloadsButton" Content="Downloads" Click="FilterDownloads_Click" Padding="11,6" Margin="0,0,6,0" Background="#14243D"/>
+       <Button x:Name="FilterCrashesButton" Content="Crashes" Click="FilterCrashes_Click" Padding="11,6" Background="#14243D"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+       <Button Content="Delete" Click="DeleteSelected_Click" Padding="12,6" Margin="0,0,7,0" Background="#633044" BorderBrush="#96506A"/>
+       <Button Content="Delete All" Click="DeleteAll_Click" Padding="12,6" Background="#7A2638" BorderBrush="#A94A5E"/>
+      </StackPanel>
      </StackPanel>
      <ListBox x:Name="EntriesList" Grid.Row="3" SelectionChanged="EntriesList_SelectionChanged">
       <ListBox.ItemTemplate><DataTemplate>
