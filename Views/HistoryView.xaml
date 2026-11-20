@@ -46,7 +46,7 @@
         <Border BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1">
           <Grid Margin="20,0,0,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="190"/><ColumnDefinition Width="110"/><ColumnDefinition Width="280"/>
+              <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="190"/><ColumnDefinition Width="110"/><ColumnDefinition Width="330"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{DynamicResource S.ColVideo}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1" Text="{DynamicResource S.ColStatus}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
@@ -123,7 +123,7 @@
                           <StackPanel>
                             <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Open"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Width="26"/><TextBlock Text="Play / Open file"/></StackPanel></Button>
                             <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="OpenFolder"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26"/><TextBlock Text="Open download folder"/></StackPanel></Button>
-                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="TrackPlaylist" Visibility="{Binding CanTrackPlaylist, Converter={StaticResource B2V}}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" Width="26"/><TextBlock Text="Add to Tracking Playlist"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="TrackPlaylist" IsEnabled="{Binding CanTrackPlaylist}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" Width="26"/><TextBlock Text="Add to Tracking Playlist"/></StackPanel></Button>
                             <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Remove"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" Width="26" Foreground="{StaticResource Danger}"/><TextBlock Text="Remove from history" Foreground="{StaticResource Danger}"/></StackPanel></Button>
                           </StackPanel>
                         </Border>
