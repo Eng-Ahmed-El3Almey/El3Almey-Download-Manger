@@ -188,13 +188,12 @@ public partial class ErrorLogView : UserControl
             return;
         }
 
-        var result = MessageBox.Show(
-            "Delete this log entry? This action cannot be undone.",
+        var dialog = new ThemedConfirmDialog(
             "Confirm Delete",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
+            "Delete this log entry? This action cannot be undone.")
+        { Owner = Window.GetWindow(this) };
 
-        if (result != MessageBoxResult.Yes) return;
+        if (dialog.ShowDialog() != true) return;
 
         try
         {
