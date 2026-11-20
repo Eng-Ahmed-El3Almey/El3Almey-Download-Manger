@@ -46,7 +46,7 @@
         <Border BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1">
           <Grid Margin="20,0,0,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="190"/><ColumnDefinition Width="110"/><ColumnDefinition Width="330"/>
+              <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="190"/><ColumnDefinition Width="110"/><ColumnDefinition Width="174"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{DynamicResource S.ColVideo}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1" Text="{DynamicResource S.ColStatus}" FontSize="14" FontWeight="SemiBold" Foreground="#C9D6EE" VerticalAlignment="Center"/>
@@ -67,7 +67,7 @@
                   <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="#263957"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#1A3155"/><Setter Property="BorderBrush" Value="#4A9BFF"/></Trigger></Style.Triggers></Style></Border.Style>
                   <Grid Margin="20,0,0,0">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="190"/><ColumnDefinition Width="110"/><ColumnDefinition Width="170"/>
+                      <ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="190"/><ColumnDefinition Width="110"/><ColumnDefinition Width="174"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -87,29 +87,20 @@
                     <TextBlock Grid.Column="2" Text="{Binding DateText}" FlowDirection="LeftToRight" HorizontalAlignment="Left" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="3" Text="{Binding HistorySizeText}" FlowDirection="LeftToRight" HorizontalAlignment="Left" FontSize="13" Foreground="#C9D6EE" VerticalAlignment="Center"/>
 
-                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                      <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0" ToolTip="View playlist contents" ToolTipService.Placement="Bottom"
-                              IsEnabled="{Binding CanOpenPlaylist}"
-                              Command="{Binding DataContext.OpenPlaylistDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="16"/></Button>
-                      <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0" ToolTip="Play downloaded file" ToolTipService.Placement="Bottom" IsEnabled="{Binding IsCompleted}"
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                      <Button Style="{StaticResource IconBtn}" Width="36" Height="36" Margin="0,0,6,0"
+                              ToolTip="Play downloaded file" ToolTipService.Placement="Bottom" IsEnabled="{Binding IsCompleted}"
                               Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="15"/></Button>
-                      <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0" ToolTip="Open download location" ToolTipService.Placement="Bottom" IsEnabled="{Binding CanOpenFolder}"
+                      <Button Style="{StaticResource IconBtn}" Width="36" Height="36" Margin="0,0,6,0"
+                              ToolTip="Open download location" ToolTipService.Placement="Bottom" IsEnabled="{Binding CanOpenFolder}"
                               Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" FontSize="15"/></Button>
-                      <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0" ToolTip="Add playlist to Tracking Playlist" ToolTipService.Placement="Bottom"
-                              IsEnabled="{Binding CanTrackPlaylist}"
-                              Command="{Binding DataContext.TrackPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" FontSize="15"/></Button>
-                      <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0" ToolTip="Retry failed download" ToolTipService.Placement="Bottom"
-                              IsEnabled="{Binding CanRetry}"
-                              Command="{Binding DataContext.RetryVideoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="15"/></Button>
-                      <Button Style="{StaticResource IconBtn}" ToolTip="Remove from history (keeps file)" ToolTipService.Placement="Bottom"
+                      <Button Style="{StaticResource IconBtn}" Width="36" Height="36" Margin="0,0,6,0"
+                              ToolTip="Remove from history (keeps file)" ToolTipService.Placement="Bottom"
                               Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" FontSize="15" Foreground="{StaticResource Danger}"/></Button>
-                      <ToggleButton x:Name="HistoryMoreBtn" IsChecked="{Binding IsMenuOpen, Mode=TwoWay}" Click="HistoryMoreBtn_Click" Width="38" Height="38" Cursor="Hand" ToolTip="More actions" Margin="0,0,0,0">
+                      <ToggleButton x:Name="HistoryMoreBtn" IsChecked="{Binding IsMenuOpen, Mode=TwoWay}" Click="HistoryMoreBtn_Click" Width="36" Height="36" Cursor="Hand" ToolTip="More actions">
                         <ToggleButton.Template>
                           <ControlTemplate TargetType="ToggleButton">
                             <Border x:Name="HistoryMoreBorder" Background="#14243F" BorderBrush="#263D61" BorderThickness="1" CornerRadius="8"><TextBlock Style="{StaticResource Icon}" Text="⋮" FontFamily="Segoe UI Symbol" Foreground="White" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
@@ -118,12 +109,18 @@
                         </ToggleButton.Template>
                       </ToggleButton>
                       <Popup x:Name="HistoryActionPopup" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" IsOpen="{Binding IsMenuOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=HistoryMoreBtn}" Placement="Bottom" StaysOpen="True" AllowsTransparency="True">
-                        <Border Width="214" Padding="6" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10">
+                        <Border Width="244" Padding="6" Background="#0F1B38" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="10">
                           <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.5"/></Border.Effect>
                           <StackPanel>
-                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Open"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Width="26"/><TextBlock Text="Play / Open file"/></StackPanel></Button>
-                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="OpenFolder"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26"/><TextBlock Text="Open download folder"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="OpenPlaylist" IsEnabled="{Binding CanOpenPlaylist}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" Width="26"/><TextBlock Text="View playlist contents"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Open" IsEnabled="{Binding IsCompleted}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE768;" Width="26"/><TextBlock Text="Play / Open file"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="OpenFolder" IsEnabled="{Binding CanOpenFolder}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" Width="26"/><TextBlock Text="Open download folder"/></StackPanel></Button>
                             <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="TrackPlaylist" IsEnabled="{Binding CanTrackPlaylist}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" Width="26"/><TextBlock Text="Add to Tracking Playlist"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Retry" IsEnabled="{Binding CanRetry}"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" Width="26"/><TextBlock Text="Retry failed download"/></StackPanel></Button>
+                            <Border Height="1" Background="{StaticResource CardBorder}" Margin="6,5"/>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="CopyLink"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" Width="26"/><TextBlock Text="Copy video link"/></StackPanel></Button>
+                            <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="CopyTitle"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" Width="26"/><TextBlock Text="Copy video title"/></StackPanel></Button>
+                            <Border Height="1" Background="{StaticResource CardBorder}" Margin="6,5"/>
                             <Button Style="{StaticResource MenuItemBtn}" Click="ActionMenuItem_Click" Tag="Remove"><StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" Width="26" Foreground="{StaticResource Danger}"/><TextBlock Text="Remove from history" Foreground="{StaticResource Danger}"/></StackPanel></Button>
                           </StackPanel>
                         </Border>
