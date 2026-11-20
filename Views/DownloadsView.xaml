@@ -8,7 +8,7 @@
     <GridLength x:Key="ColStatus">126</GridLength>
     <GridLength x:Key="ColProgress">160</GridLength>
     <GridLength x:Key="ColSize">130</GridLength>
-    <GridLength x:Key="ColActions">260</GridLength>
+    <GridLength x:Key="ColActions">310</GridLength>
 
     <!-- one menu row -->
     <Style x:Key="MenuRow" TargetType="Button" BasedOn="{StaticResource MenuItemBtn}">
@@ -109,7 +109,7 @@
                         </StackPanel></Border></StackPanel>
                       </StackPanel>
 
-                      <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="6" Padding="12,5"
+                      <Border Grid.Column="2" Background="{Binding DisplayStatusBg}" CornerRadius="6" Padding="12,5"
                               HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip="{Binding Error}">
                         <TextBlock Text="{Binding DisplayStatusText}" Foreground="{Binding DisplayStatusFg}" FontSize="13" FontWeight="SemiBold"/>
                       </Border>
@@ -123,21 +123,14 @@
 
                       <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Style="{StaticResource IconBtn}" Width="38" Height="38" Margin="0,0,8,0"
-                                Visibility="{Binding CanRetry, Converter={StaticResource B2V}}"
-                                ToolTip="Retry download" ToolTipService.Placement="Bottom"
-                                Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}">
-                          <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="16"/>
-                        </Button>
-                        <Button Style="{StaticResource IconBtn}" Width="38" Height="38" Margin="0,0,8,0"
-                                Visibility="{Binding CanRetryPlaylist, Converter={StaticResource B2V}}"
-                                ToolTip="Retry failed playlist videos" ToolTipService.Placement="Bottom"
+                                IsEnabled="{Binding CanRetryAction}"
+                                ToolTip="Retry download / failed playlist videos" ToolTipService.Placement="Bottom"
                                 Command="{Binding DataContext.RetryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}">
                           <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="16"/>
                         </Button>
                         <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
-                                Visibility="{Binding CanShowPrimaryAction, Converter={StaticResource B2V}}"
+                                IsEnabled="{Binding CanShowPrimaryAction}"
                                 ToolTip="{Binding PrimaryActionTooltip}"
                                 Command="{Binding DataContext.PrimaryActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}">
@@ -145,20 +138,20 @@
                         </Button>
                         <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
                                 ToolTip="Open download location" ToolTipService.Placement="Bottom"
-                                Visibility="{Binding CanOpenFolder, Converter={StaticResource B2V}}"
+                                IsEnabled="{Binding CanOpenFolder}"
                                 Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}">
                           <TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" FontSize="16"/>
                         </Button>
 
                         <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
-                                ToolTip="View playlist contents" ToolTipService.Placement="Bottom" Visibility="{Binding CanOpenPlaylist, Converter={StaticResource B2V}}"
+                                ToolTip="View playlist contents" ToolTipService.Placement="Bottom" IsEnabled="{Binding CanOpenPlaylist}"
                                 Command="{Binding DataContext.OpenPlaylistDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                           <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="16"/>
                         </Button>
                         <Button Style="{StaticResource IconBtn}" Margin="0,0,8,0"
                                 ToolTip="Add playlist to Tracking Playlist" ToolTipService.Placement="Bottom"
-                                Visibility="{Binding CanTrackPlaylist, Converter={StaticResource B2V}}"
+                                IsEnabled="{Binding CanTrackPlaylist}"
                                 Command="{Binding DataContext.TrackPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                           <TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" FontSize="16"/>
                         </Button>
