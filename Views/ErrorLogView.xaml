@@ -17,6 +17,21 @@
    <Setter Property="Cursor" Value="Hand"/>
    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#28518C"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="Bd" Property="Background" Value="#122B50"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Bd" Property="Opacity" Value="0.45"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
   </Style>
+  <Style x:Key="DangerButtonStyle" TargetType="Button">
+   <Setter Property="Foreground" Value="#FFF0F3"/>
+   <Setter Property="Background" Value="#633044"/>
+   <Setter Property="BorderBrush" Value="#96506A"/>
+   <Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="10,6"/>
+   <Setter Property="FontSize" Value="12"/>
+   <Setter Property="FontWeight" Value="SemiBold"/>
+   <Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#854057"/><Setter TargetName="Bd" Property="BorderBrush" Value="#C66A83"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="Bd" Property="Background" Value="#4B2333"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Bd" Property="Opacity" Value="0.45"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="DangerButtonStrongStyle" TargetType="Button" BasedOn="{StaticResource DangerButtonStyle}">
+   <Setter Property="Background" Value="#7A2638"/>
+   <Setter Property="BorderBrush" Value="#A94A5E"/>
+  </Style>
   <Style TargetType="TextBox">
    <Setter Property="Foreground" Value="#EAF2FF"/><Setter Property="Background" Value="#0A172B"/><Setter Property="BorderBrush" Value="#2A4266"/><Setter Property="CaretBrush" Value="White"/><Setter Property="Padding" Value="11,8"/><Setter Property="FontSize" Value="12"/>
   </Style>
@@ -47,8 +62,8 @@
    </Border>
   </Grid>
   <Grid Grid.Row="2">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="0.62*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1.68*"/></Grid.ColumnDefinitions>
-   <Border Background="#0D192D" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="10">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Border Width="390" HorizontalAlignment="Left" Background="#0D192D" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="10">
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <Grid Margin="2,1,2,11"><TextBlock Text="ISSUES &amp; EVENTS" Foreground="#A9C9F3" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock Text="{Binding ElementName=EntriesList, Path=Items.Count, StringFormat={}{0} ITEMS}" Foreground="#7188A9" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/></Grid>
@@ -59,16 +74,12 @@
        <TextBox x:Name="FilterBox" Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="5,4" VerticalContentAlignment="Center" TextChanged="FilterBox_TextChanged" ToolTip="Search by error, message or log file"/>
       </Grid>
      </Border>
-     <StackPanel Grid.Row="2" Margin="0,0,0,9">
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-       <Button x:Name="FilterAllButton" Content="All" Click="FilterAll_Click" Padding="11,6" Margin="0,0,6,0" Background="#2B5B94"/>
-       <Button x:Name="FilterDownloadsButton" Content="Downloads" Click="FilterDownloads_Click" Padding="11,6" Margin="0,0,6,0" Background="#14243D"/>
-       <Button x:Name="FilterCrashesButton" Content="Crashes" Click="FilterCrashes_Click" Padding="11,6" Background="#14243D"/>
-      </StackPanel>
-      <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
-       <Button Content="Delete" Click="DeleteSelected_Click" Padding="12,6" Margin="0,0,7,0" Background="#633044" BorderBrush="#96506A"/>
-       <Button Content="Delete All" Click="DeleteAll_Click" Padding="12,6" Background="#7A2638" BorderBrush="#A94A5E"/>
-      </StackPanel>
+     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,9">
+      <Button x:Name="FilterAllButton" Content="All" Click="FilterAll_Click" Padding="10,6" Margin="0,0,5,0" Background="#2B5B94"/>
+      <Button x:Name="FilterDownloadsButton" Content="Downloads" Click="FilterDownloads_Click" Padding="10,6" Margin="0,0,5,0" Background="#14243D"/>
+      <Button x:Name="FilterCrashesButton" Content="Crashes" Click="FilterCrashes_Click" Padding="10,6" Margin="0,0,5,0" Background="#14243D"/>
+      <Button Content="Delete" Click="DeleteSelected_Click" Style="{StaticResource DangerButtonStyle}" Margin="0,0,5,0"/>
+      <Button Content="Delete All" Click="DeleteAll_Click" Style="{StaticResource DangerButtonStrongStyle}"/>
      </StackPanel>
      <ListBox x:Name="EntriesList" Grid.Row="3" SelectionChanged="EntriesList_SelectionChanged">
       <ListBox.ItemTemplate><DataTemplate>
