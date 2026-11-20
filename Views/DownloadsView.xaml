@@ -183,7 +183,7 @@
                                 <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="Retry">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.Retry}" FontSize="14"/></StackPanel></Button>
                                 <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="TrackPlaylist"
-                                        Visibility="{Binding CanTrackPlaylist, Converter={StaticResource B2V}}">
+                                        IsEnabled="{Binding CanTrackPlaylist}">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D7;" FontSize="15" Width="26"/><TextBlock Text="Add to Tracking Playlist" FontSize="14"/></StackPanel></Button>
                                 <Button Style="{StaticResource MenuRow}" Click="ActionMenuItem_Click" Tag="AddToQueue">
                                   <StackPanel Orientation="Horizontal"><TextBlock Style="{StaticResource Icon}" Text="&#xE8FD;" FontSize="15" Width="26"/><TextBlock Text="{DynamicResource S.AddToQueue}" FontSize="14"/></StackPanel></Button>
