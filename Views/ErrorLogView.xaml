@@ -56,7 +56,9 @@
      <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
       <Button x:Name="FilterAllButton" Content="All" Click="FilterAll_Click" Padding="14,6" Margin="0,0,7,0" Background="#2B5B94"/>
       <Button x:Name="FilterDownloadsButton" Content="Downloads" Click="FilterDownloads_Click" Padding="14,6" Margin="0,0,7,0" Background="#14243D"/>
-      <Button x:Name="FilterCrashesButton" Content="Crashes" Click="FilterCrashes_Click" Padding="14,6" Background="#14243D"/>
+      <Button x:Name="FilterCrashesButton" Content="Crashes" Click="FilterCrashes_Click" Padding="14,6" Background="#14243D" Margin="0,0,12,0"/>
+      <Button Content="Delete" Click="DeleteSelected_Click" Padding="12,6" Margin="0,0,7,0" Background="#633044" BorderBrush="#96506A"/>
+      <Button Content="Delete All" Click="DeleteAll_Click" Padding="12,6" Background="#7A2638" BorderBrush="#A94A5E"/>
      </StackPanel>
      <ListBox x:Name="EntriesList" Grid.Row="3" SelectionChanged="EntriesList_SelectionChanged">
       <ListBox.ItemTemplate><DataTemplate>
