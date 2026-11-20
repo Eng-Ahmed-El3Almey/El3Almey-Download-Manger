@@ -11,6 +11,7 @@ public partial class ErrorLogView : UserControl
 {
     private readonly ObservableCollection<ErrorLogEntry> _allEntries = new();
     private string? _selectedLogPath;
+    private string _activeFilter = "All";
 
     public ErrorLogView()
     {
@@ -150,11 +151,16 @@ public partial class ErrorLogView : UserControl
     private void ApplyFilter()
     {
         var query = FilterBox.Text.Trim();
-        var filtered = _allEntries.Where(e => string.IsNullOrWhiteSpace(query)
-            || (e.Title + " " + e.Summary + " " + e.SourceName + " " + e.Details)
-                .Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+        var filtered = _allEntries.Where(e =>
+            (_activeFilter == "All"
+                || (_activeFilter == "Downloads" && e.SourceName.Equals("download-errors.log", StringComparison.OrdinalIgnoreCase))
+                || (_activeFilter == "Crashes" && e.SourceName.Equals("crash.log", StringComparison.OrdinalIgnoreCase)))
+            && (string.IsNullOrWhiteSpace(query)
+                || (e.Title + " " + e.Summary + " " + e.SourceName + " " + e.Details)
+                    .Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
         EntriesList.ItemsSource = filtered;
-        CountText.Text = filtered.Count.ToString();
+        if (filtered.Count == 0)
+            ShowEmpty();
     }
 
     private void ShowEmpty()
@@ -169,6 +175,22 @@ public partial class ErrorLogView : UserControl
 
     private void Refresh_Click(object sender, RoutedEventArgs e) => Refresh();
     private void FilterBox_TextChanged(object sender, TextChangedEventArgs e) => ApplyFilter();
+
+    private void FilterAll_Click(object sender, RoutedEventArgs e) => SetFilter("All");
+    private void FilterDownloads_Click(object sender, RoutedEventArgs e) => SetFilter("Downloads");
+    private void FilterCrashes_Click(object sender, RoutedEventArgs e) => SetFilter("Crashes");
+
+    private void SetFilter(string filter)
+    {
+        _activeFilter = filter;
+        var active = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(43, 91, 148));
+        var inactive = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(20, 36, 61));
+        FilterAllButton.Background = filter == "All" ? active : inactive;
+        FilterDownloadsButton.Background = filter == "Downloads" ? active : inactive;
+        FilterCrashesButton.Background = filter == "Crashes" ? active : inactive;
+        ApplyFilter();
+        if (EntriesList.Items.Count > 0) EntriesList.SelectedIndex = 0;
+    }
 
     private void EntriesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
