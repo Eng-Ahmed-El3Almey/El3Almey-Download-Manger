@@ -62,7 +62,7 @@
 
     <!-- ===== Body ===== -->
     <Grid Grid.Row="1">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="240"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
 
       <Border Background="{StaticResource SidebarBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,1,0">
         <Grid Margin="16,18,16,16">
