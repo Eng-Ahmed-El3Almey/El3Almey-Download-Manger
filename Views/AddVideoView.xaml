@@ -492,10 +492,12 @@
                 <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding DataContext.HasContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
               </ItemsControl>
               <TextBlock Text="Subtitle output formats (select one or more)" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
-              <ItemsControl ItemsSource="{Binding SubtitleFormats}">
-                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,0,18,0"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
-              </ItemsControl>
+              <Border Background="#0B1730" BorderBrush="#263B60" BorderThickness="1" CornerRadius="8" Padding="10">
+                <ItemsControl ItemsSource="{Binding SubtitleFormats}">
+                  <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="2,4"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
               <TextBlock Text="You can select multiple languages and formats. Playlist subtitles are saved beside each video's output." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,8,0,0"/>
             </StackPanel>
           </Border>
