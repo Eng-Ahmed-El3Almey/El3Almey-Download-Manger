@@ -20,6 +20,7 @@ public partial class DownloadItem : ObservableObject
     public TimeSpan? Duration { get; set; }
     public string AudioTrackLanguage { get; set; } = "default";
     public string SubtitleTrackLanguage { get; set; } = "none";
+    public string DownloadedSubtitleLanguages { get; set; } = "";
     public bool AddThumbnail { get; set; }
     public bool IncludeChapters { get; set; }
     public string OutputFolder { get; set; } = "";
@@ -63,7 +64,20 @@ public partial class DownloadItem : ObservableObject
     }
     public string DisplayTitle => IsPlaylistRepresentative ? PlaylistTitle : (IsPlaylist && PlaylistIndex > 0 && !string.IsNullOrWhiteSpace(FileBaseName) ? FileBaseName : Title);
     public string PlaylistVideoDisplayTitle => IsPlaylist && PlaylistIndex > 0 && !string.IsNullOrWhiteSpace(FileBaseName) ? FileBaseName : Title;
-    public string DisplayDetails => IsPlaylistRepresentative ? $"Playlist • {PlaylistCount} videos • {Details}" : (IsPlaylist && !string.Equals(FileBaseName, Title, StringComparison.Ordinal) ? $"{Details} • {FileBaseName}" : Details);
+    public string SubtitleLanguagesText => string.IsNullOrWhiteSpace(DownloadedSubtitleLanguages)
+        ? ""
+        : "Subtitles: " + string.Join(", ", DownloadedSubtitleLanguages.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct(StringComparer.OrdinalIgnoreCase));
+    public string DisplayDetails
+    {
+        get
+        {
+            string details = IsPlaylistRepresentative ? $"Playlist • {PlaylistCount} videos • {Details}"
+                : (IsPlaylist && !string.Equals(FileBaseName, Title, StringComparison.Ordinal) ? $"{Details} • {FileBaseName}" : Details);
+            if (!string.IsNullOrWhiteSpace(SubtitleLanguagesText))
+                details = string.IsNullOrWhiteSpace(details) ? SubtitleLanguagesText : $"{details} • {SubtitleLanguagesText}";
+            return details;
+        }
+    }
     double _displayProgress;
     string _displayStatusText = "";
     bool _playlistHasActiveDownloads;
@@ -181,6 +195,12 @@ public partial class DownloadItem : ObservableObject
 
     partial void OnTitleChanged(string value) { OnPropertyChanged(nameof(DisplayTitle)); OnPropertyChanged(nameof(PlaylistVideoDisplayTitle)); OnPropertyChanged(nameof(HoverInfo)); }
     partial void OnDetailsChanged(string value) => OnPropertyChanged(nameof(DisplayDetails));
+    partial void OnDownloadedSubtitleLanguagesChanged(string value)
+    {
+        OnPropertyChanged(nameof(SubtitleLanguagesText));
+        OnPropertyChanged(nameof(DisplayDetails));
+        OnPropertyChanged(nameof(HoverInfo));
+    }
     partial void OnFilePathChanged(string value) => OnPropertyChanged(nameof(HoverInfo));
     partial void OnStatusChanged(DownloadStatus value)
     {
