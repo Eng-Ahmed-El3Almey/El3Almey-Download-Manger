@@ -325,14 +325,11 @@ public static class YtDlpService
     static void AddSubtitleMap(JsonElement root, string key, Dictionary<string, MediaTrackOption> dest, bool automatic)
     {
         if (!root.TryGetProperty(key, out var map) || map.ValueKind != JsonValueKind.Object) return;
-        // Keep the selector useful: common languages only, and one entry per base language
-        // in each category. YouTube often exposes region/script variants that look duplicated.
-        var popular = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        { "ar", "en", "es", "fr", "de", "pt", "ru", "ja", "ko", "hi", "tr", "it", "id", "zh", "bn", "ur", "fa", "nl", "pl", "uk", "vi", "th" };
+        // Show every language exposed by YouTube, while keeping one entry per base language
+        // in each category to avoid duplicate region/script variants in the selector.
         foreach (var item in map.EnumerateObject())
         {
             var baseCode = item.Name.Replace('_', '-').Split('-')[0];
-            if (!popular.Contains(baseCode)) continue;
             string prefix = automatic ? "auto:" : "original:";
             // Keep the exact YouTube language key for yt-dlp (for example en-orig), while
             // de-duplicating variants by their base language in the UI.
