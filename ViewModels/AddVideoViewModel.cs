@@ -328,8 +328,6 @@ public partial class AddVideoViewModel : ObservableObject
         foreach (var track in r.Tracks.AudioTracks) AudioTracks.Add(track);
         OriginalSubtitleTracks.Clear();
         AutoTranslatedSubtitleTracks.Clear();
-        OriginalSubtitleTracks.Add(new MediaTrackOption { Id = "none", Language = "none", Label = "No Subtitles" });
-        AutoTranslatedSubtitleTracks.Add(new MediaTrackOption { Id = "none", Language = "none", Label = "No Subtitles" });
         foreach (var track in r.Tracks.SubtitleTracks)
         {
             if (track.Id.StartsWith("auto:", StringComparison.OrdinalIgnoreCase)) AutoTranslatedSubtitleTracks.Add(track);
