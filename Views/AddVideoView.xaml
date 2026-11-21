@@ -484,11 +484,11 @@
                 <TextBlock Text="Choose the source audio language. Default marks the track YouTube reports as default." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,6,0,0"/>
               </StackPanel>
               <TextBlock Text="Original Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
-              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding OriginalSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="True">
+              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding OriginalSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsEditable="True" IsReadOnly="True" IsTextSearchEnabled="False" Text="{Binding SelectedOriginalSubtitleLanguages, Mode=OneWay}" ToolTip="{Binding SelectedOriginalSubtitleLanguages}">
                 <ComboBox.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsHitTestVisible="True" Focusable="False" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ComboBox.ItemTemplate>
               </ComboBox>
               <TextBlock Text="Generated Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,12,0,8"/>
-              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AutoTranslatedSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="True">
+              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AutoTranslatedSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsEditable="True" IsReadOnly="True" IsTextSearchEnabled="False" Text="{Binding SelectedGeneratedSubtitleLanguages, Mode=OneWay}" ToolTip="{Binding SelectedGeneratedSubtitleLanguages}">
                 <ComboBox.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsHitTestVisible="True" Focusable="False" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ComboBox.ItemTemplate>
               </ComboBox>
               <TextBlock Text="Subtitle output formats (select one or more)" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
