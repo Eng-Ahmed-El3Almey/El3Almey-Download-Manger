@@ -12,6 +12,8 @@ public partial class DownloadItem : ObservableObject
     public string Url { get; set; } = "";
     public string VideoId { get; set; } = "";
     public bool IsAudio { get; set; }
+    public bool IsSubtitleOnly { get; set; }
+    public string SubtitleFormats { get; set; } = "VTT";
     public int Height { get; set; } = 1080;
     public int Kbps { get; set; } = 192;
     public string Format { get; set; } = "MP4";
@@ -43,7 +45,7 @@ public partial class DownloadItem : ObservableObject
             string title = DisplayTitle;
             long bytes = IsPlaylistRepresentative ? PlaylistTotalBytes : TotalBytes;
             TimeSpan? duration = IsPlaylistRepresentative ? PlaylistTotalDuration : Duration;
-            string quality = IsAudio ? $"{Format} • {Kbps} kbps" : $"{Format} • {Height}p";
+            string quality = IsSubtitleOnly ? $"Subtitles only • {SubtitleFormats}" : IsAudio ? $"{Format} • {Kbps} kbps" : $"{Format} • {Height}p";
             string path = IsPlaylistRepresentative ? OutputFolder : GetDisplayPath();
             var lines = new List<string> { $"Title: {title}", $"Size: {(bytes > 0 ? Fmt.Bytes(bytes) : "—")}",
                 $"Duration: {(duration.HasValue ? Fmt.Duration(duration) : "—")}", $"Quality: {quality}", $"Path: {path}" };
