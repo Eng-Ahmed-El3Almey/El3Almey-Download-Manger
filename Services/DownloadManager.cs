@@ -23,6 +23,7 @@ public class DownloadRecord
     public TimeSpan? Duration { get; set; }
     public string AudioTrackLanguage { get; set; } = "default";
     public string SubtitleTrackLanguage { get; set; } = "none";
+    public string DownloadedSubtitleLanguages { get; set; } = "";
     public bool AddThumbnail { get; set; }
     public bool IncludeChapters { get; set; }
     public string OutputFolder { get; set; } = "";
@@ -86,7 +87,7 @@ public class DownloadManager
                 {
                     Id = r.Id, Title = r.Title, Url = r.Url, VideoId = r.VideoId, Thumbnail = r.Thumbnail,
                     Details = r.Details, IsAudio = r.IsAudio, IsSubtitleOnly = r.IsSubtitleOnly, SubtitleFormats = r.SubtitleFormats, Height = r.Height, Kbps = r.Kbps, Format = r.Format, Duration = r.Duration,
-                    AudioTrackLanguage = r.AudioTrackLanguage, SubtitleTrackLanguage = r.SubtitleTrackLanguage,
+                    AudioTrackLanguage = r.AudioTrackLanguage, SubtitleTrackLanguage = r.SubtitleTrackLanguage, DownloadedSubtitleLanguages = r.DownloadedSubtitleLanguages,
                     AddThumbnail = r.AddThumbnail, IncludeChapters = r.IncludeChapters, OutputFolder = r.OutputFolder, FileBaseName = r.FileBaseName,
                     PlaylistGroupId = r.PlaylistGroupId, PlaylistUrl = r.PlaylistUrl, PlaylistTitle = r.PlaylistTitle, PlaylistIndex = r.PlaylistIndex, PlaylistCount = r.PlaylistCount,
                     FilePath = r.FilePath, Error = r.Error, TotalBytes = r.TotalBytes,
@@ -111,7 +112,7 @@ public class DownloadManager
     {
         Id = i.Id, Title = i.Title, Url = i.Url, VideoId = i.VideoId, Thumbnail = i.Thumbnail,
         Details = i.Details, IsAudio = i.IsAudio, IsSubtitleOnly = i.IsSubtitleOnly, SubtitleFormats = i.SubtitleFormats, Height = i.Height, Kbps = i.Kbps, Format = i.Format, Duration = i.Duration,
-        AudioTrackLanguage = i.AudioTrackLanguage, SubtitleTrackLanguage = i.SubtitleTrackLanguage,
+        AudioTrackLanguage = i.AudioTrackLanguage, SubtitleTrackLanguage = i.SubtitleTrackLanguage, DownloadedSubtitleLanguages = i.DownloadedSubtitleLanguages,
         AddThumbnail = i.AddThumbnail, IncludeChapters = i.IncludeChapters, OutputFolder = i.OutputFolder, FileBaseName = i.FileBaseName,
         PlaylistGroupId = i.PlaylistGroupId, PlaylistUrl = i.PlaylistUrl, PlaylistTitle = i.PlaylistTitle, PlaylistIndex = i.PlaylistIndex, PlaylistCount = i.PlaylistCount,
         FilePath = i.FilePath, Error = i.Error, Status = i.Status, TotalBytes = i.TotalBytes, Progress = i.Progress,
