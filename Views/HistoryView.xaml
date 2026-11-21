@@ -169,7 +169,7 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                   <TextBlock Text="{Binding PlaylistIndex}" Foreground="{StaticResource TextMuted}" FontSize="11"/>
                   <TextBlock Text="{Binding PlaylistVideoDisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                  <TextBlock Text="{Binding Details}" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                  <TextBlock Text="{Binding DisplayDetails}" Foreground="{StaticResource TextMuted}" FontSize="12"/>
                 </StackPanel>
                 <Border Grid.Column="2" Background="{Binding StatusBg}" CornerRadius="6" Padding="9,4" HorizontalAlignment="Left" VerticalAlignment="Center">
                   <TextBlock Text="{Binding StatusText}" Foreground="{Binding StatusFg}" FontSize="12" FontWeight="SemiBold"/>
