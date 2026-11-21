@@ -492,7 +492,13 @@ public static class YtDlpService
             ct.ThrowIfCancellationRequested();
             created += await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection, format);
         }
-        if (created == 0) throw new InvalidOperationException("YouTube did not provide any of the selected subtitle tracks or formats for this video.");
+        if (created == 0)
+        {
+            string selectedTracks = string.Join(", ", selections);
+            string selectedFormats = string.Join(", ", formats.Select(f => f.ToUpperInvariant()));
+            throw new InvalidOperationException(
+                $"No subtitle files were downloaded for '{item.Title}'. The video may not provide the selected caption language(s) [{selectedTracks}] or may not support the requested output format(s) [{selectedFormats}]. Try another available language or format. See subtitle-warnings.log for yt-dlp details.");
+        }
         item.FilePath = item.OutputFolder;
     }
 
