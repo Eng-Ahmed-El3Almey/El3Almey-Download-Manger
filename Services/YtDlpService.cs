@@ -461,8 +461,9 @@ public static class YtDlpService
             .ToArray();
 
         var formats = (item.SubtitleFormats ?? "VTT").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Where(f => new[] { "srt", "vtt", "ass", "lrc" }.Contains(f, StringComparer.OrdinalIgnoreCase))
-            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            .Select(f => f.ToLowerInvariant())
+            .Where(f => new[] { "srt", "vtt", "ass", "lrc" }.Contains(f, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal).ToArray();
         if (formats.Length == 0) formats = new[] { "vtt" };
         foreach (var selection in selections)
         foreach (var format in formats)
@@ -481,8 +482,9 @@ public static class YtDlpService
         var selections = (item.SubtitleTrackLanguage ?? "none").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(x => !x.Equals("none", StringComparison.OrdinalIgnoreCase)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         var formats = (item.SubtitleFormats ?? "SRT").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Where(f => new[] { "srt", "vtt", "ass", "lrc" }.Contains(f, StringComparer.OrdinalIgnoreCase))
-            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            .Select(f => f.ToLowerInvariant())
+            .Where(f => new[] { "srt", "vtt", "ass", "lrc" }.Contains(f, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal).ToArray();
         if (selections.Length == 0) throw new InvalidOperationException("Select at least one subtitle language.");
         if (formats.Length == 0) throw new InvalidOperationException("Select at least one subtitle format.");
         int created = 0;
