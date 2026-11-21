@@ -109,7 +109,7 @@
      </Border>
      <Border Grid.Row="2" Background="#081426" BorderBrush="#263B59" BorderThickness="1" CornerRadius="8" Padding="10">
       <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-       <DockPanel Margin="1,0,1,9"><TextBlock Text="TECHNICAL LOG" Foreground="#AFC4E1" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/><Button Content="Copy Details" Click="Copy_Click" DockPanel.Dock="Right" Padding="10,5" Background="#18345A"/></DockPanel>
+       <DockPanel Margin="1,0,1,9" LastChildFill="False"><TextBlock Text="TECHNICAL LOG" Foreground="#AFC4E1" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/><Button Content="Copy Details" Click="Copy_Click" DockPanel.Dock="Right" HorizontalAlignment="Right" MinWidth="104" Padding="10,5" Background="#18345A"/></DockPanel>
        <TextBox x:Name="RawDetails" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0" Padding="2" FontFamily="Consolas" FontSize="12" Foreground="#C7D6EA"/>
       </Grid>
      </Border>
