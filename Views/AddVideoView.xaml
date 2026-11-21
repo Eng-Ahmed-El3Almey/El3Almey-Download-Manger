@@ -335,7 +335,7 @@
           <TextBlock Text="Download task" FontSize="18" FontWeight="SemiBold" Margin="0,24,0,12"/>
           <Grid>
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-            <RadioButton Style="{StaticResource TypeCard}" GroupName="taskmode" IsChecked="{Binding IsSubtitleOnly, Converter={StaticResource InverseBooleanConverter}, Mode=TwoWay}" IsEnabled="{Binding HasContent}">
+            <RadioButton Style="{StaticResource TypeCard}" GroupName="taskmode" IsChecked="{Binding IsMediaDownload, Mode=TwoWay}" IsEnabled="{Binding HasContent}">
               <StackPanel Orientation="Horizontal"><Border Width="48" Height="48" CornerRadius="24" Background="#1B2B4B"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;" FontSize="22" Foreground="White"/></Border><StackPanel Margin="14,0,0,0" VerticalAlignment="Center"><TextBlock Text="Video / Audio + Subtitles" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Download media with optional captions" Style="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0"/></StackPanel></StackPanel>
             </RadioButton>
             <RadioButton Grid.Column="2" Style="{StaticResource TypeCard}" GroupName="taskmode" IsChecked="{Binding IsSubtitleOnly, Mode=TwoWay}" IsEnabled="{Binding HasContent}">
@@ -488,7 +488,7 @@
               </StackPanel>
               <TextBlock Text="Original Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
               <ItemsControl ItemsSource="{Binding OriginalSubtitleTracks}">
-                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding HasContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
+                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding DataContext.HasContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
               </ItemsControl>
               <TextBlock Text="Generated Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,12,0,8"/>
               <ItemsControl ItemsSource="{Binding AutoTranslatedSubtitleTracks}">
