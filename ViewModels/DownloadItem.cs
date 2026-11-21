@@ -20,7 +20,7 @@ public partial class DownloadItem : ObservableObject
     public TimeSpan? Duration { get; set; }
     public string AudioTrackLanguage { get; set; } = "default";
     public string SubtitleTrackLanguage { get; set; } = "none";
-    public string DownloadedSubtitleLanguages { get; set; } = "";
+    [ObservableProperty] private string _downloadedSubtitleLanguages = "";
     public bool AddThumbnail { get; set; }
     public bool IncludeChapters { get; set; }
     public string OutputFolder { get; set; } = "";
