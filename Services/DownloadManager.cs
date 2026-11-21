@@ -15,6 +15,8 @@ public class DownloadRecord
     public string? Thumbnail { get; set; }
     public string Details { get; set; } = "";
     public bool IsAudio { get; set; }
+    public bool IsSubtitleOnly { get; set; }
+    public string SubtitleFormats { get; set; } = "VTT";
     public int Height { get; set; }
     public int Kbps { get; set; }
     public string Format { get; set; } = "MP4";
@@ -83,7 +85,7 @@ public class DownloadManager
                 var it = new DownloadItem
                 {
                     Id = r.Id, Title = r.Title, Url = r.Url, VideoId = r.VideoId, Thumbnail = r.Thumbnail,
-                    Details = r.Details, IsAudio = r.IsAudio, Height = r.Height, Kbps = r.Kbps, Format = r.Format, Duration = r.Duration,
+                    Details = r.Details, IsAudio = r.IsAudio, IsSubtitleOnly = r.IsSubtitleOnly, SubtitleFormats = r.SubtitleFormats, Height = r.Height, Kbps = r.Kbps, Format = r.Format, Duration = r.Duration,
                     AudioTrackLanguage = r.AudioTrackLanguage, SubtitleTrackLanguage = r.SubtitleTrackLanguage,
                     AddThumbnail = r.AddThumbnail, IncludeChapters = r.IncludeChapters, OutputFolder = r.OutputFolder, FileBaseName = r.FileBaseName,
                     PlaylistGroupId = r.PlaylistGroupId, PlaylistUrl = r.PlaylistUrl, PlaylistTitle = r.PlaylistTitle, PlaylistIndex = r.PlaylistIndex, PlaylistCount = r.PlaylistCount,
@@ -108,7 +110,7 @@ public class DownloadManager
     List<DownloadRecord> CreateSnapshot() => Items.Select(i => new DownloadRecord
     {
         Id = i.Id, Title = i.Title, Url = i.Url, VideoId = i.VideoId, Thumbnail = i.Thumbnail,
-        Details = i.Details, IsAudio = i.IsAudio, Height = i.Height, Kbps = i.Kbps, Format = i.Format, Duration = i.Duration,
+        Details = i.Details, IsAudio = i.IsAudio, IsSubtitleOnly = i.IsSubtitleOnly, SubtitleFormats = i.SubtitleFormats, Height = i.Height, Kbps = i.Kbps, Format = i.Format, Duration = i.Duration,
         AudioTrackLanguage = i.AudioTrackLanguage, SubtitleTrackLanguage = i.SubtitleTrackLanguage,
         AddThumbnail = i.AddThumbnail, IncludeChapters = i.IncludeChapters, OutputFolder = i.OutputFolder, FileBaseName = i.FileBaseName,
         PlaylistGroupId = i.PlaylistGroupId, PlaylistUrl = i.PlaylistUrl, PlaylistTitle = i.PlaylistTitle, PlaylistIndex = i.PlaylistIndex, PlaylistCount = i.PlaylistCount,
