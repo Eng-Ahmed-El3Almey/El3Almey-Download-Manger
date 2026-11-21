@@ -114,6 +114,7 @@ public partial class AddVideoViewModel : ObservableObject
     public bool IsSingleVideoMode => IsVideoMode && !IsPlaylistMode;
     public bool HasContent => IsVideoMode || IsPlaylistMode;
     public bool IsVideo { get => !IsAudio; set { if (value) IsAudio = false; } }
+    public bool IsMediaDownload { get => !IsSubtitleOnly; set => IsSubtitleOnly = !value; }
     public bool CanDownload => HasContent
         && (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null)
         && (!IsPlaylistMode || SelectedEntries > 0);
