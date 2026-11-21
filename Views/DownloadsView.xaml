@@ -285,7 +285,7 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="120"/><ColumnDefinition Width="88"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
                 <StackPanel><TextBlock Text="{Binding PlaylistIndex}" Foreground="{StaticResource TextMuted}"/>
                   <TextBlock Text="{Binding PlaylistVideoDisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                  <TextBlock Text="{Binding Details}" Foreground="{StaticResource TextMuted}" FontSize="12"/></StackPanel>
+                  <TextBlock Text="{Binding DisplayDetails}" Foreground="{StaticResource TextMuted}" FontSize="12"/></StackPanel>
                 <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="{Binding StatusFg}" VerticalAlignment="Center"/>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center"><TextBlock Text="{Binding ProgressText}" Margin="0,0,0,5"/><ProgressBar Value="{Binding Progress}"/></StackPanel>
                 <Button Grid.Column="3" Style="{StaticResource IconBtn}" Width="38" Height="34" Padding="0" Margin="0,0,6,0"
