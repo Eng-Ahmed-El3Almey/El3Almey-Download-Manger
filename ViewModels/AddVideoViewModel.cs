@@ -785,7 +785,6 @@ public partial class AddVideoViewModel : ObservableObject
             SubtitleTrackLanguage = string.Join(";", OriginalSubtitleTracks.Concat(AutoTranslatedSubtitleTracks)
                 .Where(t => t.IsSelected).Select(t => t.Id).Distinct(StringComparer.OrdinalIgnoreCase)),
             SubtitleFormats = string.Join(";", SubtitleFormats.Where(f => f.IsSelected).Select(f => f.Format)),
-            IsSubtitleOnly = IsSubtitleOnly,
             IncludeChapters = !IsAudio && IncludeChapters,
             OutputFolder = folder, FileBaseName = baseName, Details = IsSubtitleOnly ? "Subtitles only" : details, TotalBytes = IsSubtitleOnly ? 0 : total, Duration = duration,
             PlaylistGroupId = playlistGroupId, PlaylistUrl = r.IsPlaylist ? Url : "", PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
