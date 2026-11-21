@@ -3,16 +3,25 @@ using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace El3Almey.Services;
 
-public sealed class MediaTrackOption
+public partial class MediaTrackOption : ObservableObject
 {
     public string Id { get; init; } = "";
     public string Language { get; init; } = "";
     public string Label { get; init; } = "";
     public bool IsDefault { get; init; }
+    [ObservableProperty] private bool _isSelected;
     public override string ToString() => Label;
+}
+
+public partial class SubtitleFormatOption : ObservableObject
+{
+    public string Format { get; init; } = "SRT";
+    [ObservableProperty] private bool _isSelected;
+    public string Label => Format;
 }
 
 public sealed class MediaTrackInfo
@@ -360,6 +369,12 @@ public static class YtDlpService
     {
         var exe = await EnsureAsync(ct);
         Directory.CreateDirectory(item.OutputFolder);
+        if (item.IsSubtitleOnly)
+        {
+            await DownloadSubtitlesOnlyAsync(item, exe, ct);
+            item.Progress = 100;
+            return;
+        }
         var workspace = TempFileService.CreateWorkspace(item.OutputFolder, item.Id);
         bool completed = false;
         try
@@ -448,25 +463,43 @@ public static class YtDlpService
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
+        var formats = (item.SubtitleFormats ?? "VTT").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(f => new[] { "srt", "vtt", "ass", "lrc" }.Contains(f, StringComparer.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        if (formats.Length == 0) formats = new[] { "vtt" };
         foreach (var selection in selections)
+        foreach (var format in formats)
         {
             try
             {
-                await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection);
+                await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection, format);
             }
-            catch (OperationCanceledException) when (ct.IsCancellationRequested)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                // A caption provider failure must never turn a successfully downloaded video into a failed download.
-                LogSubtitleResult(item, selection, -1, 0, "Subtitle exception: " + ex);
-            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+            catch (Exception ex) { LogSubtitleResult(item, selection + " [" + format + "]", -1, 0, "Subtitle exception: " + ex); }
         }
     }
 
-    static async Task DownloadSingleSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct, string selected)
+    static async Task DownloadSubtitlesOnlyAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct)
+    {
+        var selections = (item.SubtitleTrackLanguage ?? "none").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(x => !x.Equals("none", StringComparison.OrdinalIgnoreCase)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        var formats = (item.SubtitleFormats ?? "SRT").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(f => new[] { "srt", "vtt", "ass", "lrc" }.Contains(f, StringComparer.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        if (selections.Length == 0) throw new InvalidOperationException("Select at least one subtitle language.");
+        if (formats.Length == 0) throw new InvalidOperationException("Select at least one subtitle format.");
+        int created = 0;
+        foreach (var selection in selections)
+        foreach (var format in formats)
+        {
+            ct.ThrowIfCancellationRequested();
+            created += await DownloadSingleSubtitleBestEffortAsync(item, exe, ct, selection, format);
+        }
+        if (created == 0) throw new InvalidOperationException("YouTube did not provide any of the selected subtitle tracks or formats for this video.");
+        item.FilePath = item.OutputFolder;
+    }
+
+    static async Task<int> DownloadSingleSubtitleBestEffortAsync(ViewModels.DownloadItem item, string exe, CancellationToken ct, string selected, string outputFormat)
     {
         bool automatic = selected.StartsWith("auto:", StringComparison.OrdinalIgnoreCase);
         bool original = selected.StartsWith("original:", StringComparison.OrdinalIgnoreCase);
@@ -498,7 +531,8 @@ public static class YtDlpService
                 "--skip-download",
                 automatic ? "--write-auto-subs" : "--write-subs",
                 "--sub-langs", language,
-                "--sub-format", "vtt/best",
+                "--sub-format", "best",
+                "--convert-subs", outputFormat,
                 "--retries", "5",
                 "--extractor-retries", "5",
                 "--retry-sleep", "http:exp=5:60",
@@ -544,8 +578,9 @@ public static class YtDlpService
                 movedCount++;
             }
 
-            LogSubtitleResult(item, selected, exitCode, movedCount,
+            LogSubtitleResult(item, selected + " [" + outputFormat + "]", exitCode, movedCount,
                 $"yt-dlp subtitle output. stderr: {stderr}{Environment.NewLine}stdout: {stdout}");
+            return movedCount;
         }
         finally
         {
