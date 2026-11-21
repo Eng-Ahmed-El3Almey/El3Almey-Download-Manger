@@ -583,6 +583,21 @@ public static class YtDlpService
                 movedCount++;
             }
 
+            if (movedCount > 0)
+            {
+                string languageName = GetLanguageName(language);
+                string kind = automatic ? "Generated" : original ? "Original" : "Subtitle";
+                string displayName = $"{languageName} ({kind})";
+                var downloaded = (item.DownloadedSubtitleLanguages ?? "")
+                    .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .ToList();
+                if (!downloaded.Contains(displayName, StringComparer.OrdinalIgnoreCase))
+                {
+                    downloaded.Add(displayName);
+                    item.DownloadedSubtitleLanguages = string.Join("; ", downloaded);
+                }
+            }
+
             LogSubtitleResult(item, selected + " [" + outputFormat + "]", exitCode, movedCount,
                 $"yt-dlp subtitle output. stderr: {stderr}{Environment.NewLine}stdout: {stdout}");
             return movedCount;
