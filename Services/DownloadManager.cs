@@ -216,7 +216,7 @@ public class DownloadManager
             children.FirstOrDefault(x => x.IsPlaylistRepresentative)?.UpdatePlaylistSummary(children);
         }
         if (e.PropertyName == nameof(DownloadItem.Status)) { ScheduleSave(); Changed?.Invoke(); }
-        else if (e.PropertyName == nameof(DownloadItem.Progress)) ScheduleSave();
+        else if (e.PropertyName == nameof(DownloadItem.Progress) || e.PropertyName == nameof(DownloadItem.DownloadedSubtitleLanguages)) ScheduleSave();
     }
 
     // ------------------------------------------------------------ commands
