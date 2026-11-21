@@ -82,7 +82,7 @@
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <Border x:Name="DownloadRow" Height="72" BorderBrush="#263957" BorderThickness="0,0,0,1" PreviewMouseRightButtonDown="DownloadRow_PreviewMouseRightButtonDown" MouseLeftButtonDown="PlaylistRow_MouseLeftButtonDown">
+                  <Border x:Name="DownloadRow" Height="72" BorderBrush="#263957" BorderThickness="0,0,0,1" PreviewMouseRightButtonDown="DownloadRow_PreviewMouseRightButtonDown" MouseLeftButtonDown="PlaylistRow_MouseLeftButtonDown" ToolTip="{Binding HoverInfo}" ToolTipService.InitialShowDelay="400" ToolTipService.ShowDuration="20000">
                     <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="#263957"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#1A3155"/><Setter Property="BorderBrush" Value="#4A9BFF"/></Trigger></Style.Triggers></Style></Border.Style>
                     <Grid>
                       <Grid.ColumnDefinitions>
