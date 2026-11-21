@@ -15,6 +15,7 @@ public partial class DownloadItem : ObservableObject
     public int Height { get; set; } = 1080;
     public int Kbps { get; set; } = 192;
     public string Format { get; set; } = "MP4";
+    public TimeSpan? Duration { get; set; }
     public string AudioTrackLanguage { get; set; } = "default";
     public string SubtitleTrackLanguage { get; set; } = "none";
     public bool AddThumbnail { get; set; }
@@ -33,6 +34,31 @@ public partial class DownloadItem : ObservableObject
     public bool CanShowPrimaryAction => IsPlaylistRepresentative ? PlaylistCompletedCount < PlaylistCount : Status != DownloadStatus.Failed;
     public string PlaylistTotalSizeText => IsPlaylistRepresentative && PlaylistTotalBytes > 0 ? $"Total {Fmt.Bytes(PlaylistTotalBytes)}" : "";
     public long PlaylistTotalBytes { get; private set; }
+    public TimeSpan? PlaylistTotalDuration { get; private set; }
+    public int PlaylistFileCount { get; private set; }
+    public string HoverInfo
+    {
+        get
+        {
+            string title = DisplayTitle;
+            long bytes = IsPlaylistRepresentative ? PlaylistTotalBytes : TotalBytes;
+            TimeSpan? duration = IsPlaylistRepresentative ? PlaylistTotalDuration : Duration;
+            string quality = IsAudio ? $"{Format} • {Kbps} kbps" : $"{Format} • {Height}p";
+            string path = IsPlaylistRepresentative ? OutputFolder : GetDisplayPath();
+            var lines = new List<string> { $"Title: {title}", $"Size: {(bytes > 0 ? Fmt.Bytes(bytes) : "—")}",
+                $"Duration: {(duration.HasValue ? Fmt.Duration(duration) : "—")}", $"Quality: {quality}", $"Path: {path}" };
+            if (IsPlaylistRepresentative) lines.Add($"File Count: {PlaylistFileCount}");
+            return string.Join(Environment.NewLine, lines);
+        }
+    }
+
+    string GetDisplayPath()
+    {
+        if (!string.IsNullOrWhiteSpace(FilePath)) return FilePath;
+        string extension = (Format ?? "").Trim().TrimStart('.').ToLowerInvariant();
+        string name = string.IsNullOrWhiteSpace(FileBaseName) ? Title : FileBaseName;
+        return string.IsNullOrWhiteSpace(OutputFolder) ? name : Path.Combine(OutputFolder, name + (extension.Length > 0 ? "." + extension : ""));
+    }
     public string DisplayTitle => IsPlaylistRepresentative ? PlaylistTitle : (IsPlaylist && PlaylistIndex > 0 && !string.IsNullOrWhiteSpace(FileBaseName) ? FileBaseName : Title);
     public string PlaylistVideoDisplayTitle => IsPlaylist && PlaylistIndex > 0 && !string.IsNullOrWhiteSpace(FileBaseName) ? FileBaseName : Title;
     public string DisplayDetails => IsPlaylistRepresentative ? $"Playlist • {PlaylistCount} videos • {Details}" : (IsPlaylist && !string.Equals(FileBaseName, Title, StringComparison.Ordinal) ? $"{Details} • {FileBaseName}" : Details);
@@ -58,6 +84,8 @@ public partial class DownloadItem : ObservableObject
         PlaylistCompletedCount = children.Count(x => x.Status == DownloadStatus.Completed);
         PlaylistFailedCount = children.Count(x => x.Status == DownloadStatus.Failed);
         PlaylistTotalBytes = children.Sum(x => Math.Max(0, x.TotalBytes));
+        PlaylistTotalDuration = children.Any(x => x.Duration.HasValue) ? TimeSpan.FromSeconds(children.Sum(x => x.Duration?.TotalSeconds ?? 0)) : null;
+        PlaylistFileCount = children.Count;
         _displayStatusText = children.All(x => x.Status == DownloadStatus.Completed) ? Loc.T("S.St.Completed")
             : children.Any(x => x.Status == DownloadStatus.Downloading) ? Loc.T("S.St.Downloading")
             : children.Any(x => x.Status == DownloadStatus.Failed) ? Loc.T("S.St.Failed")
@@ -73,7 +101,7 @@ public partial class DownloadItem : ObservableObject
             : children.Any(x => x.Status == DownloadStatus.Queued) ? B("#2A1F57") : B("#3D2A10");
         OnPropertyChanged(nameof(DisplayProgress)); OnPropertyChanged(nameof(DisplayProgressText));
         OnPropertyChanged(nameof(DisplayStatusText)); OnPropertyChanged(nameof(DisplayStatusFg));
-        OnPropertyChanged(nameof(PlaylistTotalSizeText)); OnPropertyChanged(nameof(HistorySizeText)); OnPropertyChanged(nameof(CanOpenPlaylist));
+        OnPropertyChanged(nameof(PlaylistTotalSizeText)); OnPropertyChanged(nameof(HistorySizeText)); OnPropertyChanged(nameof(CanOpenPlaylist)); OnPropertyChanged(nameof(HoverInfo));
         OnPropertyChanged(nameof(CanRetry)); OnPropertyChanged(nameof(CanRetryPlaylist)); OnPropertyChanged(nameof(CanShowPrimaryAction)); OnPropertyChanged(nameof(PrimaryIcon)); OnPropertyChanged(nameof(PrimaryActionTooltip));
     }
     public bool WantsStart { get; set; }
@@ -149,8 +177,9 @@ public partial class DownloadItem : ObservableObject
 
     public void RefreshLanguage() => OnPropertyChanged(nameof(StatusText));
 
-    partial void OnTitleChanged(string value) { OnPropertyChanged(nameof(DisplayTitle)); OnPropertyChanged(nameof(PlaylistVideoDisplayTitle)); }
+    partial void OnTitleChanged(string value) { OnPropertyChanged(nameof(DisplayTitle)); OnPropertyChanged(nameof(PlaylistVideoDisplayTitle)); OnPropertyChanged(nameof(HoverInfo)); }
     partial void OnDetailsChanged(string value) => OnPropertyChanged(nameof(DisplayDetails));
+    partial void OnFilePathChanged(string value) => OnPropertyChanged(nameof(HoverInfo));
     partial void OnStatusChanged(DownloadStatus value)
     {
         foreach (var n in new[] { nameof(StatusText), nameof(StatusFg), nameof(StatusBg), nameof(PrimaryIcon),
@@ -158,6 +187,6 @@ public partial class DownloadItem : ObservableObject
             OnPropertyChanged(n);
     }
     partial void OnProgressChanged(double value) { OnPropertyChanged(nameof(ProgressText)); OnPropertyChanged(nameof(SizeText)); OnPropertyChanged(nameof(DisplayProgress)); OnPropertyChanged(nameof(DisplayProgressText)); }
-    partial void OnTotalBytesChanged(long value) { OnPropertyChanged(nameof(SizeText)); OnPropertyChanged(nameof(TotalSizeText)); }
+    partial void OnTotalBytesChanged(long value) { OnPropertyChanged(nameof(SizeText)); OnPropertyChanged(nameof(TotalSizeText)); OnPropertyChanged(nameof(HoverInfo)); }
     partial void OnFinishedAtChanged(DateTime? value) => OnPropertyChanged(nameof(DateText));
 }
