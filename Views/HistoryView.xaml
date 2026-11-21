@@ -63,7 +63,7 @@
           <ItemsControl ItemsSource="{Binding Items}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border x:Name="HistoryRow" Height="72" BorderThickness="0,0,0,1" BorderBrush="#263957" PreviewMouseRightButtonDown="HistoryRow_PreviewMouseRightButtonDown" MouseLeftButtonDown="HistoryRow_MouseLeftButtonDown">
+                <Border x:Name="HistoryRow" Height="72" BorderThickness="0,0,0,1" BorderBrush="#263957" PreviewMouseRightButtonDown="HistoryRow_PreviewMouseRightButtonDown" MouseLeftButtonDown="HistoryRow_MouseLeftButtonDown" ToolTip="{Binding HoverInfo}" ToolTipService.InitialShowDelay="400" ToolTipService.ShowDuration="20000">
                   <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderBrush" Value="#263957"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#1A3155"/><Setter Property="BorderBrush" Value="#4A9BFF"/></Trigger></Style.Triggers></Style></Border.Style>
                   <Grid Margin="20,0,0,0">
                     <Grid.ColumnDefinitions>
@@ -160,7 +160,7 @@
       <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding PlaylistItems}">
           <ItemsControl.ItemTemplate><DataTemplate>
-            <Border Height="72" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1" Padding="8,0">
+            <Border Height="72" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1" Padding="8,0" ToolTip="{Binding HoverInfo}" ToolTipService.InitialShowDelay="400" ToolTipService.ShowDuration="20000">
               <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="76"/><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="140"/><ColumnDefinition Width="120"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
                 <Border Width="64" Height="42" CornerRadius="5" Background="#1D3358" VerticalAlignment="Center" HorizontalAlignment="Left" ClipToBounds="True">
