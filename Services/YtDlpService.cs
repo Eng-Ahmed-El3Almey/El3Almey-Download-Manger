@@ -507,7 +507,7 @@ public static class YtDlpService
             ? selected[(selected.IndexOf(':') + 1)..]
             : selected;
 
-        if (string.IsNullOrWhiteSpace(language)) return;
+        if (string.IsNullOrWhiteSpace(language)) return 0;
 
         Directory.CreateDirectory(item.OutputFolder);
         string baseName = Fmt.Sanitize(item.FileBaseName);
