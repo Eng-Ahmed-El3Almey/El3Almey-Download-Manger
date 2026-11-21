@@ -73,6 +73,12 @@ public partial class AddVideoViewModel : ObservableObject
     public ObservableCollection<MediaTrackOption> AutoTranslatedSubtitleTracks { get; } = new();
     public ObservableCollection<string> VideoFormats { get; } = new() { "MP4", "MKV" };
     public ObservableCollection<string> AudioFormats { get; } = new() { "MP3", "M4A" };
+    public ObservableCollection<SubtitleFormatOption> SubtitleFormats { get; } = new()
+    {
+        new() { Format = "SRT", IsSelected = true }, new() { Format = "VTT" }, new() { Format = "ASS" }
+    };
+
+    [ObservableProperty] private bool _isSubtitleOnly;
 
     [ObservableProperty] private string _selectedVideoFormat = "MP4";
     [ObservableProperty] private string _selectedAudioFormat = "MP3";
@@ -115,11 +121,13 @@ public partial class AddVideoViewModel : ObservableObject
     public bool HasContent => IsVideoMode || IsPlaylistMode;
     public bool IsVideo { get => !IsAudio; set { if (value) IsAudio = false; } }
     public bool IsMediaDownload { get => !IsSubtitleOnly; set => IsSubtitleOnly = !value; }
+    public bool HasSelectedSubtitles => OriginalSubtitleTracks.Any(t => t.IsSelected) || AutoTranslatedSubtitleTracks.Any(t => t.IsSelected);
+    public bool HasSelectedSubtitleFormats => SubtitleFormats.Any(f => f.IsSelected);
     public bool CanDownload => HasContent
-        && (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null)
+        && (!IsSubtitleOnly ? (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null) : HasSelectedSubtitles && HasSelectedSubtitleFormats)
         && (!IsPlaylistMode || SelectedEntries > 0);
     public bool CanDownloadAgain => IsPlaylistMode && Entries.Count > 0
-        && (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null);
+        && (!IsSubtitleOnly ? (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null) : HasSelectedSubtitles && HasSelectedSubtitleFormats);
     public string SelectedCountText => $"{SelectedEntries} / {Entries.Count} {Loc.T("S.Selected")}";
 
     public string TotalSizeText
@@ -336,6 +344,11 @@ public partial class AddVideoViewModel : ObservableObject
         SelectedAudioTrack = AudioTracks.FirstOrDefault(t => t.Id == "default") ?? AudioTracks.FirstOrDefault();
         SelectedOriginalSubtitleTrack = OriginalSubtitleTracks.FirstOrDefault(t => t.Id == "none");
         SelectedAutoTranslatedSubtitleTrack = AutoTranslatedSubtitleTracks.FirstOrDefault(t => t.Id == "none");
+        foreach (var track in OriginalSubtitleTracks.Concat(AutoTranslatedSubtitleTracks))
+            track.PropertyChanged += (_, ev) => { if (ev.PropertyName == nameof(MediaTrackOption.IsSelected)) RefreshSubtitleState(); };
+        foreach (var format in SubtitleFormats)
+            format.PropertyChanged += (_, ev) => { if (ev.PropertyName == nameof(SubtitleFormatOption.IsSelected)) RefreshSubtitleState(); };
+        IsSubtitleOnly = false;
 
         BuildQualities(r);
         UpdateEntrySizeEstimates();
@@ -445,12 +458,26 @@ public partial class AddVideoViewModel : ObservableObject
         set(opt);
     }
 
+    void RefreshSubtitleState()
+    {
+        OnPropertyChanged(nameof(HasSelectedSubtitles));
+        OnPropertyChanged(nameof(HasSelectedSubtitleFormats));
+        OnPropertyChanged(nameof(CanDownload));
+        OnPropertyChanged(nameof(CanDownloadAgain));
+    }
+
     // ------------------------------------------------------------ change notifications
     partial void OnStateChanged(LinkState value)
     {
         foreach (var n in new[] { nameof(IsLoading), nameof(HasError), nameof(IsVideoMode), nameof(IsPlaylistMode), nameof(IsSingleVideoMode), nameof(HasContent), nameof(CanDownloadAgain) })
             OnPropertyChanged(n);
         Totals();
+    }
+    partial void OnIsSubtitleOnlyChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanDownload));
+        OnPropertyChanged(nameof(CanDownloadAgain));
+        OnPropertyChanged(nameof(IsMediaDownload));
     }
     partial void OnIsAudioChanged(bool value)
     {
@@ -571,6 +598,9 @@ public partial class AddVideoViewModel : ObservableObject
         TrackPlaylistEnabled = false;
         Entries.Clear(); VideoQualities.Clear(); AudioQualities.Clear(); AudioTracks.Clear(); OriginalSubtitleTracks.Clear(); AutoTranslatedSubtitleTracks.Clear();
         SelectedVideoQuality = null; SelectedAudioQuality = null; SelectedAudioTrack = null; SelectedOriginalSubtitleTrack = null; SelectedAutoTranslatedSubtitleTrack = null;
+        IsSubtitleOnly = false;
+        foreach (var track in OriginalSubtitleTracks.Concat(AutoTranslatedSubtitleTracks)) track.IsSelected = false;
+        foreach (var format in SubtitleFormats) format.IsSelected = format.Format == "SRT";
         ErrorText = "";
         State = LinkState.Idle;
         if (!keepUrl) Url = "";
@@ -605,8 +635,8 @@ public partial class AddVideoViewModel : ObservableObject
             Kbps = SelectedAudioQuality?.Kbps ?? 192,
             Format = IsAudio ? SelectedAudioFormat : SelectedVideoFormat,
             AudioTrackLanguage = SelectedAudioTrack?.Id ?? "default",
-            SubtitleTrackLanguage = string.Join(";", new[] { SelectedOriginalSubtitleTrack?.Id, SelectedAutoTranslatedSubtitleTrack?.Id }
-                .Where(x => !string.IsNullOrWhiteSpace(x) && x != "none").Distinct(StringComparer.OrdinalIgnoreCase)),
+            SubtitleTrackLanguage = string.Join(";", OriginalSubtitleTracks.Concat(AutoTranslatedSubtitleTracks)
+                .Where(t => t.IsSelected).Select(t => t.Id).Distinct(StringComparer.OrdinalIgnoreCase)),
             IncludeChapters = !IsAudio && IncludeChapters, OutputFolder = root,
             CreateSubfolder = CreateSubfolder, NumberItems = NumberItems,
             NumberWidth = Math.Max(2, _res.Entries.Count.ToString().Length),
@@ -656,14 +686,14 @@ public partial class AddVideoViewModel : ObservableObject
             ErrorText = "All selected videos are already downloaded in this destination.";
             return;
         }
-        if (!_res!.IsPlaylist && IsDuplicate(items[0]))
+        if (!IsSubtitleOnly && !_res!.IsPlaylist && IsDuplicate(items[0]))
         {
             var decision = DuplicateFilePrompt?.Invoke(items[0].Title);
             if (decision is null) return;
             if (decision == false) return;
             items[0].FileBaseName = NextAvailableBaseName(items[0].OutputFolder, items[0].FileBaseName, items[0].Format);
         }
-        if (CreateM3U && _res?.IsPlaylist == true) WritePlaylistM3U(items);
+        if (!IsSubtitleOnly && CreateM3U && _res?.IsPlaylist == true) WritePlaylistM3U(items);
         // Register the playlist only when the user submits it for download.
         if (_res?.IsPlaylist == true && TrackPlaylistEnabled) SaveTrackedPlaylist();
         // Queue first, then navigate. All progress callbacks are marshalled to the UI dispatcher.
@@ -746,12 +776,14 @@ public partial class AddVideoViewModel : ObservableObject
         {
             VideoId = id, Title = title, Thumbnail = YouTubeService.Thumb(id, "mqdefault"),
             Url = $"https://www.youtube.com/watch?v={id}",
-            IsAudio = IsAudio, Height = h, Kbps = k, Format = IsAudio ? SelectedAudioFormat : SelectedVideoFormat, AddThumbnail = IsAudio,
+            IsAudio = IsAudio, IsSubtitleOnly = IsSubtitleOnly, Height = h, Kbps = k, Format = IsAudio ? SelectedAudioFormat : SelectedVideoFormat, AddThumbnail = IsAudio,
             AudioTrackLanguage = SelectedAudioTrack?.Id ?? "default",
-            SubtitleTrackLanguage = string.Join(";", new[] { SelectedOriginalSubtitleTrack?.Id, SelectedAutoTranslatedSubtitleTrack?.Id }
-                .Where(id => !string.IsNullOrWhiteSpace(id) && id != "none").Distinct(StringComparer.OrdinalIgnoreCase)),
+            SubtitleTrackLanguage = string.Join(";", OriginalSubtitleTracks.Concat(AutoTranslatedSubtitleTracks)
+                .Where(t => t.IsSelected).Select(t => t.Id).Distinct(StringComparer.OrdinalIgnoreCase)),
+            SubtitleFormats = string.Join(";", SubtitleFormats.Where(f => f.IsSelected).Select(f => f.Format)),
+            IsSubtitleOnly = IsSubtitleOnly,
             IncludeChapters = !IsAudio && IncludeChapters,
-            OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total, Duration = duration,
+            OutputFolder = folder, FileBaseName = baseName, Details = IsSubtitleOnly ? "Subtitles only" : details, TotalBytes = IsSubtitleOnly ? 0 : total, Duration = duration,
             PlaylistGroupId = playlistGroupId, PlaylistUrl = r.IsPlaylist ? Url : "", PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
         };
 
@@ -774,8 +806,8 @@ public partial class AddVideoViewModel : ObservableObject
                 && !string.IsNullOrWhiteSpace(old.FilePath) && File.Exists(old.FilePath));
             string proposedName = NumberItems ? $"{e.Index.ToString().PadLeft(width, '0')} - {e.Title}" : e.Title;
             bool fileExists = HasExistingMediaFile(folder, proposedName);
-            if ((alreadyCompleted || fileExists) && !downloadAgain) continue;
-            if (downloadAgain && (alreadyCompleted || fileExists))
+            if (!IsSubtitleOnly && (alreadyCompleted || fileExists) && !downloadAgain) continue;
+            if (!IsSubtitleOnly && downloadAgain && (alreadyCompleted || fileExists))
                 proposedName = NextAvailableBaseName(folder, proposedName, IsAudio ? SelectedAudioFormat : SelectedVideoFormat);
             playlistIndex++;
             long total = IsAudio ? (long)((e.Duration?.TotalSeconds ?? 0) * k * 125) : EstimateVideoBytes(e.Duration, h, e);
