@@ -122,6 +122,8 @@ public partial class AddVideoViewModel : ObservableObject
     public bool IsVideo { get => !IsAudio; set { if (value) IsAudio = false; } }
     public bool IsMediaDownload { get => !IsSubtitleOnly; set => IsSubtitleOnly = !value; }
     public bool HasSelectedSubtitles => OriginalSubtitleTracks.Any(t => t.IsSelected) || AutoTranslatedSubtitleTracks.Any(t => t.IsSelected);
+    public string SelectedOriginalSubtitleLanguages => string.Join(", ", OriginalSubtitleTracks.Where(t => t.IsSelected).Select(t => t.Label));
+    public string SelectedGeneratedSubtitleLanguages => string.Join(", ", AutoTranslatedSubtitleTracks.Where(t => t.IsSelected).Select(t => t.Label));
     public bool HasSelectedSubtitleFormats => SubtitleFormats.Any(f => f.IsSelected);
     public bool CanDownload => HasContent
         && (!IsSubtitleOnly ? (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null) && (!HasSelectedSubtitles || HasSelectedSubtitleFormats) : HasSelectedSubtitles && HasSelectedSubtitleFormats)
@@ -460,6 +462,8 @@ public partial class AddVideoViewModel : ObservableObject
 
     void RefreshSubtitleState()
     {
+        OnPropertyChanged(nameof(SelectedOriginalSubtitleLanguages));
+        OnPropertyChanged(nameof(SelectedGeneratedSubtitleLanguages));
         OnPropertyChanged(nameof(HasSelectedSubtitles));
         OnPropertyChanged(nameof(HasSelectedSubtitleFormats));
         OnPropertyChanged(nameof(CanDownload));
