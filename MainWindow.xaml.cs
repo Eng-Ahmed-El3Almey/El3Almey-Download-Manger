@@ -261,6 +261,8 @@ public partial class MainWindow : Window
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         var modifiers = Keyboard.Modifiers;
+        // WPF reports Alt+letter combinations as Key.System; read the actual key.
+        var pressedKey = e.Key == Key.System ? e.SystemKey : e.Key;
 
         // Ctrl+Tab / Ctrl+Shift+Tab: cycle through the main pages.
         if (e.Key == Key.Tab && modifiers.HasFlag(ModifierKeys.Control)
@@ -295,7 +297,7 @@ public partial class MainWindow : Window
 
         if (modifiers == ModifierKeys.Alt && !typing)
         {
-            switch (e.Key)
+            switch (pressedKey)
             {
                 case Key.Y: ShowYouTube(); break;
                 case Key.V: ShowVideoPlayer(); break;
