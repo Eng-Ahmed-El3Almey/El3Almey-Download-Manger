@@ -475,6 +475,10 @@ public partial class AddVideoViewModel : ObservableObject
     }
     partial void OnIsSubtitleOnlyChanged(bool value)
     {
+        if (value && IsPlaylistMode)
+        {
+            foreach (var entry in Entries) entry.IsSelected = true;
+        }
         OnPropertyChanged(nameof(CanDownload));
         OnPropertyChanged(nameof(CanDownloadAgain));
         OnPropertyChanged(nameof(IsMediaDownload));
