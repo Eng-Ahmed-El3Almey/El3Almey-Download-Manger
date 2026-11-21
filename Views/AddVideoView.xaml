@@ -331,7 +331,20 @@
             </StackPanel>
           </Border>
 
-          <!-- download type (no dropdowns) -->
+          <!-- task mode -->
+          <TextBlock Text="Download task" FontSize="18" FontWeight="SemiBold" Margin="0,24,0,12"/>
+          <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <RadioButton Style="{StaticResource TypeCard}" GroupName="taskmode" IsChecked="{Binding IsSubtitleOnly, Converter={StaticResource InverseBooleanConverter}, Mode=TwoWay}" IsEnabled="{Binding HasContent}">
+              <StackPanel Orientation="Horizontal"><Border Width="48" Height="48" CornerRadius="24" Background="#1B2B4B"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;" FontSize="22" Foreground="White"/></Border><StackPanel Margin="14,0,0,0" VerticalAlignment="Center"><TextBlock Text="Video / Audio + Subtitles" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Download media with optional captions" Style="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0"/></StackPanel></StackPanel>
+            </RadioButton>
+            <RadioButton Grid.Column="2" Style="{StaticResource TypeCard}" GroupName="taskmode" IsChecked="{Binding IsSubtitleOnly, Mode=TwoWay}" IsEnabled="{Binding HasContent}">
+              <StackPanel Orientation="Horizontal"><Border Width="48" Height="48" CornerRadius="24" Background="#1B2B4B"><TextBlock Style="{StaticResource Icon}" Text="&#xE8D6;" FontSize="22" Foreground="White"/></Border><StackPanel Margin="14,0,0,0" VerticalAlignment="Center"><TextBlock Text="Subtitles Only" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="Download captions without media" Style="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0"/></StackPanel></StackPanel>
+            </RadioButton>
+          </Grid>
+
+          <StackPanel>
+          <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding IsSubtitleOnly}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
           <TextBlock Text="{DynamicResource S.ChooseType}" FontSize="18" FontWeight="SemiBold" Margin="0,24,0,12"/>
           <Grid>
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -358,6 +371,7 @@
               </StackPanel>
             </RadioButton>
           </Grid>
+          </StackPanel>
 
           <!-- additional options -->
           <Border Margin="0,18,0,0" Padding="20,16" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12">
@@ -466,16 +480,32 @@
               <TextBlock Text="Audio Track" FontSize="14" Foreground="#C9D6EE" Margin="0,0,0,8"/>
               <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AudioTracks}" SelectedItem="{Binding SelectedAudioTrack, Mode=TwoWay}" DisplayMemberPath="Label" IsEnabled="{Binding HasContent}"/>
               <TextBlock Text="Choose the source audio language. Default marks the track YouTube reports as default." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,6,0,0"/>
+              <StackPanel>
+                <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding IsSubtitleOnly}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                <TextBlock Text="Audio Track" FontSize="14" Foreground="#C9D6EE" Margin="0,0,0,8"/>
+                <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AudioTracks}" SelectedItem="{Binding SelectedAudioTrack, Mode=TwoWay}" DisplayMemberPath="Label" IsEnabled="{Binding HasContent}"/>
+                <TextBlock Text="Choose the source audio language. Default marks the track YouTube reports as default." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,6,0,0"/>
+              </StackPanel>
               <TextBlock Text="Original Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
-              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding OriginalSubtitleTracks}" SelectedItem="{Binding SelectedOriginalSubtitleTrack, Mode=TwoWay}" DisplayMemberPath="Label" IsEnabled="{Binding HasContent}"/>
+              <ItemsControl ItemsSource="{Binding OriginalSubtitleTracks}">
+                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding HasContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
               <TextBlock Text="Generated Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,12,0,8"/>
-              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AutoTranslatedSubtitleTracks}" SelectedItem="{Binding SelectedAutoTranslatedSubtitleTrack, Mode=TwoWay}" DisplayMemberPath="Label" IsEnabled="{Binding HasContent}"/>
-              <TextBlock Text="Subtitle files are saved beside the downloaded video when available." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,6,0,0"/>
+              <ItemsControl ItemsSource="{Binding AutoTranslatedSubtitleTracks}">
+                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding HasContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Text="Subtitle output formats (select one or more)" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
+              <ItemsControl ItemsSource="{Binding SubtitleFormats}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,0,18,0"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Text="You can select multiple languages and formats. Playlist subtitles are saved beside each video's output." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,8,0,0"/>
             </StackPanel>
           </Border>
 
           <Border Margin="0,14,0,0" Padding="16" Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="12">
             <StackPanel>
+              <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding IsSubtitleOnly}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
               <TextBlock Text="Output format" FontSize="14" Foreground="#C9D6EE" Margin="0,0,0,8"/>
               <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding VideoFormats}" SelectedItem="{Binding SelectedVideoFormat, Mode=TwoWay}">
                 <ComboBox.Style>
