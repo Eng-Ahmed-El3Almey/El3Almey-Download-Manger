@@ -485,14 +485,14 @@
               </StackPanel>
               <TextBlock Text="Original Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
               <Grid Height="40">
-                <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding OriginalSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="False" ToolTip="{Binding SelectedOriginalSubtitleLanguages}">
+                <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding OriginalSubtitleTracks}" SelectionChanged="OriginalSubtitleCombo_SelectionChanged" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="False" ToolTip="{Binding SelectedOriginalSubtitleLanguages}">
                   <ComboBox.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsHitTestVisible="True" Focusable="False" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
                 <TextBlock Text="{Binding SelectedOriginalSubtitleLanguages, Mode=OneWay}" Margin="12,0,36,0" VerticalAlignment="Center" Foreground="#E7EEFF" FontSize="13" TextTrimming="CharacterEllipsis" IsHitTestVisible="False" ToolTip="{Binding SelectedOriginalSubtitleLanguages}"/>
               </Grid>
               <TextBlock Text="Generated Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,12,0,8"/>
               <Grid Height="40">
-                <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AutoTranslatedSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="False" ToolTip="{Binding SelectedGeneratedSubtitleLanguages}">
+                <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AutoTranslatedSubtitleTracks}" SelectionChanged="GeneratedSubtitleCombo_SelectionChanged" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="False" ToolTip="{Binding SelectedGeneratedSubtitleLanguages}">
                   <ComboBox.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsHitTestVisible="True" Focusable="False" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
                 <TextBlock Text="{Binding SelectedGeneratedSubtitleLanguages, Mode=OneWay}" Margin="12,0,36,0" VerticalAlignment="Center" Foreground="#E7EEFF" FontSize="13" TextTrimming="CharacterEllipsis" IsHitTestVisible="False" ToolTip="{Binding SelectedGeneratedSubtitleLanguages}"/>
