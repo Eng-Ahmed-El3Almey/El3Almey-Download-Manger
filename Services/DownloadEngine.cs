@@ -123,6 +123,11 @@ public static class DownloadEngine
     {
         Directory.CreateDirectory(it.OutputFolder);
         // Run the two first-run setup tasks concurrently; the app startup warm-up shares the same gates.
+        if (it.IsSubtitleOnly)
+        {
+            await YtDlpService.DownloadAsync(it, "", ct, p => ReportProgress(it, p));
+            return;
+        }
         var ffmpegTask = EnsureFfmpegAsync(s.FfmpegPath, ct);
         var ytDlpTask = YtDlpService.EnsureAsync(ct);
         await Task.WhenAll(ffmpegTask, ytDlpTask);
