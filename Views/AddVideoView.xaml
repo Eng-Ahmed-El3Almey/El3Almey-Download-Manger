@@ -484,20 +484,18 @@
                 <TextBlock Text="Choose the source audio language. Default marks the track YouTube reports as default." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,6,0,0"/>
               </StackPanel>
               <TextBlock Text="Original Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
-              <ItemsControl ItemsSource="{Binding OriginalSubtitleTracks}">
-                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding DataContext.HasContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
-              </ItemsControl>
+              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding OriginalSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="True">
+                <ComboBox.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsHitTestVisible="True" Focusable="False" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ComboBox.ItemTemplate>
+              </ComboBox>
               <TextBlock Text="Generated Subtitles" FontSize="14" Foreground="#C9D6EE" Margin="0,12,0,8"/>
-              <ItemsControl ItemsSource="{Binding AutoTranslatedSubtitleTracks}">
-                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding DataContext.HasContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
-              </ItemsControl>
+              <ComboBox Height="40" Padding="8,4" ItemsSource="{Binding AutoTranslatedSubtitleTracks}" IsEnabled="{Binding HasContent}" MaxDropDownHeight="280" IsTextSearchEnabled="True">
+                <ComboBox.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsHitTestVisible="True" Focusable="False" Margin="2,3"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ComboBox.ItemTemplate>
+              </ComboBox>
               <TextBlock Text="Subtitle output formats (select one or more)" FontSize="14" Foreground="#C9D6EE" Margin="0,14,0,8"/>
-              <Border Background="#0B1730" BorderBrush="#263B60" BorderThickness="1" CornerRadius="8" Padding="10">
-                <ItemsControl ItemsSource="{Binding SubtitleFormats}">
-                  <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                  <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="2,4"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </Border>
+              <ItemsControl ItemsSource="{Binding SubtitleFormats}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate><DataTemplate><CheckBox Style="{StaticResource WhiteSelectionCheckBox}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="2,4,16,4"><TextBlock Text="{Binding Label}" FontSize="13"/></CheckBox></DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
               <TextBlock Text="You can select multiple languages and formats. Playlist subtitles are saved beside each video's output." FontSize="11" Foreground="#8193B4" TextWrapping="Wrap" Margin="0,8,0,0"/>
             </StackPanel>
           </Border>
