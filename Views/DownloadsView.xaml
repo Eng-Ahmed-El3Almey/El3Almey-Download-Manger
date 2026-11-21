@@ -280,7 +280,7 @@
       <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding PlaylistItems}">
           <ItemsControl.ItemTemplate><DataTemplate>
-            <Border BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1" Padding="8">
+            <Border BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1" Padding="8" ToolTip="{Binding HoverInfo}" ToolTipService.InitialShowDelay="400" ToolTipService.ShowDuration="20000">
               <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="130"/><ColumnDefinition Width="120"/><ColumnDefinition Width="88"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions>
                 <StackPanel><TextBlock Text="{Binding PlaylistIndex}" Foreground="{StaticResource TextMuted}"/>
