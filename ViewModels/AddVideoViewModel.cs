@@ -124,10 +124,10 @@ public partial class AddVideoViewModel : ObservableObject
     public bool HasSelectedSubtitles => OriginalSubtitleTracks.Any(t => t.IsSelected) || AutoTranslatedSubtitleTracks.Any(t => t.IsSelected);
     public bool HasSelectedSubtitleFormats => SubtitleFormats.Any(f => f.IsSelected);
     public bool CanDownload => HasContent
-        && (!IsSubtitleOnly ? (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null) : HasSelectedSubtitles && HasSelectedSubtitleFormats)
+        && (!IsSubtitleOnly ? (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null) && (!HasSelectedSubtitles || HasSelectedSubtitleFormats) : HasSelectedSubtitles && HasSelectedSubtitleFormats)
         && (!IsPlaylistMode || SelectedEntries > 0);
     public bool CanDownloadAgain => IsPlaylistMode && Entries.Count > 0
-        && (!IsSubtitleOnly ? (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null) : HasSelectedSubtitles && HasSelectedSubtitleFormats);
+        && (!IsSubtitleOnly ? (IsAudio ? SelectedAudioQuality != null : SelectedVideoQuality != null) && (!HasSelectedSubtitles || HasSelectedSubtitleFormats) : HasSelectedSubtitles && HasSelectedSubtitleFormats);
     public string SelectedCountText => $"{SelectedEntries} / {Entries.Count} {Loc.T("S.Selected")}";
 
     public string TotalSizeText
