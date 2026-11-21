@@ -105,7 +105,7 @@
                             <TextBlock Text="YouTube" FontSize="12" Style="{StaticResource Muted}" Margin="7,0,0,0"/>
                             <TextBlock Text="{Binding PlaylistTotalSizeText}" FontSize="11" Foreground="#8EBEFF" Margin="10,0,0,0" VerticalAlignment="Center"/>
                           </StackPanel>
-                          <TextBlock Text="{Binding DisplayDetails}" FontSize="12" Style="{StaticResource Muted}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" MaxWidth="350" ToolTip="{Binding Error}"/>
+                          <TextBlock Text="{Binding DisplayDetails}" FontSize="12" Style="{StaticResource Muted}" Margin="0,3,0,0" TextWrapping="NoWrap" ToolTip="{Binding Error}"/>
                         </StackPanel></Border></StackPanel>
                       </StackPanel>
 
