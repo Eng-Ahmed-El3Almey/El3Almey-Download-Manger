@@ -743,7 +743,7 @@ public partial class AddVideoViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(actualSaveFolder)) actualSaveFolder = IsAudio ? WindowsLibraryPaths.AudioFolder : WindowsLibraryPaths.VideoFolder;
         Directory.CreateDirectory(actualSaveFolder);
 
-        DownloadItem Make(string id, string title, string folder, string baseName, long total) => new()
+        DownloadItem Make(string id, string title, string folder, string baseName, long total, TimeSpan? duration) => new()
         {
             VideoId = id, Title = title, Thumbnail = YouTubeService.Thumb(id, "mqdefault"),
             Url = $"https://www.youtube.com/watch?v={id}",
@@ -752,7 +752,7 @@ public partial class AddVideoViewModel : ObservableObject
             SubtitleTrackLanguage = string.Join(";", new[] { SelectedOriginalSubtitleTrack?.Id, SelectedAutoTranslatedSubtitleTrack?.Id }
                 .Where(id => !string.IsNullOrWhiteSpace(id) && id != "none").Distinct(StringComparer.OrdinalIgnoreCase)),
             IncludeChapters = !IsAudio && IncludeChapters,
-            OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total,
+            OutputFolder = folder, FileBaseName = baseName, Details = details, TotalBytes = total, Duration = duration,
             PlaylistGroupId = playlistGroupId, PlaylistUrl = r.IsPlaylist ? Url : "", PlaylistTitle = r.IsPlaylist ? r.PlaylistTitle : "", PlaylistCount = r.IsPlaylist ? Entries.Count(e => e.IsSelected) : 0
         };
 
@@ -760,7 +760,7 @@ public partial class AddVideoViewModel : ObservableObject
         {
             long total = IsAudio ? (long)((r.Duration?.TotalSeconds ?? 0) * k * 125) : EstimateVideoBytes(r.Duration, h);
             if (total <= 0) total = SelectedVideoQuality?.SizeBytes ?? 0;
-            list.Add(Make(r.VideoId, r.Title, actualSaveFolder, r.Title, total));
+            list.Add(Make(r.VideoId, r.Title, actualSaveFolder, r.Title, total, r.Duration));
             return list;
         }
 
@@ -780,7 +780,7 @@ public partial class AddVideoViewModel : ObservableObject
                 proposedName = NextAvailableBaseName(folder, proposedName, IsAudio ? SelectedAudioFormat : SelectedVideoFormat);
             playlistIndex++;
             long total = IsAudio ? (long)((e.Duration?.TotalSeconds ?? 0) * k * 125) : EstimateVideoBytes(e.Duration, h, e);
-            var item = Make(e.Id, e.Title, folder, proposedName, total);
+            var item = Make(e.Id, e.Title, folder, proposedName, total, e.Duration);
             item.PlaylistIndex = playlistIndex;
             item.PlaylistCount = Entries.Count(e => e.IsSelected);
             list.Add(item);
